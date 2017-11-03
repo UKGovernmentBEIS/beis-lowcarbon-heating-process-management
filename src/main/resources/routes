@@ -1,0 +1,26 @@
+# Routes
+# This file defines all Business Process
+# ~~~~
+
+# Map static resources from the /public folder to the /assets URL path
+GET         /robots.txt                                        controllers.Assets.at(path="/public", file="robots.txt")
+GET         /assets/*file                                      controllers.Assets.at(path="/public", file)
+
+GET          /                                                 controllers.StartPageController.startPage
+GET         /login                                             controllers.UserController.loginForm
+POST        /login                                             controllers.UserController.loginFormSubmit
+GET         /tasks                                             controllers.TaskController.tasks
+GET         /task/:taskid/application/:appid/opportunity/:oppid  controllers.TaskController.task(taskid:LocalTaskId, appid:Long, oppid:Long )
+POST         /submit                                           controllers.TaskController.submit(taskid:LocalTaskId)
+POST         /submitAssessEligibility                          controllers.TaskController.submitAssessEligibility(taskid:LocalTaskId)
+POST         /submitAssignAssessors                            controllers.TaskController.submitAssignAssessors(taskid:LocalTaskId)
+POST         /submitAssessment                                 controllers.TaskController.submitAssessment(taskid:LocalTaskId, key: String)
+POST         /submitMakePanelDecision                          controllers.TaskController.submitMakePanelDecision(taskid:LocalTaskId)
+
+
+#GET         /opportunity/:id/section/:num                     controllers.OpportunityController.showOpportunitySection(id:OpportunityId, num:OppSectionNumber)
+#POST        /application/:id/section/:num/edit                controllers.ApplicationController.resetAndEditSection(id: ApplicationId, num:AppSectionNumber)
+
+# Health check
+#GET         /ping                                             controllers.HealthCheckController.ping()
+#GET         /version                                          controllers.HealthCheckController.version

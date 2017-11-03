@@ -1,0 +1,92 @@
+.rifs-form-buttons {
+
+  a, input, button {
+    margin-right: 1.5em;
+    margin-top: 1em;
+  }
+
+  .flat, .button--link-style {
+    line-height: 2em;
+    margin-top: 1em;
+    vertical-align: bottom;
+    display: inline-block;
+  }
+}
+
+// Buttons
+
+// Show a input element as if it was a link
+input.button--link-style {
+  @extend .font-small;
+  background: none;
+  border: 0;
+  color: $link-colour;
+  cursor: pointer;
+  margin-right: 1.5em;
+  padding: 0;
+  text-decoration: underline;
+}
+
+//file upload
+.file-upload_old {
+  background: #E4E4E4;
+  border: 2;
+  color: $link-colour;
+  cursor: pointer;
+  text-decoration: underline;
+  height: 30px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 10px;
+  vertical-align: text-middle;
+}
+
+.file-upload-field {
+  font-size: 1em;
+}
+//2nd version
+input[type="file"] {
+    display: none;
+}
+.file-upload {
+    border: 2px solid #000000;
+    background: #E4E4E4;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 1em;
+    height: 25px;
+}
+
+//file upload ends
+
+
+a.button.secondary,
+input.secondary {
+  background-color: $grey-3;
+  color: $black;
+}
+
+button.as-link {
+  background-color: transparent;
+  border: 0;
+  color: $link-colour;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1em;
+  padding: 0;
+  position: relative;
+  text-decoration: underline;
+}
+
+input.buttom--link-style {
+  @extend .font-small;
+  background: none;
+  border: 0;
+  color: $link-colour;
+  cursor: pointer;
+  margin-top: 1.5em;
+  margin-right: 1.5em;
+  padding: 0;
+  text-decoration: underline;
+}

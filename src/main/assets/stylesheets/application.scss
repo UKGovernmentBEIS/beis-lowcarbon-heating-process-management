@@ -1,0 +1,56 @@
+// Path to assets for use with the file-url function
+// in the govuk frontend toolkit's url-helpers partial
+$path: '/assets/stylesheets/images/';
+
+// Base GDS Toolkit
+// Settings (variables)
+@import 'colours';                                // Colour variables
+@import 'font_stack';                             // Font family variables
+@import 'measurements';                           // Widths and gutter variables
+
+
+// Mixins
+@import 'conditionals';                           // Media query mixin
+@import 'device-pixels';                          // Retina image mixin
+@import 'grid_layout';                            // Basic grid layout mixin
+@import 'typography';                             // Core bold and heading mixins, also external links
+@import 'shims';                                  // Inline block mixin, clearfix placeholder
+
+// Extras
+@import 'helpers'; // needed for tables.
+@import 'design-patterns/alpha-beta';
+@import 'design-patterns/buttons';
+@import 'design-patterns/breadcrumbs';
+@import 'url-helpers';
+
+// From https://github.com/alphagov/govuk_elements
+// @import '../../vendor/govuk_elements/public/sass/_govuk-elements.scss';
+@import 'elements/forms';
+@import 'elements/forms/form-validation';
+@import 'elements/forms/form-block-labels';
+@import 'elements/lists';
+@import 'elements/tables';
+@import 'elements/layout';
+@import 'elements/buttons';
+@import 'elements/elements-typography';
+@import 'elements/breadcrumbs';
+@import 'elements/panels';
+@import 'elements/details';
+@import 'elements/shame';
+
+// Taken from alphagov/static
+@import 'static/previous-and-next-navigation';
+@import 'static/tabs';
+
+// BEIS imports
+@import 'rifs/buttons';
+@import 'rifs/forms';
+@import 'rifs/general';
+@import 'rifs/gov-uk-overrides';
+@import 'rifs/lists';
+@import 'rifs/page-widgets';
+@import 'rifs/pagination';
+@import 'rifs/panels';
+@import 'rifs/preview';
+@import 'rifs/tables';
+@import 'rifs/typography';

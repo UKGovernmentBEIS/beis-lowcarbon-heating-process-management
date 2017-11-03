@@ -1,0 +1,42 @@
+@(errors : String, loginform: Form[LoginForm])
+
+@errorClass = @{
+if(errors.nonEmpty) "error" else ""
+}
+@import helper._
+@import play.api.Play.current
+@import play.api.i18n.Messages.Implicits._
+
+@main(s"Department for Business, Energy & Industrial Strategy - BEIS") {
+    @helper.form(action = routes.UserController.loginFormSubmit) {
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <div class='form-group @errorClass'>
+
+                <h1 class="heading-xlarge"> User Login </h1>
+
+                <p class="lede">
+                    Please enter your User name and Password
+                </p>
+               <table>
+                   <tr>
+                       <td width="10%"> Name </td>
+                       <td width="80%"> <input type="text" id="name" class="form-control login-text-field " title="name" name="name"  aria-label="User Name" aria-invalid="false"> </td>
+                   </tr>
+                   <tr>
+                       <td> Password </td>
+                       <td> <input type="password" id="password" class="form-control login-text-field " title="password" name="password"  aria-label="password " aria-invalid="false"> </td>
+                   </tr>
+                   <tr>
+                       <td><div class="rifs-form-buttons">
+                           <input type="submit" name="Save" class="button button--start" value="Login">
+                       </div></td>
+                       <td></td>
+                   </tr>
+               </table>
+        </div>
+    </div>
+</div>
+    }
+}

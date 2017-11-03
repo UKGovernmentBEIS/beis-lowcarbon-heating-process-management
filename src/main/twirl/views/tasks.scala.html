@@ -1,0 +1,35 @@
+@(ts: Seq[LocalTaskSummary])
+
+
+@main(s"BEIS - Business Process Management") {
+<div>
+    <h1 class="heading-xlarge">Task Management</h1>
+
+    <p class="lede">Links to all BEIS Tasks</p>
+
+    <table class="spacious">
+        <tr>
+            <th role="presentation">Task Name</th>
+            <th role="presentation">Application Title</th>
+            <th role="presentation">Status</th>
+        </tr>
+
+        @if(ts.isEmpty){
+        <tr>
+            <td> No Tasks</td>
+        </tr>
+        }
+        @for((t,i) <- ts.zipWithIndex) {
+        <tr>
+            <td>
+                    @{i+1}. <a href="/task/@t.id.id/application/@t.appId/opportunity/@t.oppId">
+                    @t.key</a>
+                </td>
+            <td>@t.appRef</td>
+            <td>@t.status</td>
+        </tr>
+        }
+    </table>
+
+</div>
+}

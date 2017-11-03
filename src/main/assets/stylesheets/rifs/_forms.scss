@@ -1,0 +1,194 @@
+// Form elements
+.form-group {
+  margin-bottom: 2.5em;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+}
+
+details {
+  margin-bottom: 1.5em;
+}
+
+input.text-field,
+textarea.form-control {
+  display: block;
+  padding: 6px;
+  width: 100%;
+}
+
+
+input.fileupload-text-field,
+textarea.form-control {
+  padding: 6px;
+  width: 50%;
+}
+
+input.address-text-field,
+textarea.form-control {
+  padding: 6px;
+  width: 80%;
+}
+
+input.contact-text-field,
+textarea.form-control {
+  padding: 6px;
+  width: 80%;
+}
+
+
+input.login-text-field,
+textarea.form-control {
+  padding: 6px;
+  width: 80%;
+}
+
+textarea.form-control {
+  height: 10em;
+}
+
+input.text-field.number {
+  text-align: center;
+  width: 3em;
+}
+
+input.text-field.currency {
+  text-align: right;
+  width: 6em;
+}
+
+.hint-text {
+  margin-top: .5em;
+}
+
+.date-selector {
+  @extend %contain-floats;
+  margin-bottom: .5em;
+
+  input {
+    display: block;
+    padding: 6px;
+    text-align: center;
+    width: 3em;
+  }
+}
+
+.form-control.year {
+  width: 4em;
+}
+
+.date-selector>div {
+  float: left;
+  margin-right: 1.5em;
+}
+
+.question {
+  margin: 0 0 1.5em;
+}
+
+.dropdown {
+  display: block;
+  padding: 6px;
+  overflow: auto;
+  margin-bottom: 1em;
+}
+
+.textarea-resize {
+  overflow: auto;
+  resize: vertical;
+}
+
+.column-half.form-spacing {
+  padding-bottom: 2em;
+  padding-left: 0;
+}
+
+.column-full.form-spacing {
+  padding-left: 0;
+}
+
+// We want this aligned right on larger screens, but on collapsed screens
+// when the sidebar moves to be underneath the first column (main content)
+// we want it to move to be left-aligned.
+@media(min-width: 641px) {
+  .pull-right-lg-only {
+    float: right;
+  }
+}
+
+@media(max-width: 640px) {
+  .pull-right-lg-only {
+    float: none;
+  }
+}
+
+
+// .input-icon: used to display a £ inside an input box
+.input-icon {
+  position: relative;
+}
+
+.input-icon > i {
+  display: block;
+  font-style: normal;
+  pointer-events: none;
+  position: absolute;
+  text-align: center;
+  top: 8px;
+  width: 25px;
+}
+
+.input-icon > input {
+  padding-left: 25px;
+  padding-right: 6px;
+}
+
+.sideHeading-highlight {
+    margin-bottom: 15px;
+    padding: .75em .75em .75em;
+    color: #fff;
+    background: #005ea5;
+    text-align: center;
+    text-decoration: none;
+    font-family: "nta", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 700;
+    text-transform: none;
+    font-size-adjust: 0.525;
+}
+
+
+.sideHeading-subhighlight {
+    margin-bottom: 5px;
+    padding: .25em .25em .25em;
+    color: #000000;
+    background: #BBD1D5;
+    text-align: center;
+    text-decoration: none;
+    font-family: "nta", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 700;
+    text-transform: none;
+    font-size-adjust: 0.525;
+}
+
+
+.sideHeading-subhighlight_B {
+    display: block;
+    margin-bottom: 5px;
+    padding: .25em .25em .25em;
+    color: #000000;
+    background: #BBD1D5;
+    text-align: center;
+    text-decoration: none;
+    font-family: "nta", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.25;
+    font-weight: 700;
+    text-transform: none;
+    font-size-adjust: 0.525;
+}

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
+  <signal id="waitingsignal" name="waitingsignal" activiti:scope="global"></signal>
+  <process id="BEISWorkFlowProcessV2" name="BEISWorkFlowProcessV2" isExecutable="true">
+    <documentation>This is workflow for BEIS Forms application</documentation>
+    <startEvent id="Start" name="Start"></startEvent>
+    <userTask id="BEIS_Review_Application" name="Review Application" activiti:assignee="approver1">
+      <extensionElements>
+        <modeler:activiti-idm-assignee xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
+        <modeler:assignee-info-email xmlns:modeler="http://activiti.com/modeler"><![CDATA[approver1@beis.gov.uk]]></modeler:assignee-info-email>
+        <modeler:assignee-info-firstname xmlns:modeler="http://activiti.com/modeler"><![CDATA[approver1]]></modeler:assignee-info-firstname>
+        <modeler:assignee-info-lastname xmlns:modeler="http://activiti.com/modeler"><![CDATA[approver1]]></modeler:assignee-info-lastname>
+        <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+      </extensionElements>
+    </userTask>
+    <userTask id="BEIS_Approve_Application" name="Approve Application" activiti:assignee="approver2">
+      <extensionElements>
+        <modeler:activiti-idm-assignee xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-assignee>
+        <modeler:assignee-info-email xmlns:modeler="http://activiti.com/modeler"><![CDATA[approver2@beis.gov.uk]]></modeler:assignee-info-email>
+        <modeler:assignee-info-firstname xmlns:modeler="http://activiti.com/modeler"><![CDATA[approver2]]></modeler:assignee-info-firstname>
+        <modeler:assignee-info-lastname xmlns:modeler="http://activiti.com/modeler"><![CDATA[approver2]]></modeler:assignee-info-lastname>
+        <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="sid-6B52A328-EB9F-4E3E-B1D0-19179DBC4FEF"></exclusiveGateway>
+    <endEvent id="End" name="End"></endEvent>
+    <receiveTask id="BEIS_Wait_Application" name="Waiting Application"></receiveTask>
+    <exclusiveGateway id="sid-A08CCADB-2AEB-4238-B823-F253D2A7EEA9"></exclusiveGateway>
+    <sequenceFlow id="waiting" name="waiting" sourceRef="sid-6B52A328-EB9F-4E3E-B1D0-19179DBC4FEF" targetRef="BEIS_Wait_Application">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvestatus == "needmoreinfo"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-951DFCC2-79BF-48C0-A665-A1E4AA56383C" sourceRef="Start" targetRef="BEIS_Review_Application"></sequenceFlow>
+    <sequenceFlow id="approve" name="approve" sourceRef="sid-6B52A328-EB9F-4E3E-B1D0-19179DBC4FEF" targetRef="BEIS_Approve_Application">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvestatus == "reviewed"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-58D16D53-A04A-45EF-B3F2-ADC560721FF3" sourceRef="BEIS_Approve_Application" targetRef="sid-A08CCADB-2AEB-4238-B823-F253D2A7EEA9"></sequenceFlow>
+    <sequenceFlow id="reject" name="reject" sourceRef="sid-6B52A328-EB9F-4E3E-B1D0-19179DBC4FEF" targetRef="End">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvestatus == "rejected"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-4BC48D8E-37AC-4BD8-AE74-01AFE455DB10" sourceRef="BEIS_Review_Application" targetRef="sid-6B52A328-EB9F-4E3E-B1D0-19179DBC4FEF"></sequenceFlow>
+    <sequenceFlow id="approvewaiting" name="waiting" sourceRef="sid-A08CCADB-2AEB-4238-B823-F253D2A7EEA9" targetRef="BEIS_Wait_Application">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvestatus == "needmoreinfo"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="inforeceived" name="Info received" sourceRef="BEIS_Wait_Application" targetRef="BEIS_Review_Application">
+      <documentation>Info received</documentation>
+    </sequenceFlow>
+    <sequenceFlow id="approvereject" name="approve or reject" sourceRef="sid-A08CCADB-2AEB-4238-B823-F253D2A7EEA9" targetRef="End">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approvestatus == "approved" or approvestatus == "rejected"}]]></conditionExpression>
+    </sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_BEISWorkFlowProcessV2">
+    <bpmndi:BPMNPlane bpmnElement="BEISWorkFlowProcessV2" id="BPMNPlane_BEISWorkFlowProcessV2">
+      <bpmndi:BPMNShape bpmnElement="Start" id="BPMNShape_Start">
+        <omgdc:Bounds height="30.0" width="30.0" x="100.0" y="171.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BEIS_Review_Application" id="BPMNShape_BEIS_Review_Application">
+        <omgdc:Bounds height="80.0" width="100.0" x="220.0" y="146.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BEIS_Approve_Application" id="BPMNShape_BEIS_Approve_Application">
+        <omgdc:Bounds height="80.0" width="100.0" x="609.0" y="146.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-6B52A328-EB9F-4E3E-B1D0-19179DBC4FEF" id="BPMNShape_sid-6B52A328-EB9F-4E3E-B1D0-19179DBC4FEF">
+        <omgdc:Bounds height="40.0" width="40.0" x="420.0" y="166.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="End" id="BPMNShape_End">
+        <omgdc:Bounds height="28.0" width="28.0" x="645.0" y="30.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BEIS_Wait_Application" id="BPMNShape_BEIS_Wait_Application">
+        <omgdc:Bounds height="80.0" width="100.0" x="390.0" y="315.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="sid-A08CCADB-2AEB-4238-B823-F253D2A7EEA9" id="BPMNShape_sid-A08CCADB-2AEB-4238-B823-F253D2A7EEA9">
+        <omgdc:Bounds height="40.0" width="40.0" x="840.0" y="166.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="sid-58D16D53-A04A-45EF-B3F2-ADC560721FF3" id="BPMNEdge_sid-58D16D53-A04A-45EF-B3F2-ADC560721FF3">
+        <omgdi:waypoint x="709.0" y="186.12406947890818"></omgdi:waypoint>
+        <omgdi:waypoint x="840.4502487562189" y="186.4502487562189"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="inforeceived" id="BPMNEdge_inforeceived">
+        <omgdi:waypoint x="390.0" y="366.0"></omgdi:waypoint>
+        <omgdi:waypoint x="270.0" y="366.0"></omgdi:waypoint>
+        <omgdi:waypoint x="270.0" y="226.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="waiting" id="BPMNEdge_waiting">
+        <omgdi:waypoint x="440.4263565891473" y="205.5736434108527"></omgdi:waypoint>
+        <omgdi:waypoint x="440.003861003861" y="315.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-4BC48D8E-37AC-4BD8-AE74-01AFE455DB10" id="BPMNEdge_sid-4BC48D8E-37AC-4BD8-AE74-01AFE455DB10">
+        <omgdi:waypoint x="320.0" y="186.1466275659824"></omgdi:waypoint>
+        <omgdi:waypoint x="420.44117647058823" y="186.44117647058823"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approve" id="BPMNEdge_approve">
+        <omgdi:waypoint x="459.54357798165137" y="186.45642201834863"></omgdi:waypoint>
+        <omgdi:waypoint x="609.0" y="186.11441647597255"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="reject" id="BPMNEdge_reject">
+        <omgdi:waypoint x="440.5" y="166.5"></omgdi:waypoint>
+        <omgdi:waypoint x="440.5" y="44.0"></omgdi:waypoint>
+        <omgdi:waypoint x="645.0" y="44.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-951DFCC2-79BF-48C0-A665-A1E4AA56383C" id="BPMNEdge_sid-951DFCC2-79BF-48C0-A665-A1E4AA56383C">
+        <omgdi:waypoint x="130.0" y="186.0"></omgdi:waypoint>
+        <omgdi:waypoint x="220.0" y="186.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approvereject" id="BPMNEdge_approvereject">
+        <omgdi:waypoint x="860.5" y="166.5"></omgdi:waypoint>
+        <omgdi:waypoint x="860.5" y="44.0"></omgdi:waypoint>
+        <omgdi:waypoint x="673.0" y="44.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="approvewaiting" id="BPMNEdge_approvewaiting">
+        <omgdi:waypoint x="860.5" y="205.5"></omgdi:waypoint>
+        <omgdi:waypoint x="860.5" y="355.0"></omgdi:waypoint>
+        <omgdi:waypoint x="490.0" y="355.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
