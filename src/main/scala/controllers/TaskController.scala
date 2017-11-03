@@ -84,13 +84,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     val members = localtasks.getMembers(s).getOrElse(Set())
     members.map(s=> s -> s).toMap
-
-    //    val membersMap = ListMap( (1 to members.size).zip(members): _*)
-//    membersMap.map(q => (q._1.toString, q._2)).toMap
   }
 
   def getMembers_(s: List[String]) : Map[String, String]={
-
     val members = localtasks.getMembers(s).getOrElse(Set())
     val membersMap = ListMap( (1 to members.size).zip(members): _*)
     membersMap.map(q => (q._1.toString, q._2)).toMap
@@ -218,44 +214,6 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     val button_action:String = if(!getValueFromRequest("save", mp ).equals("")) "save"
                               else if(!getValueFromRequest("complete", mp ).equals("")) "complete" else "save"
-
-
-    //    val projectdesccomment = request.body.asFormUrlEncoded.getOrElse(Map()).get("projectdescriptioncomment").headOption.map( _.head).getOrElse("")
-//    val projectdescweight = request.body.asFormUrlEncoded.getOrElse(Map()).get("projectdescweight").headOption.map( _.head).getOrElse("")
-//
-//    val performanceenhancement = request.body.asFormUrlEncoded.getOrElse(Map()).get("performanceenhancementoption").headOption.map( _.head).getOrElse("")
-//    val performancemanagement = request.body.asFormUrlEncoded.getOrElse(Map()).get("performancemanagementoption").headOption.map( _.head).getOrElse("")
-//    val performanceintegration = request.body.asFormUrlEncoded.getOrElse(Map()).get("performanceintegrationoption").headOption.map( _.head).getOrElse("")
-//    val performanceenhancementweight = request.body.asFormUrlEncoded.getOrElse(Map()).get("performanceenhancementweight").headOption.map( _.head).getOrElse("")
-//    val performancemanagementweight = request.body.asFormUrlEncoded.getOrElse(Map()).get("performancemanagementweight").headOption.map( _.head).getOrElse("")
-//    val performanceintegrationweight = request.body.asFormUrlEncoded.getOrElse(Map()).get("performanceintegrationweight").headOption.map( _.head).getOrElse("")
-//    val performancecomment = request.body.asFormUrlEncoded.getOrElse(Map()).get("performancecomment").headOption.map( _.head).getOrElse("")
-//
-//    val marketpotential = request.body.asFormUrlEncoded.getOrElse(Map()).get("marketpotentialoption").headOption.map( _.head).getOrElse("")
-//    val marketpotentialcomment = request.body.asFormUrlEncoded.getOrElse(Map()).get("marketpotentialcomment").headOption.map( _.head).getOrElse("")
-//    val marketpotentialweight = request.body.asFormUrlEncoded.getOrElse(Map()).get("marketpotentialweight").headOption.map( _.head).getOrElse("")
-//
-//    val projectdelivery = request.body.asFormUrlEncoded.getOrElse(Map()).get("projectdeliveryoption").headOption.map( _.head).getOrElse("")
-//    val projectdeliverycomment = request.body.asFormUrlEncoded.getOrElse(Map()).get("projectdeliverycomment").headOption.map( _.head).getOrElse("")
-//    val projectdeliveryweight = request.body.asFormUrlEncoded.getOrElse(Map()).get("projectdeliveryweight").headOption.map( _.head).getOrElse("")
-//
-//    val projectfinancing = request.body.asFormUrlEncoded.getOrElse(Map()).get("projectfinancingoption").headOption.map( _.head).getOrElse("")
-//    val projectfinancingcomment = request.body.asFormUrlEncoded.getOrElse(Map()).get("projectfinancingcomment").headOption.map( _.head).getOrElse("")
-//    val projectfinancingweight = request.body.asFormUrlEncoded.getOrElse(Map()).get("projectfinancingweight").headOption.map( _.head).getOrElse("")
-//
-//    val widerobj = request.body.asFormUrlEncoded.getOrElse(Map()).get("widerobjectiveoption").headOption.map( _.head).getOrElse("")
-//    val widerobjcomment = request.body.asFormUrlEncoded.getOrElse(Map()).get("widerobjectivecomment").headOption.map( _.head).getOrElse("")
-//    val widerobjweight = request.body.asFormUrlEncoded.getOrElse(Map()).get("widerobjectiveweight").headOption.map( _.head).getOrElse("")
-//
-//    val overallcomment = request.body.asFormUrlEncoded.getOrElse(Map()).get("overallcomment").headOption.map( _.head).getOrElse("")
-//
-//    val save_button_action = request.body.asFormUrlEncoded.getOrElse(Map()).get("save").headOption.map( _.head).getOrElse("")
-//    val complete_button_action = request.body.asFormUrlEncoded.getOrElse(Map()).get("complete").headOption.map( _.head).getOrElse("")
-//
-//
-    println("====###########=======map:-"+ save_button_action +"=====")
-    println("====###########=======map:-"+ complete_button_action+"=====")
-    println("====###########=======map:-"+ button_action+"=====")
 
     val asmtKey = key match {
       case "firstAssessment" => 1

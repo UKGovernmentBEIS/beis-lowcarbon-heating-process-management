@@ -79,11 +79,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
 
-    println("Status:-" + processEngine.getTaskService.getVariable(t.getId, "formData"))
-    println("====    t.localvar======" + t.getTaskLocalVariables)
-    println("====    t.getAssignee======" + t.getAssignee)
-    println("====    t.getOwner======" + t.getOwner)
-    println("====    t.getIdentityLinksForTask======" + taskService.getIdentityLinksForTask(t.getId))
     val v = taskService.getIdentityLinksForTask(t.getId)
     val groups = v.foldLeft(List[String]()) { (z,l) =>
       println("===users===" + l.getUserId)
@@ -124,29 +119,14 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       case Some(s) => s.asInstanceOf[Map[String, AnyRef]]
     }
 
-//    processEngine.getTaskService.getVariable(t.getId, "formData")
-//   val formData = processEngine.getTaskService.getVariable(t.getId, "formData").asInstanceOf[Map[String, AnyRef]] = Map[String, AnyRef]()
-
-
-println("111==============formData:-------"+ formData)
-
     val appId: Long = getVariable[String](runtimeService, t, "ApplicationId", "0").toLong
-
     val status: String = getVariable[String](runtimeService, t, "approvestatus", "-").capitalize
     val applicant: String = getVariable[String](runtimeService, t, "Applicant", "-")
-
     val appRef: String = getVariable[String](runtimeService, t, "ApplicationReference", "0")
-
     val oppId: Long = getVariable[String](runtimeService, t, "OpportunityId", "0").toLong
 
 
     val oppTitle = processEngine.getRuntimeService().getVariable(t.getProcessInstanceId, "OpportunityTitle").toString
-
-    for ((k,v) <- t.getTaskLocalVariables){
-
-      println("===xxxxxx ============== Key:-"+ k + ", Value:-" + v)
-    }
-
 
     Future.successful(Option(LocalTask(LocalTaskId(t.getId), key, t.getName, groups, UserId(applicant), status, appId, appRef, oppId, oppTitle, t.getDescription,
       ProcessDefinitionId(t.getProcessDefinitionId), ProcessInstanceId(t.getProcessInstanceId), tskHistories, formData
@@ -165,7 +145,6 @@ println("111==============formData:-------"+ formData)
         a :+ b.getId
       }
     }
-    println("===uuu===="+ userNames)
     Option(userNames.toSet)
   }
 
@@ -175,54 +154,18 @@ println("111==============formData:-------"+ formData)
     val processEngine = ActivitiTaskService.apply()
     val runtimeService:RuntimeService = processEngine.getRuntimeService()
     val taskService:TaskService = processEngine.getTaskService()
-    println("user========"+userId)
-    //val tasks = taskService.createTaskQuery().taskCandidateGroup("techdept").list() //Group query
     val tasks = userId   match {
       case UserId("admin") =>
         taskService.createTaskQuery().list().map{ts=>
-          println("======ts==="+ ts.getAssignee  )
-          println("======ts==="+ ts.getOwner  )
-          val v = taskService.getIdentityLinksForTask(ts.getId)
+           val v = taskService.getIdentityLinksForTask(ts.getId)
           val groups = v.foldLeft(List[String]()) { (z,l) =>
-            println("===taskid===" + l.getTaskId)
-            println("===users===" + l.getUserId)
-            println("===group===" + l.getGroupId)
             z:+ s"${l.getGroupId}"
           }
         }
         taskService.createTaskQuery().list()
 
       case _ =>
-
-//        val qr: TaskQuery =  taskService.createTaskQuery().processInstanceId(processInstanceId)
-//      qr.list().map{t=>
-//        println("=====xxx======" + t.getName)
-//      }
-
-      taskService.createTaskQuery().list().map { ts =>
-        println("======yyyy===" + ts.getName)
-        println("======yyyy===" + ts.getAssignee)
-        println("======yyyy===" + ts.getOwner)
-        //println("======yyyy===" + ts.)
-      }
-
-
-        println("111111122 policyadmin========"+ taskService.createTaskQuery().taskCandidateGroup("policyadmin").list().size())
-        println("111111122 Assessor   ========"+ taskService.createTaskQuery().taskCandidateGroup("Assessor").list().size())
-        println("111111122========"+ taskService.createTaskQuery().taskCandidateGroup("assessor").list().size())
-        println("11111112211 assessor1========"+ taskService.createTaskQuery().taskCandidateUser("assessor1").list().size())
-        println("11111112211 assessor2========"+ taskService.createTaskQuery().taskCandidateUser("assessor2").list().size())
-        println("11111112211 assessor3========"+ taskService.createTaskQuery().taskCandidateUser("assessor3").list().size())
-        println("11111112211 assessor4========"+ taskService.createTaskQuery().taskCandidateUser("assessor4").list().size())
-        println("11111112211 assessor4========"+ taskService.createTaskQuery().taskCandidateOrAssigned("assessor4").list().size())
-        println("11111112211 assessor4========"+ taskService.createTaskQuery().taskAssignee("assessor4").list().size())
-        println("11111112211 assessor4========"+ taskService.createTaskQuery().taskOwner("assessor4").list().size())
-        println("11111112211========"+ taskService.createTaskQuery().taskAssignee("assessor").list().size())
-        println("11111112211========"+ taskService.createTaskQuery().taskAssignee("assessor2").list().size())
         taskService.createTaskQuery().taskCandidateUser(userId.userId).list()
-        //taskService.createTaskQuery().taskCandidateOrAssigned(userId.userId).list().
-        //taskService.createTaskQuery().taskAssignee(userId.userId).list()
-        //taskService.createTaskQuery().taskCandidateGroup("policyadmin").list()
     }
 
     val tasksummaries = tasks.map(t => {
@@ -258,9 +201,6 @@ println("111==============formData:-------"+ formData)
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
     val applicant = runtimeService.getVariable(t.getProcessInstanceId, "Applicant").toString
 
-    println("==comment===="+ comment)
-    println("==status===="+ status)
-    println("==getAssignee===="+ t.getAssignee)
     val ss = Int.box(1)
     //val i: Object = ss
     /* Add comments to the Task for that Process Instance */
@@ -279,8 +219,7 @@ println("111==============formData:-------"+ formData)
     Future.successful(Option(LocalTaskId(t.getId)))
   }
 
-
-    override def submitAssignAssessors(id: LocalTaskId, userId: UserId, assignassessor1: String, assignassessor2: String,
+  override def submitAssignAssessors(id: LocalTaskId, userId: UserId, assignassessor1: String, assignassessor2: String,
                             assignassessor3: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
 
     val processEngine: ProcessEngine = ActivitiTaskService.apply()
@@ -291,13 +230,6 @@ println("111==============formData:-------"+ formData)
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
     val applicant = runtimeService.getVariable(t.getProcessInstanceId, "Applicant").toString
 
-      println("==comment===="+ comment)
-      println("==assignassessor1===="+ assignassessor1)
-      println("==assignassessor2===="+ assignassessor2)
-      println("==assignassessor3===="+ assignassessor3)
-
-      println("==getAssignee===="+ t.getAssignee)
-      println("==assignassessor1===="+ assignassessor1)
     /* Add comments to the Task for that Process Instance */
     val user = userId.userId
     val st = s"WIP"
@@ -310,15 +242,6 @@ println("111==============formData:-------"+ formData)
       taskService.complete(t.getId(), Map("assignee1" -> assignassessor1, "assignee2" -> assignassessor2,
                        "assignee3" -> assignassessor3 ), false)
 
-      val qr: TaskQuery =  taskService.createTaskQuery().processInstanceId(processInstanceId)
-      qr.list().map{t=>
-        println("=====xxx Submit======" + t.getName)
-      }
-
-      taskService.createTaskQuery().list().map { ts =>
-        println("======yyyy Submit===" + ts.getName +"====="+ assignassessor2)
-        ts.setAssignee(assignassessor2)
-      }
     /** Update Application DB - Update Application Status **/
     val stsc = "WIP"
     val s = s"$stsc (by $user)"
@@ -338,32 +261,7 @@ println("111==============formData:-------"+ formData)
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
     val applicant = runtimeService.getVariable(t.getProcessInstanceId, "Applicant").toString
 
-    println("==performanceenhancement===="+ score.performanceenhancement)
-    println("==performancemanagement===="+ score.performancemanagement)
-    println("==performanceintegration===="+ score.performanceintegration)
-    println("==performanceenhancementweight===="+ score.performanceenhancementweight)
-    println("==performanceintegrationweight===="+ score.performancemanagementweight)
-    println("==performanceintegration===="+ score.performanceintegrationweight)
-
-    println("==performance===="+ score.performancecomment)
-
-    println("==marketpotential===="+ score.marketpotential)
-    println("==marketpotential===="+ score.marketpotentialcomment)
-
-    println("==projectdelivery===="+ score.projectdelivery)
-    println("==projectdelivery===="+ score.projectdeliverycomment)
-
-    println("==projectfinancing===="+ score.projectfinancing)
-    println("==projectfinancing===="+ score.projectfinancingcomment)
-
-    println("==widerobj===="+ score.widerobj)
-    println("==widerobj===="+ score.widerobjcomment)
-
-    println("==overallcomment===="+ score.overallcomment)
-    println("==asmtKey===="+ asmtKey)
-
-    println("==getAssignee===="+ t.getAssignee)
-    /* Add comments to the Task for that Process Instance */
+      /* Add comments to the Task for that Process Instance */
     val user = userId.userId
     val st = s"WIP"
 
@@ -427,9 +325,6 @@ println("111==============formData:-------"+ formData)
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
     val applicant = runtimeService.getVariable(t.getProcessInstanceId, "Applicant").toString
 
-    println("==comment===="+ comment)
-    println("==status===="+ status)
-    println("==getAssignee===="+ t.getAssignee)
     val ss = Int.box(1)
     //val i: Object = ss
     /* Add comments to the Task for that Process Instance */
