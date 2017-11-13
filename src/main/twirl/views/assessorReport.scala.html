@@ -1,0 +1,167 @@
+@(t: LocalTask,
+url:String,
+assmtKey: Int
+)
+
+@import org.joda.time.format.DateTimeFormat
+
+
+@dropdowncheck(a:Option[AnyRef], b:String) = @{
+if(a.getOrElse("") == b) "selected" else ""
+}
+
+@main(s"BEIS - Business Process Management") {
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <h1 class="heading-xlarge">
+            <span class="heading-secondary">@t.oppId: @t.oppTitle</span>
+            @t.name
+        </h1>
+
+        <table  border="0">
+            <thead>
+            <tr> <th scope="col" colspan="2">  Assessor @assmtKey Report</th> </tr>
+            </thead>
+
+            <tbody>
+            <tr>
+                <td>Id</td>
+                <td>@t.id.id</td>
+            </tr>
+            <tr>
+                <td>Assigned To</td>
+                <td>@t.groups</td>
+            </tr>
+            <tr>
+                <td>Opportunity</td>
+                <td> @t.oppTitle </td>
+            </tr>
+            <tr>
+                <td>Application</td>
+                <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
+            </tr>
+
+            </tbody>
+
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Project Description  </td>  <input type="hidden" name="projectdescweight" value="0">
+                    <td class="tdnobottomborder">
+                        @t.variables.get(s"projectdesc$assmtKey")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign">Project Description Comments </td>
+                    <td>
+                        <div class="rifs-form-buttons">
+                            @t.variables.get(s"projectdesccomment$assmtKey")
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign tdnobottomborder" colspan="2">Performance (25%) </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Performance enhancement(15%) </td>  <input type="hidden" name="performanceenhancementweight" value="15">
+                    <td class="tdnobottomborder">
+                        @t.variables.get(s"performanceenhancement$assmtKey")
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Performance management (5%) </td>  <input type="hidden" name="performancemanagementweight" value="5">
+                    <td class="tdnobottomborder">
+                                @t.variables.get(s"performancemanagement$assmtKey")
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Performance integration into heating system (5%) </td>  <input type="hidden" name="performanceintegrationweight" value="5">
+                    <td class="tdnobottomborder">
+                                @t.variables.get(s"performanceintegration$assmtKey")
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="tdtopalign">Performance Comments </td>
+                    <td>
+                        <div class="rifs-form-buttons">
+                                @t.variables.get(s"performancecomment$assmtKey")
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Market Potential (20%) </td>  <input type="hidden" name="marketpotentialweight" value="20">
+                    <td class="tdnobottomborder">
+                                @t.variables.get(s"marketpotential$assmtKey")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign">Market Potential Comments </td>
+                    <td>
+                        <div class="rifs-form-buttons">
+                                 @t.variables.get(s"marketpotentialcomment$assmtKey")
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Project Delivery (20%) </td>  <input type="hidden" name="projectdeliveryweight" value="20">
+                    <td class="tdnobottomborder">
+                                 @t.variables.get(s"projectdelivery$assmtKey")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign">Project Delivery Comments </td>
+                    <td>
+                                 @t.variables.get(s"projectdeliverycomment$assmtKey")
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Project Financing (10%) </td>  <input type="hidden" name="projectfinancingweight" value="10">
+                    <td class="tdnobottomborder">
+                                 @t.variables.get(s"projectfinancing$assmtKey")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign">Project Financing Comments </td>
+                    <td colspan="2" >
+                                 @t.variables.get(s"projectfinancingcomment$assmtKey")
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Wider Objective (10%) </td>     <input type="hidden" name="widerobjectiveweight" value="10">
+                    <td class="tdnobottomborder">
+                                 @t.variables.get(s"widerobjective$assmtKey").getOrElse("").toString()
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="tdtopalign">Wider Objective Comments </td>
+                    <td>
+                                 @t.variables.get(s"widerobjectivecomment$assmtKey")
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <td class="tdtopalign">Overall Comments </td>
+                    <td>
+                                 @t.variables.get(s"overallcomment$assmtKey")
+                    </td>
+                </tr>
+
+
+        </table>
+
+        <input type="button" name="Close" class="button button--start" value="Close" onClick="window.close()">
+    </div>
+
+</div>
+
+
+}

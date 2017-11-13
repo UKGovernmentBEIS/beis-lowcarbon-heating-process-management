@@ -1,6 +1,5 @@
 @(t: LocalTask,
-  url:String,
-  decisionmap: Map[String, String]
+  url:String
 )
 
 @import org.joda.time.format.DateTimeFormat
@@ -11,7 +10,7 @@
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
-            <span class="heading-secondary">@t.oppId: @t.oppTitle </span>
+            <span class="heading-secondary">@t.oppId: @t.oppTitle</span>
             @t.name
         </h1>
 
@@ -45,49 +44,40 @@
 
 
             <form method="POST"
-                  action="@controllers.routes.TaskController.submitMakePanelDecision(t.id)"
+                  action="@controllers.routes.TaskController.submitConfirmEmailSent(t.id)"
                   novalidate="novalidate" >
 
-            <tr>
-                    <td>Average Weighted Score </td>
+                <tr>
+                    <td>Panel Decision Status </td>
                     <td>
-                        @t.variables.get(s"averageweightedscore").getOrElse("")
+                        @t.variables.get("finaldecision").getOrElse("")
                     </td>
-            </tr>
+                </tr>
 
-            <tr>
-                    <td>Average Tie-Break Score </td>
+                <tr>
+                    <td>Panel Decision Comments </td>
                     <td>
-                        @t.variables.get(s"averagetiebreakscore").getOrElse("")
+                        @t.variables.get("makepaneldecisioncomments").getOrElse("")
                     </td>
-            </tr>
-
-            <tr>
-                    <td>Average Moderate Score </td>
-                    <td>
-                        @t.variables.get(s"averagemoderatescore").getOrElse("")
-                    </td>
-            </tr>
-            <tr>
-             <td>Decision</td>
+                </tr>
+                <tr>
+                    <td>Confirm Email Sent</td>
                     <td>
 
                         <div class="rifs-form-buttons">
 
-                            <select class="form-control dropdown" id="select-box" name="approvestatus">
-
-                                @for((key, value) <- decisionmap) {
-                                <option value=@key>@value</option>
-                                }
-                            </select>
+                            <div class="multiple-choice">
+                                <input id="emailsent" name="emailsent" type="checkbox" title="emailsent" value="emailsent">
+                                <label for="emailsent">&nbsp; </label>
+                            </div>
                         </div>
                     </td>
-             </tr>
+                </tr>
 
-            <tr>
-                <td colspan="2">
+                <tr>
+                    <td colspan="2">
 
-                    <div class="rifs-form-buttons">
+                        <div class="rifs-form-buttons">
 
                             Comments
                             <details>
@@ -98,11 +88,11 @@
                             <textarea id="name" class="form-control textarea-resize" title="name" name="comment"></textarea>
                             <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
                             <input type="submit" name="save" class="button button--start" value="Submit Process">
-                    </div>
-                </td>
-            </tr>
+                        </div>
+                    </td>
+                </tr>
 
-    </table>
+        </table>
     </div>
     </form>
 

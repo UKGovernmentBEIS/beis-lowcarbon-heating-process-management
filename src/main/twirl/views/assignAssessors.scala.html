@@ -5,6 +5,7 @@
 )
 
 @import org.joda.time.format.DateTimeFormat
+@import partials._
 
 @errorClass = @{
 if(errors.nonEmpty) "error" else ""
@@ -118,63 +119,7 @@ if(errors.nonEmpty) "error" else ""
     </table>
     </div>
 
-    <div id="support-column" class="column-third">
-
-
-        <aside role="complementary">
-            <table class="process" border="0" >
-                <thead>
-                <tr>
-                    <th class="sideHeading-highlight" scope="col" colspan="2">
-                        <!--<h2 class="heading-medium no-top-margin">Task History</h2>-->
-                        <h3>Process History </h3>
-                    </th>
-                </tr>
-                </thead>
-                @for((o,i) <- t.taskHistories.zipWithIndex) {
-                <tbody>
-                <tr>
-                        <td>Task Name  </td><td>@o.name </td>
-                    </tr>
-                    <tr>
-                        <td>Status </td><td>@o.status </td>
-                    </tr>
-                    <tr>
-                        <td>Approver </td><td>@o.assignee </td>
-                     </tr>
-                    <tr>
-                        <td>Start time</td><td>@o.startTime</td>
-                    </tr>
-                    <tr>
-                        <td>End time</td><td>@o.endTime</td>
-                    </tr>
-
-                    @for((p,i) <- o.fullMessages.zipWithIndex) {
-                            @if(o.status == "Waiting" || o.fullMessages.length > 1) {
-                                <tr>
-                                    <td  colspan="2" class="sideHeading-subhighlight">
-                                        Request for Informatiom
-                                    </td>
-                                </tr>
-                            }
-                            <tr>
-                                    <td >Sent Time</td>
-                                    <td>@p.time</td>
-                            </tr>
-                            <tr>
-                                    <td >Comments</td>
-                                    <td>@p.fullMessage</td>
-                            </tr>
-
-                    }
-                    </tbody>
-
-                }
-
-                </table>
-
-        </aside>
-    </div>
+    @taskHistory(t)
 
 
 </div>

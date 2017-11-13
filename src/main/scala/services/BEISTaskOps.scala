@@ -18,12 +18,19 @@ trait BEISTaskOps {
   def updateAppStatus(id: ApplicationId, status: String): Future[Option[ApplicationId]]
   def saveMessageBoard(message: Message): Future[Option[MessageId]]
   def updateMessageBoard(id: ApplicationId, message: String): Future[Option[MessageId]]
-  def submitEligibility(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
+  def submitEligibility(id: LocalTaskId, userId: UserId, status: String, comment: String, technology: String, processInstanceId: String): Future[Option[LocalTaskId]]
   def submitAssignAssessors(id: LocalTaskId, userId: UserId, assignassessor1: String, assignassessor2: String,
                             assignassessor3: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
   def submitAssessment(id: LocalTaskId, userId: UserId, asmtKey: Int,  score:Score,
                        processInstanceId: String, buttonAction: String): Future[Option[LocalTaskId]]
   def submitMakePanelDecision(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
+
+  def submitModerateScore(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
+  def submitConfirmEmailSent(id: LocalTaskId, userId: UserId, emailsent: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
+
+
+
+
 
   def getMembers(groupIds: Seq[String]): Option[Set[String]]
 

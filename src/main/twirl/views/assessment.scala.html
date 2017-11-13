@@ -6,6 +6,7 @@ assmtKey: String
 )
 
 @import org.joda.time.format.DateTimeFormat
+@import partials._
 
 
 @dropdowncheck(a:Option[AnyRef], b:String) = @{
@@ -20,7 +21,7 @@ if(a.getOrElse("") == b) "selected" else ""
             @t.name
         </h1>
 
-            <table  border="0">
+        <table  border="0">
             <thead>
             <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
             </thead>
@@ -44,296 +45,242 @@ if(a.getOrElse("") == b) "selected" else ""
             </tr>
 
             </tbody>
+
             <form method="POST"
                   action="@controllers.routes.TaskController.submitAssessment(t.id, t.key)"
                   novalidate="novalidate" >
 
-    <tr>
-        <td class="tdtopalign tdnobottomborder">Project Description  </td>  <input type="hidden" name="projectdescweight" value="0">
-        <td class="tdnobottomborder">
-            <div class="rifs-form-buttons">
-                <select class="form-control dropdown" id="select-box" name="projectdescriptionoption">
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Project Description  </td>  <input type="hidden" name="projectdescweight" value="0">
+                    <td class="tdnobottomborder">
+                        <div class="rifs-form-buttons">
+                            <select class="form-control dropdown" id="select-box" name="projectdescriptionoption">
 
-                    @for((key, value) <- yesnomap) {
-                    <option value=@key @dropdowncheck( t.variables.get(s"projectdesc$assmtKey"), key)>@value</option>
-                    }
-                </select>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" >
-            <div class="rifs-form-buttons">
-                <details>
-                    <summary role="button"><span class="summary">Help with this section</span></summary>
-                    <div class="panel panel-border-narrow">Test Test Test Test Test</div>
-                </details>
-                <textarea id="name" class="form-control textarea-resize" title="name" name="projectdescriptioncomment">@t.variables.get(s"projectdesccomment$assmtKey")</textarea>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td class="tdtopalign tdnobottomborder" colspan="2">Performance (25%) </td>
-    </tr>
-    <tr>
-        <td class="tdtopalign tdnobottomborder">Performance enhancement(15%) </td>  <input type="hidden" name="performanceenhancementweight" value="15">
-        <td class="tdnobottomborder">
-            <div class="rifs-form-buttons">
-                <select class="form-control dropdown" id="select-box" name="performanceenhancementoption">
+                                @for((key, value) <- yesnomap) {
+                                <option value=@key @dropdowncheck( t.variables.get(s"projectdesc$assmtKey"), key)>@value</option>
+                                }
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" >
+                        <div class="rifs-form-buttons">
+                            <details>
+                                <summary role="button"><span class="summary">Help with this section</span></summary>
+                                <div class="panel panel-border-narrow">Test Test Test Test Test</div>
+                            </details>
+                            <textarea id="name" class="form-control textarea-resize" title="name" name="projectdescriptioncomment">@t.variables.get(s"projectdesccomment$assmtKey")</textarea>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign tdnobottomborder" colspan="2">Performance (25%) </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Performance enhancement(15%) </td>  <input type="hidden" name="performanceenhancementweight" value="15">
+                    <td class="tdnobottomborder">
+                        <div class="rifs-form-buttons">
+                            <select class="form-control dropdown" id="select-box" name="performanceenhancementoption">
 
-                    @for((key, value) <- scoremap) {
-                    <option value=@key @dropdowncheck( t.variables.get(s"performanceenhancement$assmtKey"), key)>@value</option>
-                    }
-                </select>
-            </div>
-        </td>
-    </tr>
+                                @for((key, value) <- scoremap) {
+                                <option value=@key @dropdowncheck( t.variables.get(s"performanceenhancement$assmtKey"), key)>@value</option>
+                                }
+                            </select>
+                        </div>
+                    </td>
+                </tr>
 
-    <tr>
-        <td class="tdtopalign tdnobottomborder">Performance management (5%) </td>  <input type="hidden" name="performancemanagementweight" value="5">
-        <td class="tdnobottomborder">
-            <div class="rifs-form-buttons">
-                <select class="form-control dropdown" id="select-box" name="performancemanagementoption">
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Performance management (5%) </td>  <input type="hidden" name="performancemanagementweight" value="5">
+                    <td class="tdnobottomborder">
+                        <div class="rifs-form-buttons">
+                            <select class="form-control dropdown" id="select-box" name="performancemanagementoption">
 
-                    @for((key, value) <- scoremap) {
-                    <option value=@key @dropdowncheck( t.variables.get(s"performancemanagement$assmtKey"), key)>@value</option>
-                    }
-                </select>
-            </div>
-        </td>
-    </tr>
+                                @for((key, value) <- scoremap) {
+                                <option value=@key @dropdowncheck( t.variables.get(s"performancemanagement$assmtKey"), key)>@value</option>
+                                }
+                            </select>
+                        </div>
+                    </td>
+                </tr>
 
-   <tr>
-        <td class="tdtopalign tdnobottomborder">Performance integration into heating system (5%) </td>  <input type="hidden" name="performanceintegrationweight" value="5">
-       <td class="tdnobottomborder">
-           <div class="rifs-form-buttons">
-               <select class="form-control dropdown" id="select-box" name="performanceintegrationoption">
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Performance integration into heating system (5%) </td>  <input type="hidden" name="performanceintegrationweight" value="5">
+                    <td class="tdnobottomborder">
+                        <div class="rifs-form-buttons">
+                            <select class="form-control dropdown" id="select-box" name="performanceintegrationoption">
 
-                   @for((key, value) <- scoremap) {
-                   <option value=@key @dropdowncheck( t.variables.get(s"performanceintegration$assmtKey"), key)>@value</option>
-                   }
-               </select>
-           </div>
-       </td>
-   </tr>
+                                @for((key, value) <- scoremap) {
+                                <option value=@key @dropdowncheck( t.variables.get(s"performanceintegration$assmtKey"), key)>@value</option>
+                                }
+                            </select>
+                        </div>
+                    </td>
+                </tr>
 
-    <tr>
-        <td colspan="2" >
-            <div class="rifs-form-buttons">
-                <details>
-                    <summary role="button"><span class="summary">Help with this section</span></summary>
-                    <div class="panel panel-border-narrow">Test Test Test Test Test</div>
-                </details>
+                <tr>
+                    <td colspan="2" >
+                        <div class="rifs-form-buttons">
+                            <details>
+                                <summary role="button"><span class="summary">Help with this section</span></summary>
+                                <div class="panel panel-border-narrow">Test Test Test Test Test</div>
+                            </details>
 
-                <textarea id="name" class="form-control textarea-resize" title="name" name="performancecomment">@t.variables.get(s"performancecomment$assmtKey")</textarea>
-            </div>
-        </td>
-    </tr>
+                            <textarea id="name" class="form-control textarea-resize" title="name" name="performancecomment">@t.variables.get(s"performancecomment$assmtKey")</textarea>
+                        </div>
+                    </td>
+                </tr>
 
-    <tr>
-        <td class="tdtopalign tdnobottomborder">Market Potential (20%) </td>  <input type="hidden" name="marketpotentialweight" value="20">
-        <td class="tdnobottomborder">
-            <div class="rifs-form-buttons">
-                <select class="form-control dropdown" id="select-box" name="marketpotentialoption">
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Market Potential (20%) </td>  <input type="hidden" name="marketpotentialweight" value="20">
+                    <td class="tdnobottomborder">
+                        <div class="rifs-form-buttons">
+                            <select class="form-control dropdown" id="select-box" name="marketpotentialoption">
 
-                    @for((key, value) <- scoremap) {
-                    <option value=@key @dropdowncheck( t.variables.get(s"marketpotential$assmtKey"), key)>@value</option>
-                    }
-                </select>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" >
-            <div class="rifs-form-buttons">
+                                @for((key, value) <- scoremap) {
+                                <option value=@key @dropdowncheck( t.variables.get(s"marketpotential$assmtKey"), key)>@value</option>
+                                }
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" >
+                        <div class="rifs-form-buttons">
 
-                <details>
-                    <summary role="button"><span class="summary">Help with this section</span></summary>
-                    <div class="panel panel-border-narrow">Test Test Test Test Test</div>
-                </details>
+                            <details>
+                                <summary role="button"><span class="summary">Help with this section</span></summary>
+                                <div class="panel panel-border-narrow">Test Test Test Test Test</div>
+                            </details>
 
-                <textarea id="name" class="form-control textarea-resize" title="name" name="marketpotentialcomment">@t.variables.get(s"marketpotentialcomment$assmtKey")</textarea>
-            </div>
-        </td>
-    </tr>
+                            <textarea id="name" class="form-control textarea-resize" title="name" name="marketpotentialcomment">@t.variables.get(s"marketpotentialcomment$assmtKey")</textarea>
+                        </div>
+                    </td>
+                </tr>
 
-    <tr>
-        <td class="tdtopalign tdnobottomborder">Project Delivery (20%) </td>  <input type="hidden" name="projectdeliveryweight" value="20">
-        <td class="tdnobottomborder">
-            <div class="rifs-form-buttons">
-                <select class="form-control dropdown" id="select-box" name="projectdeliveryoption">
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Project Delivery (20%) </td>  <input type="hidden" name="projectdeliveryweight" value="20">
+                    <td class="tdnobottomborder">
+                        <div class="rifs-form-buttons">
+                            <select class="form-control dropdown" id="select-box" name="projectdeliveryoption">
 
-                    @for((key, value) <- scoremap) {
-                    <option value=@key @dropdowncheck( t.variables.get(s"projectdelivery$assmtKey"), key)>@value</option>
-                    }
-                </select>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" >
-            <div class="rifs-form-buttons">
+                                @for((key, value) <- scoremap) {
+                                <option value=@key @dropdowncheck( t.variables.get(s"projectdelivery$assmtKey"), key)>@value</option>
+                                }
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" >
+                        <div class="rifs-form-buttons">
 
-                <details>
-                    <summary role="button"><span class="summary">Help with this section</span></summary>
-                    <div class="panel panel-border-narrow">Test Test Test Test Test</div>
-                </details>
+                            <details>
+                                <summary role="button"><span class="summary">Help with this section</span></summary>
+                                <div class="panel panel-border-narrow">Test Test Test Test Test</div>
+                            </details>
 
-                <textarea id="name" class="form-control textarea-resize" title="name" name="projectdeliverycomment">@t.variables.get(s"projectdeliverycomment$assmtKey")</textarea>
-            </div>
-        </td>
-    </tr>
-
-
-    <tr>
-        <td class="tdtopalign tdnobottomborder">Project Financing (10%) </td>  <input type="hidden" name="projectfinancingweight" value="10">
-        <td class="tdnobottomborder">
-            <div class="rifs-form-buttons">
-                <select class="form-control dropdown" id="select-box" name="projectfinancingoption">
-
-                    @for((key, value) <- scoremap) {
-                    <option value=@key @dropdowncheck( t.variables.get(s"projectfinancing$assmtKey"), key)>@value</option>
-                    }
-                </select>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" >
-            <div class="rifs-form-buttons">
-
-                <details>
-                    <summary role="button"><span class="summary">Help with this section</span></summary>
-                    <div class="panel panel-border-narrow">Test Test Test Test Test</div>
-                </details>
-
-                <textarea id="name" class="form-control textarea-resize" title="name" name="projectfinancingcomment">@t.variables.get(s"projectfinancingcomment$assmtKey")</textarea>
-            </div>
-        </td>
-    </tr>
+                            <textarea id="name" class="form-control textarea-resize" title="name" name="projectdeliverycomment">@t.variables.get(s"projectdeliverycomment$assmtKey")</textarea>
+                        </div>
+                    </td>
+                </tr>
 
 
-    <tr>
-        <td class="tdtopalign tdnobottomborder">Wider Objective (10%) </td>     <input type="hidden" name="widerobjectiveweight" value="10">
-        <td class="tdnobottomborder">
-            <div class="rifs-form-buttons">
-                <select class="form-control dropdown" id="select-box" name="widerobjectiveoption">
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Project Financing (10%) </td>  <input type="hidden" name="projectfinancingweight" value="10">
+                    <td class="tdnobottomborder">
+                        <div class="rifs-form-buttons">
+                            <select class="form-control dropdown" id="select-box" name="projectfinancingoption">
 
-                    @for((key, value) <- scoremap) {
-                    <option value=@key @dropdowncheck( t.variables.get(s"widerobj$assmtKey"), key)>@value</option>
-                    }
-                </select>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2" >
-            <div class="rifs-form-buttons">
+                                @for((key, value) <- scoremap) {
+                                <option value=@key @dropdowncheck( t.variables.get(s"projectfinancing$assmtKey"), key)>@value</option>
+                                }
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" >
+                        <div class="rifs-form-buttons">
 
-                <details>
-                    <summary role="button"><span class="summary">Help with this section</span></summary>
-                    <div class="panel panel-border-narrow">Test Test Test Test Test</div>
-                </details>
+                            <details>
+                                <summary role="button"><span class="summary">Help with this section</span></summary>
+                                <div class="panel panel-border-narrow">Test Test Test Test Test</div>
+                            </details>
 
-                <textarea id="name" class="form-control textarea-resize" title="name" name="widerobjectivecomment">@t.variables.get(s"widerobjcomment$assmtKey")</textarea>
-            </div>
-        </td>
-    </tr>
+                            <textarea id="name" class="form-control textarea-resize" title="name" name="projectfinancingcomment">@t.variables.get(s"projectfinancingcomment$assmtKey")</textarea>
+                        </div>
+                    </td>
+                </tr>
 
 
-    <tr>
-        <td colspan="2" class="tdtopalign tdnobottomborder">Overall Comments (Max 500 words) </td>
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Wider Objective (10%) </td>     <input type="hidden" name="widerobjectiveweight" value="10">
+                    <td class="tdnobottomborder">
+                        <div class="rifs-form-buttons">
+                            <select class="form-control dropdown" id="select-box" name="widerobjectiveoption">
 
-    </tr>
-    <tr>
-        <td colspan="2" >
-            <div class="rifs-form-buttons">
+                                @for((key, value) <- scoremap) {
+                                <option value=@key  t.variables.get(s"widerobj$assmtKey").getOrElse("").toString(), key)>@value</option>
+                                }
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" >
+                        <div class="rifs-form-buttons">
 
-                <details>
-                    <summary role="button"><span class="summary">Help with this section</span></summary>
-                    <div class="panel panel-border-narrow">Test Test Test Test Test</div>
-                </details>
-            </div>
+                            <details>
+                                <summary role="button"><span class="summary">Help with this section</span></summary>
+                                <div class="panel panel-border-narrow">Test Test Test Test Test</div>
+                            </details>
 
-            <div class="rifs-form-buttons">
+                            <textarea id="name" class="form-control textarea-resize" title="name" name="widerobjectivecomment">@t.variables.get(s"widerobjcomment$assmtKey")</textarea>
+                        </div>
+                    </td>
+                </tr>
 
-                <textarea id="overallcomment" class="form-control textarea-resize" title="name" name="overallcomment">@t.variables.get(s"overallcomment$assmtKey")</textarea>
-            </div>
-        </td>
-    </tr>
 
-    </table>
+                <tr>
+                    <td colspan="2" class="tdtopalign tdnobottomborder">Overall Comments (Max 500 words) </td>
 
-    <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
+                </tr>
+                <tr>
+                    <td colspan="2" >
+                        <div class="rifs-form-buttons">
+
+                            <details>
+                                <summary role="button"><span class="summary">Help with this section</span></summary>
+                                <div class="panel panel-border-narrow">Test Test Test Test Test</div>
+                            </details>
+                        </div>
+
+                        <div class="rifs-form-buttons">
+
+                            <textarea id="overallcomment" class="form-control textarea-resize" title="name" name="overallcomment">@t.variables.get(s"overallcomment$assmtKey")</textarea>
+                        </div>
+                    </td>
+                </tr>
+
+        </table>
+
+        <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
 
         <p class="rifs-form-buttons">
             <input type="submit" name="complete" class="button button--start" value="Complete">
             <input type="submit" name="save" class="buttom--link-style" value="Save Process">
         </p>
 
-    </form>
+        </form>
 
-</div>
+    </div>
 
-<div id="support-column" class="column-third">
-
-    <aside role="complementary">
-        <table class="process" border="0" >
-            <thead>
-            <tr>
-                <th class="sideHeading-highlight" scope="col" colspan="2">
-                    <!--<h2 class="heading-medium no-top-margin">Task History</h2>-->
-                    <h3>Process History </h3>
-                </th>
-            </tr>
-            </thead>
-            @for((o,i) <- t.taskHistories.zipWithIndex) {
-            <tbody>
-            <tr>
-                <td>Task Name  </td><td>@o.name </td>
-            </tr>
-            <tr>
-                <td>Status </td><td>@o.status </td>
-            </tr>
-            <tr>
-                <td>Approver </td><td>@o.assignee </td>
-            </tr>
-            <tr>
-                <td>Start time</td><td>@o.startTime</td>
-            </tr>
-            <tr>
-                <td>End time</td><td>@o.endTime</td>
-            </tr>
-
-            @for((p,i) <- o.fullMessages.zipWithIndex) {
-            @if(o.status == "Waiting" || o.fullMessages.length > 1) {
-            <tr>
-                <td  colspan="2" class="sideHeading-subhighlight">
-                    Request for Informatiom
-                </td>
-            </tr>
-            }
-            <tr>
-                <td >Sent Time</td>
-                <td>@p.time</td>
-            </tr>
-            <tr>
-                <td >Comments</td>
-                <td>@p.fullMessage</td>
-            </tr>
-
-            }
-            </tbody>
-
-            }
-
-        </table>
-
-    </aside>
-</div>
+    @taskHistory(t)
 
 
-</div>
+ </div>
 
 
-}
+ }

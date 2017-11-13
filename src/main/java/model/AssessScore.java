@@ -19,6 +19,9 @@ public class AssessScore {
     int performanceintegration = 0;
     int performanceintegrationweight = 0;
     String performancecomment = null;
+    Double weightedscore = 0.0;
+    Double tiebreakscore = 0.0;
+
 
     int marketpotential = 0;
     String marketpotentialcomment = null;
@@ -232,5 +235,13 @@ public class AssessScore {
     public void setKey(int key) {
         this.key = key;
     }
+
+    public Double getWeightedscore() { return weightedscore; }
+
+    public void setWeightedscore(Double weightedscore) { this.weightedscore = weightedscore; }
+
+    public Double getTiebreakscore() { return tiebreakscore; }
+
+    public void setTiebreakscore(Double tiebreakscore) { this.tiebreakscore = tiebreakscore; }
 
 }

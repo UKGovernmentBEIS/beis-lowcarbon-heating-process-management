@@ -54,6 +54,11 @@ input.text-field.number {
   width: 3em;
 }
 
+input.text-field.bignumber {
+  text-align: center;
+  width: 9em;
+}
+
 input.text-field.currency {
   text-align: right;
   width: 6em;

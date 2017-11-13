@@ -1,0 +1,51 @@
+@(t: LocalTask)
+
+@import org.joda.time.format.DateTimeFormat
+
+
+@import partials._
+<div id="support-column" class="column-third">
+
+    <aside role="complementary">
+        <table class="process" border="0" >
+            <thead>
+            <tr>
+                <th class="sideHeading-highlight" scope="col" colspan="2">
+                    <h3>Process History </h3>
+                </th>
+            </tr>
+            </thead>
+            @for((o,i) <- t.taskHistories.zipWithIndex) {
+            <tbody>
+            <tr>
+                <td>Task Name  </td><td>@o.name </td>
+            </tr>
+            <tr>
+                <td>Status </td><td>@o.status </td>
+            </tr>
+            <tr>
+                <td>CompletedBy </td><td>@o.assignee </td>
+            </tr>
+            <tr>
+                <td>Start time</td><td>@o.startTime</td>
+            </tr>
+            <tr>
+                <td>End time</td><td>@o.endTime</td>
+            </tr>
+
+            @for((p,i) <- o.fullMessages.zipWithIndex) {
+
+            <tr>
+                <td >Comments</td>
+                <td>@p.fullMessage</td>
+            </tr>
+
+            }
+            </tbody>
+
+            }
+
+        </table>
+
+    </aside>
+</div>

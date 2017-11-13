@@ -12,6 +12,9 @@
             <th role="presentation">Task Name</th>
             <th role="presentation">Application Title</th>
             <th role="presentation">Status</th>
+            <th role="presentation">Technology</th>
+            <th role="presentation">Average Weighted Score</th>
+            <th role="presentation">Average Tie-break Score</th>
         </tr>
 
         @if(ts.isEmpty){
@@ -27,6 +30,9 @@
                 </td>
             <td>@t.appRef</td>
             <td>@t.status</td>
+            <td>@t.technology</td>
+            <td>@t.averageweightedscore</td>
+            <td>@t.averagetiebreakscore</td>
         </tr>
         }
     </table>

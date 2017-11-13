@@ -4,6 +4,9 @@ import model.AssessScore;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 /**
  * Created by venkatamutyala on 01/11/2017.
  */
@@ -29,15 +32,28 @@ public class ScoreClassDelegate implements JavaDelegate {
         double deviation = calculateDeviation(score1, score2, score3);
 
         execution.setVariable("maxDeviation", deviation);
-        execution.setVariable("maxDeviation", 5);
+        execution.setVariable("averageweightedscore", getAverageWeightedScore(score1, score2, score3));
+        execution.setVariable("averagetiebreakscore", getAverageTiebreakScore(score1, score2, score3));
     }
 
-    private double calculateDeviation(AssessScore score1, AssessScore score2, AssessScore score3){
+        private double getAverageWeightedScore(AssessScore score1, AssessScore score2, AssessScore score3) {
+            System.out.println("=== getAverageWeightedScore == ==" + (score1.getWeightedscore() + score3.getWeightedscore() + score3.getWeightedscore()) / 3);
+            NumberFormat formatter = new DecimalFormat("#0.00");
+            return Double.parseDouble(formatter.format((score1.getWeightedscore() + score3.getWeightedscore() + score3.getWeightedscore()) / 3));
+        }
+
+        private double getAverageTiebreakScore(AssessScore score1, AssessScore score2, AssessScore score3) {
+            System.out.println("=== getAverageTiebreakScore == ==" + (score1.getTiebreakscore() + score3.getTiebreakscore() + score3.getTiebreakscore()) / 3);
+            NumberFormat formatter = new DecimalFormat("#0.00");
+            return Double.parseDouble(formatter.format((score1.getTiebreakscore() + score3.getTiebreakscore() + score3.getTiebreakscore()) / 3));
+        }
+
+        private double calculateDeviation(AssessScore score1, AssessScore score2, AssessScore score3){
         double weightedScore1 = calculateWeightedScore(score1);
         double weightedScore2 = calculateWeightedScore(score2);
         double weightedScore3 = calculateWeightedScore(score3);
         double deviation = Math.max(weightedScore1, Math.max(weightedScore2, weightedScore3))
-                         - Math.min(weightedScore1, Math.min(weightedScore2, weightedScore3));
+                - Math.min(weightedScore1, Math.min(weightedScore2, weightedScore3));
 
         System.out.println("=== In weightedScores ==" + weightedScore1 +"====="+weightedScore2 +"====="+weightedScore2 );
         System.out.println("===  MAX ==" + Math.max(weightedScore1, Math.max(weightedScore2, weightedScore3)));
@@ -90,6 +106,11 @@ public class ScoreClassDelegate implements JavaDelegate {
         return (execution.getVariable(varName) == null) ? 0 : Integer.parseInt(execution.getVariable(varName).toString());
     }
 
+    private Double getDoubleVariable(DelegateExecution execution, String varName, int key){
+        varName = new StringBuffer(varName).append(key).toString();
+        return (execution.getVariable(varName) == null) ? 0.00 : Double.parseDouble(execution.getVariable(varName).toString());
+    }
+
 
     private AssessScore getScoreObj(AssessScore score, DelegateExecution execution){
         score.setProjectdesc(getStrVariable(execution, "projectdesc", score.getKey()));
@@ -122,6 +143,8 @@ public class ScoreClassDelegate implements JavaDelegate {
         score.setWiderobjcomment(getStrVariable(execution, "widerobjcomment", score.getKey()));
 
         score.setOverallcomment(getStrVariable(execution, "overallcomment", score.getKey()));
+        score.setWeightedscore(getDoubleVariable(execution, "weightedscore", score.getKey()));
+        score.setTiebreakscore(getDoubleVariable(execution, "tiebreakscore", score.getKey()));
 
         return score;
     }
@@ -158,6 +181,9 @@ public class ScoreClassDelegate implements JavaDelegate {
         System.out.println("=== In Java Service Delegate == widerobj" + score.getKey() + "          :-" + score.getWiderobjweight());
 
         System.out.println("=== In Java Service Delegate == overallcomment" + score.getKey() + "    :-" + score.getOverallcomment());
+        System.out.println("=== In Java Service Delegate == Weightedscore" + score.getKey() + "    :-" + score.getWeightedscore());
+        System.out.println("=== In Java Service Delegate == Tiebreakscore" + score.getKey() + "    :-" + score.getTiebreakscore());
+
 
     }
 }
