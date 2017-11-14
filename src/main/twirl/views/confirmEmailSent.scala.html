@@ -48,16 +48,22 @@
                   novalidate="novalidate" >
 
                 <tr>
-                    <td>Panel Decision Status </td>
+                    <td>Decision Status </td>
                     <td>
                         @t.variables.get("finaldecision").getOrElse("")
                     </td>
                 </tr>
 
                 <tr>
-                    <td>Panel Decision Comments </td>
+                    <td>Decision Comments </td>
                     <td>
-                        @t.variables.get("makepaneldecisioncomments").getOrElse("")
+                        @{
+                            if(t.variables.get("makepaneldecisioncomments").nonEmpty){
+                                t.variables.get("makepaneldecisioncomments")
+                            }else if(t.variables.get("submiteligibilitycomment").nonEmpty){
+                                t.variables.get("submiteligibilitycomment")
+                            }
+                        }
                     </td>
                 </tr>
                 <tr>

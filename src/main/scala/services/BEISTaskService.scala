@@ -207,7 +207,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
         getVariable[String](runtimeService, t, "OpportunityId", "0").toLong,
         getVariable[String](runtimeService, t, "technology", "Not set"),
         //(getVariable[Double](runtimeService, t, "averageweightedscore", 0) == 0) ? 0 : getVariable[Double](runtimeService, t, "averagemoderatescore", 0),
-        if( ams > 0) ams else if(ams > 0) aws else 0,
+        if( ams > 0) ams else if(aws > 0) aws else 0,
         getVariable[Double](runtimeService, t, "averagetiebreakscore", 0))
 
     }).toSeq
@@ -258,7 +258,23 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       case _ => 0
     }
 
+    println("111================" + status)
+
+    status match {
+      case "eligible" => None
+      case "noteligible" =>
+        println("Not eligible ================" + status)
+        taskService.setVariableLocal(t.getId(), "finaldecision", "Not eligible")
+    }
+
     val ss = Int.box(sts)
+    val stt = status match {
+      case "noteligible" => ("finaldecision" -> "Not eligible")
+      case _ => ("finaldecision" -> "")
+    }
+
+    val mp = Map("isEligible" -> ss, "technology" -> technology, "submiteligibilitycomment" -> comment) +  stt
+
     //val i: Object = ss
     taskService.addComment(t.getId, t.getProcessInstanceId, comment)
     taskService.setVariableLocal(t.getId(), "isEligible", sts )
@@ -275,7 +291,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
              case "noteligible" => NotEligible.status
              case _ => NotEligible.status}) //Process variable for TaskSummary
 
-    taskService.complete(t.getId(), Map("isEligible" -> ss, "technology" -> technology, "submiteligibilitycomment" -> comment), false)
+    taskService.complete(t.getId(), mp, false)
 
     /** Update Application DB - Update Application Status **/
     val st = s"WIP"
@@ -452,6 +468,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val user = userId.userId
     val st = s"WIP"
     taskService.addComment(t.getId, t.getProcessInstanceId, comment)
+    taskService.setVariableLocal(t.getId(), "makepaneldecisioncomments", comment)
     taskService.setVariableLocal(t.getId(), "makepaneldecisioncomments", comment)
     taskService.setVariableLocal(t.getId(), "finaldecision", status)
     taskService.setVariableLocal(t.getId(), "approvestatus", Complete.status) //History purpose
