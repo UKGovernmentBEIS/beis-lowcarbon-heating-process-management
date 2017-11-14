@@ -9,12 +9,51 @@
 
     <table class="spacious">
         <tr>
-            <th role="presentation">Task Name</th>
-            <th role="presentation">Application Title</th>
-            <th role="presentation">Status</th>
-            <th role="presentation">Technology</th>
-            <th role="presentation">Average <br>Weighted Score</th>
-            <th role="presentation">Average <br> Tie-break Score</th>
+            <th role="presentation">
+                Task Name
+                <a href="/tasks?sort=task-asc">
+                    <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                <a href="/tasks?sort=task-desc">
+                    <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                </th>
+            <th role="presentation">
+                Application Title
+                <a href="/tasks?sort=app-asc">
+                    <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                <a href="/tasks?sort=app-desc">
+                    <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+            </th>
+            <th role="presentation">
+                Status
+                <a href="/tasks?sort=status-asc">
+                    <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                <a href="/tasks?sort=status-desc">
+                    <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+            </th>
+
+            <th role="presentation">
+                Technology
+                <a href="/tasks?sort=technology-asc">
+                    <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                <a href="/tasks?sort=technology-desc">
+                    <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+            </th>
+
+            <th role="presentation">
+                Average <br>Weighted Score
+                <a href="/tasks?sort=aws-asc">
+                    <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                <a href="/tasks?sort=aws-desc">
+                    <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+            </th>
+
+            <th role="presentation">
+                Average <br> Tie-break Score
+                <a href="/tasks?sort=atbs-asc">
+                    <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                <a href="/tasks?sort=atbs-desc">
+                    <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+            </th>
         </tr>
 
         @if(ts.isEmpty){
@@ -24,12 +63,12 @@
         }
         @for((t,i) <- ts.zipWithIndex) {
         <tr>
-            <td>
+            <td class="tdnormal">
                     @{i+1}. <a href="/task/@t.id.id/application/@t.appId/opportunity/@t.oppId">
                     @t.key</a>
-                </td>
+            </td>
             <td>@t.appRef</td>
-            <td>@t.status</td>
+            <td class="tdnormal">@t.status</td>
             <td>@t.technology</td>
             <td>@t.averageweightedscore</td>
             <td>@t.averagetiebreakscore</td>

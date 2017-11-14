@@ -99,12 +99,43 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
   }
 
   def tasks = Action.async  {   implicit request =>
+    val sortstr = request.queryString.getOrElse("sort", List()).headOption.getOrElse("")
+
+    println("=========111======="+ sortstr)
+
    val userId = request.session.get("username").getOrElse("Unauthorised User")
     val ts = localtasks.showTasks(UserId(userId))
 
     ts.flatMap{
       case ts =>
-        Future(Ok(views.html.tasks(ts)))
+        sortstr match {
+          case "task-asc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.key))))
+          case "task-desc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.key).reverse )))
+          case "app-asc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.appRef))))
+          case "app-desc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.appRef).reverse )))
+          case "technology-asc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.technology))))
+          case "technology-desc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.technology).reverse )))
+          case "aws-asc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.averageweightedscore))))
+          case "aws-desc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.averageweightedscore).reverse )))
+          case "atbs-asc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.averagetiebreakscore))))
+          case "atbs-desc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.averagetiebreakscore).reverse )))
+          case "status-asc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.status))))
+          case "status-desc" =>
+            Future (Ok(views.html.tasks(ts.sortBy(_.status).reverse )))
+          case _ =>
+            Future (Ok(views.html.tasks(ts)))
+        }
       case Seq() => Future.successful(NotFound)
     }
   }
