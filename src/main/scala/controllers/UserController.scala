@@ -72,7 +72,7 @@ class UserController /* @Inject()(pe: ProcessEngine) */ extends Controller {
   }
 
   def loginFormSubmit = Action { implicit request =>
-
+println("=========")
     loginform.bindFromRequest.fold(
       errors => {
         Ok(views.html.loginForm("error", loginform))

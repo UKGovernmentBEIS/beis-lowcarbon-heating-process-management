@@ -37,12 +37,24 @@
                 <td>Application</td>
                 <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
             </tr>
-            <tr> <th scope="col" colspan="2"> <a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank"> First Assessor Report    </a></th> </tr>
-            <tr> <th scope="col" colspan="2"> <a href="/task/@t.id.id/assessor/2/assessor-report" target="_blank">  Second Assessor Report  </a></th> </tr>
-            <tr> <th scope="col" colspan="2"> <a href="/task/@t.id.id/assessor/3/assessor-report" target="_blank">Third Assessor Report     </a></th> </tr>
+
+            <tr> <th scope="col" >  First Assessor Report </th>
+                 <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                    <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
+                 </th>
+            </tr>
+            <tr> <th scope="col"> Second Assessor Report </th>
+                 <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                    <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
+                 </th>
+            </tr>
+            <tr> <th scope="col"> Third Assessor Report </th>
+                 <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                    <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
+                 </th>
+            </tr>
 
             </tbody>
-
 
             <form method="POST"
                   action="@controllers.routes.TaskController.submitMakePanelDecision(t.id)"

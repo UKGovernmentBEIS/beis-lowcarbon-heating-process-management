@@ -128,6 +128,8 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
         val tiebreakscore3 = Option(s.get("tiebreakscore3")) match { case Some(t) => t.getValue.toString.toDouble case None => 0.00 }
         val averageTiebreakscore = (tiebreakscore1 + tiebreakscore2 + tiebreakscore3) / 3
 
+        println("#########=====ff11=================="+ taskService.getVariable(t.getId(),"averagetiebreakscore"))
+        println("#########=====ff22=================="+ averageTiebreakscore +"==="+tiebreakscore1+"==="+tiebreakscore2+"==="+tiebreakscore3 )
         s.map{
             case (k,v) => (k,
               Try(v.getValue) match{
@@ -164,6 +166,9 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val policyadmingroup = Config.config.bpm.policyadmingroup
     val userQuery: UserQuery = identityService.createUserQuery().memberOfGroup(policyadmingroup)
 
+    //import org.activiti.engine.identity.User
+
+    //identityService.saveUser()saveUser()
     val userNames = groupIds.foldLeft(List[String]()) { (z,l) =>
       z:::identityService.createUserQuery().memberOfGroup(l).list().foldLeft(List[String]()){ (a,b) =>
         a :+ b.getId
@@ -196,6 +201,8 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       val aws = getVariable[Double](runtimeService, t, "averageweightedscore", 0)
       val ams = getVariable[Double](runtimeService, t, "averagemoderatescore", 0)
 
+      println("===3333======="+ aws )
+      println("===44444======="+ ams )
       LocalTaskSummary(
         LocalTaskId(t.getId),
         t.getName,
@@ -215,13 +222,16 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   }
 
   final def getVariable [T] (runtimeService: RuntimeService, task: Task, v: String, t: T ): T = {
+
     import scala.util.Try
     Try((runtimeService.getVariable(task.getProcessInstanceId, v).asInstanceOf[AnyRef]).asInstanceOf[T] ).toOption match {
       case Some(s) if s==null => t
-      case Some(s) if s!=null =>
+      case Some(s) if !StringUtils.isEmpty(s.toString) =>
               t match {
 
-                case c:java.lang.Double => s.toString().toDouble.asInstanceOf[T]
+                case c:java.lang.Double =>    println("===2======="+ s )
+
+                  s.toString().toDouble.asInstanceOf[T]
 
                 case c:String => s.asInstanceOf[T]
               }
@@ -258,12 +268,9 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       case _ => 0
     }
 
-    println("111================" + status)
-
     status match {
       case "eligible" => None
       case "noteligible" =>
-        println("Not eligible ================" + status)
         taskService.setVariableLocal(t.getId(), "finaldecision", "Not eligible")
     }
 

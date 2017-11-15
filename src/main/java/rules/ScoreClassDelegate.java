@@ -34,18 +34,20 @@ public class ScoreClassDelegate implements JavaDelegate {
         execution.setVariable("maxDeviation", deviation);
         execution.setVariable("averageweightedscore", getAverageWeightedScore(score1, score2, score3));
         execution.setVariable("averagetiebreakscore", getAverageTiebreakScore(score1, score2, score3));
+        execution.setVariable("approvestatus", "Assessor assigned");
+
     }
 
         private double getAverageWeightedScore(AssessScore score1, AssessScore score2, AssessScore score3) {
-            System.out.println("=== getAverageWeightedScore == ==" + (score1.getWeightedscore() + score3.getWeightedscore() + score3.getWeightedscore()) / 3);
+            System.out.println("=== getAverageWeightedScore == ==" + (score1.getWeightedscore() + score2.getWeightedscore() + score3.getWeightedscore()) / 3);
             NumberFormat formatter = new DecimalFormat("#0.00");
-            return Double.parseDouble(formatter.format((score1.getWeightedscore() + score3.getWeightedscore() + score3.getWeightedscore()) / 3));
+            return Double.parseDouble(formatter.format((score1.getWeightedscore() + score2.getWeightedscore() + score3.getWeightedscore()) / 3));
         }
 
         private double getAverageTiebreakScore(AssessScore score1, AssessScore score2, AssessScore score3) {
-            System.out.println("=== getAverageTiebreakScore == ==" + (score1.getTiebreakscore() + score3.getTiebreakscore() + score3.getTiebreakscore()) / 3);
+            System.out.println("=== getAverageTiebreakScore == ==" + (score1.getTiebreakscore() + score2.getTiebreakscore() + score3.getTiebreakscore()) / 3);
             NumberFormat formatter = new DecimalFormat("#0.00");
-            return Double.parseDouble(formatter.format((score1.getTiebreakscore() + score3.getTiebreakscore() + score3.getTiebreakscore()) / 3));
+            return Double.parseDouble(formatter.format((score1.getTiebreakscore() + score2.getTiebreakscore() + score3.getTiebreakscore()) / 3));
         }
 
         private double calculateDeviation(AssessScore score1, AssessScore score2, AssessScore score3){
@@ -181,9 +183,7 @@ public class ScoreClassDelegate implements JavaDelegate {
         System.out.println("=== In Java Service Delegate == widerobj" + score.getKey() + "          :-" + score.getWiderobjweight());
 
         System.out.println("=== In Java Service Delegate == overallcomment" + score.getKey() + "    :-" + score.getOverallcomment());
-        System.out.println("=== In Java Service Delegate == Weightedscore" + score.getKey() + "    :-" + score.getWeightedscore());
-        System.out.println("=== In Java Service Delegate == Tiebreakscore" + score.getKey() + "    :-" + score.getTiebreakscore());
-
-
+        System.out.println("=== In Java Service Delegate == Weightedscore" + score.getKey() + "     :-" + score.getWeightedscore());
+        System.out.println("=== In Java Service Delegate == Tiebreakscore" + score.getKey() + "     :-" + score.getTiebreakscore());
     }
 }
