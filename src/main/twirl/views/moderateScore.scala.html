@@ -16,7 +16,7 @@
             @t.name
         </h1>
 
-        <table  border="0">
+        <table class="thwithborder">
             @taskInfo(t, url)
         </table>
 
@@ -25,7 +25,8 @@
               novalidate="novalidate" >
 
        <br>
-        <table border="1" >
+            <table class="thwithborder thwithlasttrborder">
+
             <thead>
             <tr>
                 <th class="tdwithpadding"> Criteria </th>
@@ -112,21 +113,7 @@
         <table  border="0">
                 <thead>
 
-                <tr> <th scope="col" >  First Assessor Report </th>
-                    <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
-                        <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
-                    </th>
-                </tr>
-                <tr> <th scope="col"> Second Assessor Report </th>
-                    <th><a href="/task/@t.id.id/assessor/2/assessor-report" target="_blank">
-                        <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
-                    </th>
-                </tr>
-                <tr> <th scope="col"> Third Assessor Report </th>
-                    <th><a href="/task/@t.id.id/assessor/3/assessor-report" target="_blank">
-                        <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
-                    </th>
-                </tr>
+                @assessorReportIncl(t)
 
                 </thead>
 

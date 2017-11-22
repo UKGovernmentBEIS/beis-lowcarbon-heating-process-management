@@ -44,3 +44,20 @@ hr {
 .tdnormal {
        width: 23%;
 }
+
+.thwithborder {
+      th {
+         border-top: solid 2px $black;
+         border-bottom: solid 2px $black;
+      }
+      tfoot > tr > td {
+         border-bottom: 2px solid $black;
+         border-top: 2px solid $black;
+      }
+  }
+
+  .thwithlasttrborder {
+         tr:last-of-type {
+              border-bottom: 2px solid $black;
+            }
+    }
