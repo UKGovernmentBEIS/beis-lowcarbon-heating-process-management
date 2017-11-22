@@ -16,7 +16,9 @@
             @t.name
         </h1>
 
-        @taskInfo(t, url)
+        <table  border="0">
+            @taskInfo(t, url)
+        </table>
 
         <form method="POST"
               action="@controllers.routes.TaskController.submitModerateScore(t.id)"
