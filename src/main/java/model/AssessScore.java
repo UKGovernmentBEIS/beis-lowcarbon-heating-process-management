@@ -12,6 +12,11 @@ public class AssessScore {
     String projectdesc = null;
     String projectdesccomment = null;
     int projectdescweight = 0;
+
+    int cost = 0;
+    String costcomment = null;
+    int costweight = 0;
+
     int performanceenhancement = 0;
     int performanceenhancementweight = 0;
     int performancemanagement = 0;
@@ -19,9 +24,6 @@ public class AssessScore {
     int performanceintegration = 0;
     int performanceintegrationweight = 0;
     String performancecomment = null;
-    Double weightedscore = 0.0;
-    Double tiebreakscore = 0.0;
-
 
     int marketpotential = 0;
     String marketpotentialcomment = null;
@@ -40,6 +42,9 @@ public class AssessScore {
     int widerobjweight = 0;
 
     String overallcomment = null;
+
+    Double weightedscore = 0.0;
+    Double tiebreakscore = 0.0;
 
     /** Getters nd Setters **/
 
@@ -67,6 +72,18 @@ public class AssessScore {
     public void setProjectdescweight(int projectdescweight) {
         this.projectdescweight = projectdescweight;
     }
+
+    public int getCost() { return cost; }
+
+    public void setCost(int cost) { this.cost = cost; }
+
+    public String getCostcomment() { return costcomment; }
+
+    public void setCostcomment(String costcomment) { this.costcomment = costcomment; }
+
+    public int getCostweight() { return costweight; }
+
+    public void setCostweight(int costweight) { this.costweight = costweight; }
 
     public int getPerformanceenhancement() {
         return performanceenhancement;
@@ -136,17 +153,13 @@ public class AssessScore {
         return marketpotentialcomment;
     }
 
-    public void setMarketpotentialcomment(String marketpotentialcomment) {
-        this.marketpotentialcomment = marketpotentialcomment;
-    }
+    public void setMarketpotentialcomment(String marketpotentialcomment) { this.marketpotentialcomment = marketpotentialcomment; }
 
     public int getMarketpotentialweight() {
         return marketpotentialweight;
     }
 
-    public void setMarketpotentialweight(int marketpotentialweight) {
-        this.marketpotentialweight = marketpotentialweight;
-    }
+    public void setMarketpotentialweight(int marketpotentialweight) { this.marketpotentialweight = marketpotentialweight; }
 
     public int getProjectdelivery() {
         return projectdelivery;
@@ -160,17 +173,13 @@ public class AssessScore {
         return projectdeliverycomment;
     }
 
-    public void setProjectdeliverycomment(String projectdeliverycomment) {
-        this.projectdeliverycomment = projectdeliverycomment;
-    }
+    public void setProjectdeliverycomment(String projectdeliverycomment) { this.projectdeliverycomment = projectdeliverycomment; }
 
     public int getProjectdeliveryweight() {
         return projectdeliveryweight;
     }
 
-    public void setProjectdeliveryweight(int projectdeliveryweight) {
-        this.projectdeliveryweight = projectdeliveryweight;
-    }
+    public void setProjectdeliveryweight(int projectdeliveryweight) { this.projectdeliveryweight = projectdeliveryweight; }
 
     public int getProjectfinancing() {
         return projectfinancing;
@@ -184,17 +193,13 @@ public class AssessScore {
         return projectfinancingcomment;
     }
 
-    public void setProjectfinancingcomment(String projectfinancingcomment) {
-        this.projectfinancingcomment = projectfinancingcomment;
-    }
+    public void setProjectfinancingcomment(String projectfinancingcomment) { this.projectfinancingcomment = projectfinancingcomment;}
 
     public int getProjectfinancingweight() {
         return projectfinancingweight;
     }
 
-    public void setProjectfinancingweight(int projectfinancingweight) {
-        this.projectfinancingweight = projectfinancingweight;
-    }
+    public void setProjectfinancingweight(int projectfinancingweight) { this.projectfinancingweight = projectfinancingweight; }
 
     public int getWiderobj() {
         return widerobj;

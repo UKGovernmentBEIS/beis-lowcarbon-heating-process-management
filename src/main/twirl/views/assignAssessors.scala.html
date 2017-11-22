@@ -1,7 +1,8 @@
 @(t: LocalTask,
   url:String,
   statusmap: Map[String, String],
-  errors: List[FieldError]
+  errors: List[validations.FieldError],
+  userId: Option[String] = None
 )
 
 @import org.joda.time.format.DateTimeFormat
@@ -11,7 +12,7 @@
 if(errors.nonEmpty) "error" else ""
 }
 
-@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url))) {
+@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url)), displayUserName=userId) {
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
@@ -23,34 +24,13 @@ if(errors.nonEmpty) "error" else ""
         <span class="error-message" role="alert">@e.err</span>
         }
 
-    <table  border="0">
-        <thead>
-        <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
-        </thead>
-
-        <tbody>
-        <tr>
-            <td>Id</td>
-            <td>@t.id.id</td>
-        </tr>
-        <tr>
-            <td>Assigned To</td>
-            <td>@t.groups</td>
-        </tr>
-        <tr>
-            <td>Opportunity</td>
-            <td> @t.oppTitle </td>
-        </tr>
-        <tr>
-            <td>Application</td>
-            <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
-        </tr>
+        <table  border="0">
+            @taskInfo(t, url)
 
         <form method="POST"
               action="@controllers.routes.TaskController.submitAssignAssessors(t.id)"
               novalidate="novalidate" >
 
-        </tbody>
         <tr>
             <td>First Assessor</td>
             <td>

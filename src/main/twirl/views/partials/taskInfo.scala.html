@@ -1,0 +1,28 @@
+@(t: LocalTask,
+url: String)
+
+
+@import partials._
+
+    <thead>
+    <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
+    </thead>
+
+    <tbody>
+    <tr>
+        <td>Id</td>
+        <td>@t.id.id</td>
+    </tr>
+    <tr>
+        <td>Assigned To</td>
+        <td>@t.groups</td>
+    </tr>
+    <tr>
+        <td>Opportunity</td>
+        <td> @t.oppTitle </td>
+    </tr>
+    <tr>
+        <td>Application</td>
+        <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
+    </tr>
+    </tbody>

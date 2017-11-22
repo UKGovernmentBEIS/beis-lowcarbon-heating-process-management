@@ -20,10 +20,6 @@
   margin-top: 15px;
 }
 
-.hr-blue-small {
-  background-color: $mainstream-brand;
-  height: 10px;
- }
 .phase-banner {
   @include phase-banner(alpha);
 }
@@ -32,7 +28,12 @@
   @include phase-tag(alpha);
 }
 
+.beta-tag {
+  @include phase-tag(beta);
+}
+
 .username-container {
+  font-size: 15px;
   float: right;
 }
 

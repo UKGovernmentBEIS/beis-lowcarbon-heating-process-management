@@ -1,0 +1,17 @@
+
+@(
+registrationform: Form[RegistrationForm],
+errs: List[String]
+)(implicit flash: Flash)
+
+
+
+
+@errorClass = @{
+if(errs.nonEmpty) "error" else ""
+}
+
+@import helper._
+@import play.api.Play.current
+@import play.api.i18n.Messages.Implicits._
+

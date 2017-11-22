@@ -1,0 +1,15 @@
+name = Name
+password = Password
+
+##### Error, Warning and Success messages #####
+
+error.BF000 =
+error.BF001 = The confirm password does not match. Please enter them again
+error.BF002 = Login details are incorrect. Please add correct details
+error.BF003 = There is a problem. Please login again
+error.BF004 = Please enter all mandatory fields
+error.BF005 = Incorrect password. Please enter password again
+error.BF006 = {0} must contain at least 8 characters
+error.BF007 = {0} must contain at least one letter and one number
+
+success.BF001 = database query successful

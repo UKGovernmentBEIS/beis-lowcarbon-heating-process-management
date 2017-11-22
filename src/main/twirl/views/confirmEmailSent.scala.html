@@ -1,12 +1,12 @@
 @(t: LocalTask,
-  url:String
+  url:String,
+  userId: Option[String] = None
 )
 
 @import org.joda.time.format.DateTimeFormat
-
 @import partials._
 
-@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url))) {
+@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url)), displayUserName=userId) {
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
@@ -15,27 +15,8 @@
         </h1>
 
         <table  border="0">
-            <thead>
-            <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
-            </thead>
+            @taskInfo(t, url)
 
-            <tbody>
-            <tr>
-                <td>Id</td>
-                <td>@t.id.id</td>
-            </tr>
-            <tr>
-                <td>Assigned To</td>
-                <td>@t.groups</td>
-            </tr>
-            <tr>
-                <td>Opportunity</td>
-                <td> @t.oppTitle </td>
-            </tr>
-            <tr>
-                <td>Application</td>
-                <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
-            </tr>
             @if(t.variables.get("finaldecision").getOrElse("") != "Not eligible"){
             <tr> <th scope="col" >  First Assessor Report </th>
                 <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
@@ -43,17 +24,16 @@
                 </th>
             </tr>
             <tr> <th scope="col"> Second Assessor Report </th>
-                <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                <th><a href="/task/@t.id.id/assessor/2/assessor-report" target="_blank">
                     <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
                 </th>
             </tr>
             <tr> <th scope="col"> Third Assessor Report </th>
-                <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                <th><a href="/task/@t.id.id/assessor/3/assessor-report" target="_blank">
                     <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
                 </th>
             </tr>
 
-            </tbody>
             }
 
             <form method="POST"

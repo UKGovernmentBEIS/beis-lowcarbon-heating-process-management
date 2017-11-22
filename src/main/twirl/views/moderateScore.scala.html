@@ -1,13 +1,14 @@
 @(t: LocalTask,
   url:String,
-  decisionmap: Map[String, String]
+  decisionmap: Map[String, String],
+  userId: Option[String] = None
 )
 
 @import org.joda.time.format.DateTimeFormat
 @import partials._
 
 
-@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url))) {
+@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url)), displayUserName=userId) {
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
@@ -15,31 +16,7 @@
             @t.name
         </h1>
 
-        <table  border="0">
-            <thead>
-            <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
-            </thead>
-
-            <tbody>
-            <tr>
-                <td>Id</td>
-                <td>@t.id.id</td>
-            </tr>
-            <tr>
-                <td>Assigned To</td>
-                <td>@t.groups</td>
-            </tr>
-            <tr>
-                <td>Opportunity</td>
-                <td> @t.oppTitle </td>
-            </tr>
-            <tr>
-                <td>Application</td>
-                <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
-            </tr>
-
-            </tbody>
-    </table>
+        @taskInfo(t, url)
 
         <form method="POST"
               action="@controllers.routes.TaskController.submitModerateScore(t.id)"
@@ -68,6 +45,12 @@
                 <td class="tdwithpadding">@t.variables.get(s"performanceenhancement1").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"performanceenhancement2").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"performanceenhancement3").getOrElse("") </td>
+            </tr>
+            <tr>
+                <td class="tdwithpadding">Cost (@t.variables.get(s"costweight1").getOrElse("")%) </td>
+                <td class="tdwithpadding">@t.variables.get(s"cost1").getOrElse("") </td>
+                <td class="tdwithpadding">@t.variables.get(s"cost2").getOrElse("") </td>
+                <td class="tdwithpadding">@t.variables.get(s"cost3").getOrElse("") </td>
             </tr>
             <tr>
                 <td class="tdwithpadding">Performance management (@t.variables.get(s"performancemanagementweight1").getOrElse("")%) </td>
@@ -133,12 +116,12 @@
                     </th>
                 </tr>
                 <tr> <th scope="col"> Second Assessor Report </th>
-                    <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                    <th><a href="/task/@t.id.id/assessor/2/assessor-report" target="_blank">
                         <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
                     </th>
                 </tr>
                 <tr> <th scope="col"> Third Assessor Report </th>
-                    <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                    <th><a href="/task/@t.id.id/assessor/3/assessor-report" target="_blank">
                         <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
                     </th>
                 </tr>

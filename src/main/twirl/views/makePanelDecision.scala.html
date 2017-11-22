@@ -1,13 +1,17 @@
 @(t: LocalTask,
-  url:String,
-  decisionmap: Map[String, String]
+url:String,
+decisionmap: Map[String, String],
+userId: Option[String] = None
 )
+
 
 @import org.joda.time.format.DateTimeFormat
 
 @import partials._
 
-@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url))) {
+@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url)), displayUserName=userId) {
+
+
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
@@ -16,72 +20,50 @@
         </h1>
 
         <table  border="0">
-            <thead>
-            <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
-            </thead>
-
-            <tbody>
-            <tr>
-                <td>Id</td>
-                <td>@t.id.id</td>
-            </tr>
-            <tr>
-                <td>Assigned To</td>
-                <td>@t.groups</td>
-            </tr>
-            <tr>
-                <td>Opportunity</td>
-                <td> @t.oppTitle </td>
-            </tr>
-            <tr>
-                <td>Application</td>
-                <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
-            </tr>
+            @taskInfo(t, url)
 
             <tr> <th scope="col" >  First Assessor Report </th>
-                 <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
                     <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
-                 </th>
+                </th>
             </tr>
             <tr> <th scope="col"> Second Assessor Report </th>
-                 <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                <th><a href="/task/@t.id.id/assessor/2/assessor-report" target="_blank">
                     <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
-                 </th>
+                </th>
             </tr>
             <tr> <th scope="col"> Third Assessor Report </th>
-                 <th><a href="/task/@t.id.id/assessor/1/assessor-report" target="_blank">
+                <th><a href="/task/@t.id.id/assessor/3/assessor-report" target="_blank">
                     <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
-                 </th>
+                </th>
             </tr>
-
-            </tbody>
 
             <form method="POST"
                   action="@controllers.routes.TaskController.submitMakePanelDecision(t.id)"
                   novalidate="novalidate" >
 
-            <tr>
+                <tr>
                     <td>Average Weighted Score </td>
                     <td>
                         @t.variables.get(s"averageweightedscore").getOrElse("")
                     </td>
-            </tr>
+                </tr>
 
-            <tr>
+                <tr>
                     <td>Average Tie-Break Score </td>
                     <td>
                         @t.variables.get(s"averagetiebreakscore").getOrElse("")
                     </td>
-            </tr>
+                </tr>
 
-            <tr>
+                <tr>
                     <td>Average Moderate Score </td>
                     <td>
                         @t.variables.get(s"averagemoderatescore").getOrElse("")
                     </td>
-            </tr>
-            <tr>
-             <td>Decision</td>
+                </tr>
+                <tr>
+                    <td>Decision</td>
                     <td>
 
                         <div class="rifs-form-buttons">
@@ -94,12 +76,12 @@
                             </select>
                         </div>
                     </td>
-             </tr>
+                </tr>
 
-            <tr>
-                <td colspan="2">
+                <tr>
+                    <td colspan="2">
 
-                    <div class="rifs-form-buttons">
+                        <div class="rifs-form-buttons">
 
                             Comments
                             <details>
@@ -110,11 +92,11 @@
                             <textarea id="name" class="form-control textarea-resize" title="name" name="comment"></textarea>
                             <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
                             <input type="submit" name="save" class="button button--start" value="Submit Process">
-                    </div>
-                </td>
-            </tr>
+                        </div>
+                    </td>
+                </tr>
 
-    </table>
+        </table>
     </div>
     </form>
 

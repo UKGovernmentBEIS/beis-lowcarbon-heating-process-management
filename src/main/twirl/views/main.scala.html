@@ -1,7 +1,9 @@
 @(title: String, mainClass: Option[String] = None, bodyEnd: Html = Html(""), headExtra: Html = Html(""),
         insideHeader: Html = Html(""), links: Html = Html(""),
         backLink:Option[BackLink] = None,
-        displayUserName:Option[String]=None)(content: Html)
+        displayUserName:Option[String]=None,
+        showAllLinks:Option[Boolean] = None
+)(content: Html)
 
 @head = {
 @headExtra
@@ -21,19 +23,27 @@
 
 @layouts.govuk_template2(Some(title), None)(head, empty, bodyEnd, proposition, empty, empty, empty, empty, empty) {
     <main id="content" class="@mainClass" role="main" tabindex="-1">
-            <!-- removed alphaBanner -->
+        @betaBanner()
         <div id="global-header-status">
             @if(backLink.isDefined) {
-                <div class="backlink-container">
-                        &lt; <a class="return-link" href=@backLink.get.url  >
+            <div class="backlink-container">
+                &lt; <a class="return-link" href=@backLink.get.url  >
                 @backLink.get.label</a>
-                </div>
+            </div>
             }
             @if(displayUserName.isDefined) {
-                <div class="username-container">
-                    <span><span class="visually-hidden">Signed in as </span>@displayUserName.getOrElse("")</span>
-                </div>
+            <div class="username-container">
+                <span class="visually-hidden">Signed in as </span>@displayUserName.getOrElse("")</span>
+                @if(showAllLinks){
+                &nbsp; &nbsp; <span> <a href="@controllers.routes.UserController.passwordresetForm()"
+                                        class="flat nobreak">
+                                        Change password</a></span>
+                }
+                &nbsp; &nbsp; <span> <a href="@controllers.routes.UserController.logOut()" class="flat nobreak">
+                        Log out</a></span>
+            </div>
             }
+
         </div>
 
         @content

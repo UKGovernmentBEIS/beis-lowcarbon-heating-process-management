@@ -38,6 +38,8 @@ import cats.syntax.validated._
 import org.apache.commons.lang3.StringUtils
 
 import scala.util.{Failure, Success, Try}
+import validations.FieldError
+
 
 class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionContext) extends Controller {
 
@@ -45,8 +47,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     Ok(views.html.startPage())
   }
 
-  def task (id : LocalTaskId, appId : Long, oppId : Long) = Action.async {
+  def task (id : LocalTaskId, appId : Long, oppId : Long) = Action.async { implicit request =>
     val t = localtasks.showTask(id)
+    val userId = request.session.get("username").getOrElse("Unauthorised User")
+
     t.flatMap{
       case Some(tsk) => {
 
@@ -64,22 +68,22 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
         tsk.key match {
           case "assessEligibility" =>
-            Future(Ok(views.html.assessEligibility(tsk, appFrontEndUrl, technologyMap, submitStatusMap)))
+            Future(Ok(views.html.assessEligibility(tsk, appFrontEndUrl, technologyMap, submitStatusMap, Some(userId))))
           case "assignAssessors" =>
-            Future(Ok(views.html.assignAssessors(tsk, appFrontEndUrl, getMembers(grp), List())))
+            Future(Ok(views.html.assignAssessors(tsk, appFrontEndUrl, getMembers(grp), List(), Some(userId))))
           //case "firstAssessment" | "secondAssessment" | "thirdAssessment"=>
           case "firstAssessment"=>
-            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "1")))
+            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "1", Some(userId))))
           case "secondAssessment"=>
-            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "2")))
+            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "2", Some(userId))))
           case "thirdAssessment"=>
-            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "3")))
+            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "3", Some(userId))))
           case "makePanelDecision" =>
-            Future(Ok(views.html.makePanelDecision(tsk, appFrontEndUrl, decisionMap)))
+            Future(Ok(views.html.makePanelDecision(tsk, appFrontEndUrl, decisionMap, Some(userId))))
           case "moderateScore" =>
-            Future(Ok(views.html.moderateScore(tsk, appFrontEndUrl, decisionMap)))
+            Future(Ok(views.html.moderateScore(tsk, appFrontEndUrl, decisionMap, Some(userId))))
           case "confirmEmailSent" =>
-            Future(Ok(views.html.confirmEmailSent(tsk, appFrontEndUrl)))
+            Future(Ok(views.html.confirmEmailSent(tsk, appFrontEndUrl, Some(userId))))
         }
       }
       case None => Future.successful(NotFound)
@@ -101,8 +105,6 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
   def tasks = Action.async  {   implicit request =>
     val sortstr = request.queryString.getOrElse("sort", List()).headOption.getOrElse("")
 
-    println("=========111======="+ sortstr)
-
    val userId = request.session.get("username").getOrElse("Unauthorised User")
     val ts = localtasks.showTasks(UserId(userId))
 
@@ -110,31 +112,31 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
       case ts =>
         sortstr match {
           case "task-asc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.key))))
+            Future (Ok(views.html.tasks(ts.sortBy(_.key), Some(userId))))
           case "task-desc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.key).reverse )))
+            Future (Ok(views.html.tasks(ts.sortBy(_.key).reverse, Some(userId) )))
           case "app-asc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.appRef))))
+            Future (Ok(views.html.tasks(ts.sortBy(_.appRef), Some(userId))))
           case "app-desc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.appRef).reverse )))
+            Future (Ok(views.html.tasks(ts.sortBy(_.appRef).reverse, Some(userId) )))
           case "technology-asc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.technology))))
+            Future (Ok(views.html.tasks(ts.sortBy(_.technology), Some(userId))))
           case "technology-desc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.technology).reverse )))
+            Future (Ok(views.html.tasks(ts.sortBy(_.technology).reverse, Some(userId) )))
           case "aws-asc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.averageweightedscore))))
+            Future (Ok(views.html.tasks(ts.sortBy(_.averageweightedscore), Some(userId))))
           case "aws-desc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.averageweightedscore).reverse )))
+            Future (Ok(views.html.tasks(ts.sortBy(_.averageweightedscore).reverse, Some(userId) )))
           case "atbs-asc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.averagetiebreakscore))))
+            Future (Ok(views.html.tasks(ts.sortBy(_.averagetiebreakscore), Some(userId))))
           case "atbs-desc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.averagetiebreakscore).reverse )))
+            Future (Ok(views.html.tasks(ts.sortBy(_.averagetiebreakscore).reverse, Some(userId) )))
           case "status-asc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.status))))
+            Future (Ok(views.html.tasks(ts.sortBy(_.status), Some(userId))))
           case "status-desc" =>
-            Future (Ok(views.html.tasks(ts.sortBy(_.status).reverse )))
+            Future (Ok(views.html.tasks(ts.sortBy(_.status).reverse, Some(userId) )))
           case _ =>
-            Future (Ok(views.html.tasks(ts)))
+            Future (Ok(views.html.tasks(ts, Some(userId))))
         }
       case Seq() => Future.successful(NotFound)
     }
@@ -226,6 +228,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     val projectdesccomment =           getValueFromRequest("projectdescriptioncomment", mp )
     val projectdescweight =            getValueFromRequest("projectdescweight", mp ).toInt
 
+    val cost =                         getValueFromRequest("costoption", mp ).toInt
+    val costcomment =                  getValueFromRequest("costcomment", mp )
+    val costweight =                   getValueFromRequest("costweight", mp ).toInt
+
     val performanceenhancement =       getValueFromRequest("performanceenhancementoption", mp ).toInt
     val performancemanagement =        getValueFromRequest("performancemanagementoption", mp ).toInt
     val performanceintegration =       getValueFromRequest("performanceintegrationoption", mp ).toInt
@@ -269,13 +275,14 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     val performancemanagementScore = performancemanagement * performancemanagementweight / 100.0
     val performanceintegrationScore = performanceintegration * performanceintegrationweight / 100.0
     val marketpotentialScore = marketpotential * marketpotentialweight / 100.0
+    val costScore = cost * costweight / 100.0
     val projectdeliveryScore = projectdelivery * projectdeliveryweight / 100.0
     val projectfinancingScore = projectfinancing * projectfinancingweight / 100.0
     // Wider objective - Tie Breaker only - Dont add it now
     val widerobjectiveScore = widerobjective * widerobjectiveweight / 100.0
 
 
-    val weightedScore = performanceenhancementScore + performancemanagementScore + performanceintegrationScore + marketpotentialScore
+    val weightedScore = performanceenhancementScore + costScore+ performancemanagementScore + performanceintegrationScore + marketpotentialScore
                         + projectdeliveryScore + projectfinancingScore
 
     val tiebreakScore = weightedScore + widerobjectiveScore
@@ -284,6 +291,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     /*println("=== score " + "" + "==  " + performanceenhancement)
     println("=== score " + "" + "==  " + performancemanagement)
     println("=== score " + "" + "==  " + performanceintegration)
+    println("=== score " + "" + "==  " + cost)
     println("=== score " + "" + "==  " + marketpotential)
     println("=== score " + "" + "==  " + projectdelivery)
     println("=== score " + "" + "==  " + projectfinancing)
@@ -293,6 +301,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     println("=== score weight" + "" + "==  " + performancemanagementweight)
     println("=== score weight" + "" + "==  " + performanceintegrationweight)
     println("=== score weight" + "" + "==  " + marketpotentialweight)
+    println("=== score weight" + "" + "==  " + costweight)
     println("=== score weight" + "" + "==  " + projectdeliveryweight)
     println("=== score weight" + "" + "==  " + projectfinancingweight)
     println("=== score weight" + "" + "==  " + widerobjectiveweight)
@@ -302,6 +311,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     println("=== score Score" + "" + "==  " + performanceenhancementScore)
     println("=== score Score" + "" + "==  " + performancemanagementScore)
     println("=== score Score" + "" + "==  " + performanceintegrationScore)
+    println("=== score Score" + "" + "==  " + costScore)
     println("=== score Score" + "" + "==  " + marketpotentialScore)
     println("=== score Score" + "" + "==  " + projectdeliveryScore)
     println("=== score Score" + "" + "==  " + projectfinancingScore)
@@ -312,6 +322,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     val score = Score(
       projectdesc, projectdesccomment, projectdescweight.toInt,
+      cost.toInt, costcomment, costweight.toInt,
       performanceenhancement.toInt, performanceenhancementweight.toInt,
       performancemanagement.toInt, performancemanagementweight.toInt,
       performanceintegration.toInt, performancecomment, performanceintegrationweight.toInt,
@@ -427,6 +438,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     println("=== In Task Controller == projectdesc" + ":" + "       :-" + score.projectdesc)
     println("=== In Task Controller == projectdesccomment" + ":" + ":-" + score.projectdesccomment)
     println("=== In Task Controller == projectdescweight" + ":" + " :-" + score.projectdescweight)
+    println("=== In Task Controller == cost" + ":" + "              :-" + score.cost)
+    println("=== In Task Controller == costcomment" + ":" + "       :-" + score.costcomment)
+    println("=== In Task Controller == costweight" + ":" + "        :-" + score.costweight)
     println("=== In Task Controller == performance" + ":" + "       :-" + score.performanceenhancement)
     println("=== In Task Controller == performance" + ":" + "       :-" + score.performanceenhancementweight)
     println("=== In Task Controller == performance" + ":" + "       :-" + score.performancemanagement)
@@ -447,11 +461,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     println("=== In Task Controller == widerobjective" + ":" + "    :-" + score.widerobjectivecomment)
     println("=== In Task Controller == widerobjective" + ":" + "    :-" + score.widerobjectiveweight)
     println("=== In Task Controller == overallcomment" + ":" + "    :-" + score.overallcomment)
-    println("=== In Task Controller == weightedscore" + ":" + "    :-" + score.weightedscore)
-    println("=== In Task Controller == tiebreakscore" + ":" + "    :-" + score.tiebreakscore)
+    println("=== In Task Controller == weightedscore" + ":" + "     :-" + score.weightedscore)
+    println("=== In Task Controller == tiebreakscore" + ":" + "     :-" + score.tiebreakscore)
   }
 }
-
-case class FieldError(path: String, err: String)
 
 

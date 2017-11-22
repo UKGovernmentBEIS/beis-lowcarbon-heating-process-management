@@ -20,18 +20,28 @@ package controllers
 import java.util
 import javax.inject.Inject
 
+import config.Config
+import models.UserId
 import org.activiti.engine.impl.persistence.entity.ProcessDefinitionEntity
 import org.activiti.engine.repository.ProcessDefinition
 import org.activiti.engine.task.Task
-import play.api.mvc.{Action, Controller}
+import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.libs.json._
 import play.api.libs.json.Json
-import play.api.mvc.{Action, Controller, MultipartFormData, Result}
-import play.api.mvc.Security
 import org.activiti.engine.{ProcessEngine, ProcessEngines}
+import org.apache.commons.lang3.StringUtils
+import play.api.i18n.Messages
+
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.Play.current
+import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
+import play.api.data.Forms._
+import services.BEISTaskOps
+import validations.PasswordValidator
+import validations.FieldError
 
 /********************************************************************************
   This file is for temporary Login till any Security component is deployed.
@@ -40,58 +50,190 @@ import scala.concurrent.{ExecutionContext, Future}
   Use only http://localhost:9000
  *********************************************************************************/
 
-class UserController /* @Inject()(pe: ProcessEngine) */ extends Controller {
+class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionContext) extends Controller {
 
   implicit val postWrites = Json.writes[LoginForm]
+  implicit val messages = Messages
 
   val loginform:Form[LoginForm] = Form(
     mapping(
       "name" -> text,
       "password" -> text
-    ) (LoginForm.apply)(LoginForm.unapply) verifying ("Invalid email or password", result => result match {
+    ) (LoginForm.apply)(LoginForm.unapply) verifying ("Invalid password", result => result match {
       case loginForm => check(loginForm.name, loginForm.password)
     })
   )
 
+  val registrationform:Form[RegistrationForm] = Form(
+    mapping(
+      "firstname" -> text,
+      "lastname" -> text,
+      "password" -> text,
+      "confirmpassword" -> text,
+      "email" -> text
+    ) (RegistrationForm.apply)(RegistrationForm.unapply) verifying ("Invalid email or password", result => result match {
+      case registrationForm => check(registrationForm.firstname, registrationForm.lastname, registrationForm.password,
+        registrationForm.confirmpassword, registrationForm.email)
+    })
+  )
 
-  def check(username: String, password: String) = {
-    (username == "assessor1" && password == "1234") ||
-    (username == "assessor2" && password == "1234") ||
-    (username == "assessor3" && password == "1234") ||
-    (username == "assessor4" && password == "1234") ||
-    (username == "policyadmin1" && password == "1234") ||
-    (username == "policyadmin2" && password == "1234") ||
-    (username == "approver1" && password == "1234") ||
-    (username == "approver2" && password == "1234") ||
-    (username == "portfoliomanager" && password == "1234") ||
-    (username == "admin" && password == "1234")
+  val passwordresetform:Form[PasswordResetForm] = Form(
+    mapping(
+      "password" -> text.verifying("Please enter a value in 'Password' field", {!_.isEmpty}),
+      "newpassword"-> text.verifying("Please enter a value in 'New Password' field", {!_.isEmpty}),
+      "confirmpassword" -> text.verifying("Please enter a value in 'Confirm Password' field", {!_.isEmpty})
+    ) (PasswordResetForm.apply)(PasswordResetForm.unapply) verifying (Messages("error.BF001"), result => result match {
+      case passwordresetForm =>
+        true
+        checkPasswordReset(passwordresetForm.newpassword, passwordresetForm.confirmpassword)
+    })
+  )
+
+  def passswordCheck(path: String, s: Option[String], displayName: String): List[FieldError] =
+    (PasswordValidator(Some(displayName)).validate(path, s)).fold(_.toList, _ => List())
+
+  def checkPasswordReset(feild1: String, feild2: String) = {
+    ( feild1.equals(feild2))
+  }
+
+  def check(feild1: String, feild2: String) = {
+    (StringUtils.isNotBlank(feild1) && StringUtils.isNotBlank(feild2) )
+  }
+
+  def check(firstname: String, lastname: String, password: String, confirmpassword: String, email: String) = {
+    (StringUtils.isNotBlank(firstname) && StringUtils.isNotBlank(password) )
   }
 
   def loginForm = Action{
-    Ok(views.html.loginForm("", loginform))
+    Ok(views.html.loginForm("", loginform)).withNewSession
   }
 
-  def loginFormSubmit = Action { implicit request =>
-println("=========")
+  def registrationForm = Action{ implicit request =>
+    Ok(views.html.registrationForm(registrationform, List()))
+  }
+
+  def passwordresetForm = Action{ implicit request =>
+    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    Ok(views.html.passwordForm(passwordresetform, userId, List()))
+  }
+
+  def loginFormSubmit = Action.async { implicit request =>
+
     loginform.bindFromRequest.fold(
       errors => {
-        Ok(views.html.loginForm("error", loginform))
+        Future.successful(Ok(views.html.loginForm("error", loginform)))
       },
       user=> {
         implicit val userIdInSession = user.name
-        if(user.name.equals("assessor1") || user.name.equals("assessor2") ||
-          user.name.equals("assessor3") || user.name.equals("assessor4")  ||
-          user.name.equals("policyadmin1") || user.name.equals("policyadmin2")  ||
-          user.name.equals("approver1") || user.name.equals("approver2")  ||
-          user.name.equals("admin") )
-          Redirect(controllers.routes.TaskController.tasks()).withSession(Security.username -> user.name)
-        else
-          Redirect(controllers.routes.UserController.loginForm()).withSession(Security.username -> user.name)
+        val isUserAuthenticated = localtasks.submitLogin(user.name, user.password)
+
+        isUserAuthenticated.flatMap{
+          case true => {
+            val appFrontEndUrl = Config.config.business.appFrontEndUrl
+            Future.successful(Redirect(controllers.routes.TaskController.tasks()).withSession(Security.username -> user.name))
+          }
+          case false => Future.successful(NotFound)
+            val errMsg = Messages("error.BF002")
+            Future.successful(Ok(views.html.loginForm(errMsg, loginform)))
+        }
+       }
+    )
+  }
+
+  def getValueFromRequest(key: String, keyValueMap: Map[String, Seq[String]]): String =
+
+    keyValueMap.get(key).headOption.map(_.head).getOrElse("").toString
+
+
+  def updatePassword =  Action.async { implicit request =>
+
+    val userId = request.session.get("username").getOrElse("Unauthorised User")
+
+    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
+
+    val password = getValueFromRequest("password", mp )
+    val newpassword = getValueFromRequest("newpassword", mp )
+    val confirmpassword = getValueFromRequest("confirmpassword", mp )
+
+
+    val pswrdErrors = passswordCheck("newpassword", Some(newpassword), "newpassword")
+
+
+    //check password same
+
+    passwordresetform.bindFromRequest.fold(
+      errors => {
+        Future.successful(Ok(views.html.passwordForm(passwordresetform, userId, List(FieldError("",errors.errors.head.message)))))
+      },
+      user=> {
+        //implicit val userIdInSession = user.name
+        pswrdErrors.isEmpty match {
+          case true =>
+            val userSaved = localtasks.updatePassword(userId, password, newpassword)
+
+            userSaved.flatMap{
+              case 1 => {
+                val appFrontEndUrl = Config.config.business.appFrontEndUrl
+                Future.successful(Ok(views.html.loginForm("", loginform, Some(true))))
+              }
+              case 0 => {
+                //Future.successful(NotFound)
+                val errMsg = Messages("error.BF003")
+                Future.successful(Ok(views.html.passwordForm(passwordresetform, userId, List(FieldError("", errMsg)))))
+              }
+              case 2 => {
+                //Future.successful(NotFound)
+                val errMsg = Messages("error.BF005")
+                Future.successful(Ok(views.html.passwordForm(passwordresetform, userId, List(FieldError("", errMsg)))))
+              }
+            }
+
+          case false =>
+            Future.successful(Ok(views.html.passwordForm(passwordresetform, userId, pswrdErrors)))
+        }
+
       }
     )
   }
 
+  def registrationSubmit =  Action.async { implicit request =>
+
+    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
+
+    val firstname = getValueFromRequest("firstname", mp )
+    val lastname = getValueFromRequest("lastname", mp )
+    val password = getValueFromRequest("password", mp )
+    val confirmpassword = getValueFromRequest("confirmpassword", mp )
+    val email = getValueFromRequest("email", mp )
+
+    registrationform.bindFromRequest.fold(
+      errors => {
+        Future.successful(Ok(views.html.loginForm("error", loginform)))
+      },
+      user=> {
+        //implicit val userIdInSession = user.name
+        val userSaved = localtasks.saveUser(userId, user.firstname, user.lastname, user.password, user.email)
+
+        userSaved.flatMap{
+          case 1 => {
+            val appFrontEndUrl = Config.config.business.appFrontEndUrl
+            Future.successful(Ok(views.html.loginForm("", loginform)))
+          }
+          case 0 => Future.successful(NotFound)
+            val errMsg = Messages("error.BF002")
+            Future.successful(Ok(views.html.loginForm(errMsg, loginform)))
+        }
+      }
+    )
+  }
+
+  def logOut = Action{
+    Ok(views.html.loginForm("", loginform)).withNewSession
+  }
 
 }
 
 case class LoginForm(name: String, password: String)
+case class RegistrationForm(firstname: String, lastname: String, password: String, confirmpassword: String, email: String)
+case class PasswordResetForm(password: String, newpassword: String, confirmpassword: String)

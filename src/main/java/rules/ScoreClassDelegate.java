@@ -39,13 +39,11 @@ public class ScoreClassDelegate implements JavaDelegate {
     }
 
         private double getAverageWeightedScore(AssessScore score1, AssessScore score2, AssessScore score3) {
-            System.out.println("=== getAverageWeightedScore == ==" + (score1.getWeightedscore() + score2.getWeightedscore() + score3.getWeightedscore()) / 3);
             NumberFormat formatter = new DecimalFormat("#0.00");
             return Double.parseDouble(formatter.format((score1.getWeightedscore() + score2.getWeightedscore() + score3.getWeightedscore()) / 3));
         }
 
         private double getAverageTiebreakScore(AssessScore score1, AssessScore score2, AssessScore score3) {
-            System.out.println("=== getAverageTiebreakScore == ==" + (score1.getTiebreakscore() + score2.getTiebreakscore() + score3.getTiebreakscore()) / 3);
             NumberFormat formatter = new DecimalFormat("#0.00");
             return Double.parseDouble(formatter.format((score1.getTiebreakscore() + score2.getTiebreakscore() + score3.getTiebreakscore()) / 3));
         }
@@ -57,10 +55,6 @@ public class ScoreClassDelegate implements JavaDelegate {
         double deviation = Math.max(weightedScore1, Math.max(weightedScore2, weightedScore3))
                 - Math.min(weightedScore1, Math.min(weightedScore2, weightedScore3));
 
-        System.out.println("=== In weightedScores ==" + weightedScore1 +"====="+weightedScore2 +"====="+weightedScore2 );
-        System.out.println("===  MAX ==" + Math.max(weightedScore1, Math.max(weightedScore2, weightedScore3)));
-        System.out.println("===  MIN ==" + Math.min(weightedScore1, Math.min(weightedScore2, weightedScore3)));
-        System.out.println("=== XXXXXXX Deviation XXXXXXX is ==" + deviation);
         return deviation;
     }
 
@@ -76,24 +70,24 @@ public class ScoreClassDelegate implements JavaDelegate {
         double performancemanagement = score.getPerformancemanagement() * score.getPerformancemanagementweight()    /100.0;
         double performanceintegration = score.getPerformanceintegration() * score.getPerformanceintegrationweight() /100.0;
 
+        double cost = score.getCost() * score.getCostweight()    /100.0;
         double marketpotential = score.getMarketpotential() * score.getMarketpotentialweight()    /100.0;
         double projectdelivery = score.getProjectdelivery() * score.getProjectdeliveryweight()    /100.0;
         double projectfinancing = score.getProjectfinancing() * score.getProjectfinancingweight() /100.0;
         // Wider objective - Tie Breaker only - Dont add it now
         double widerobj = score.getWiderobj() * score.getWiderobjweight() /100.0;
 
-        System.out.println("=== score " + score.getKey() + "==  " + performanceenhancement);
+        /*System.out.println("=== score " + score.getKey() + "==  " + performanceenhancement);
         System.out.println("=== score " + score.getKey() + "==  " + performancemanagement);
         System.out.println("=== score " + score.getKey() + "==  " + performanceintegration);
+        System.out.println("=== score " + score.getKey() + "==  " + cost);
         System.out.println("=== score " + score.getKey() + "==  " + marketpotential);
         System.out.println("=== score " + score.getKey() + "==  " + projectdelivery);
         System.out.println("=== score " + score.getKey() + "==  " + projectfinancing);
-        System.out.println("=== score " + score.getKey() + "==  " + widerobj);
+        System.out.println("=== score " + score.getKey() + "==  " + widerobj);*/
 
-        double weightedScore = performanceenhancement + performancemanagement + performanceintegration + marketpotential + projectdelivery
+        double weightedScore = performanceenhancement + performancemanagement + cost + performanceintegration + marketpotential + projectdelivery
                 + projectfinancing + widerobj;
-
-        System.out.println("=== weightedScore:- " + weightedScore + ", for 100:-"+ weightedScore*10.0);
 
         return weightedScore * 10.0;
     }
@@ -118,6 +112,10 @@ public class ScoreClassDelegate implements JavaDelegate {
         score.setProjectdesc(getStrVariable(execution, "projectdesc", score.getKey()));
         score.setProjectdesccomment(getStrVariable(execution, "projectdesccomment", score.getKey()));
         score.setProjectdescweight(getIntVariable(execution, "projectdescweight", score.getKey()));
+
+        score.setCost(getIntVariable(execution, "cost", score.getKey()));
+        score.setCostcomment(getStrVariable(execution, "costcomment", score.getKey()));
+        score.setCostweight(getIntVariable(execution, "costweight", score.getKey()));
 
         score.setPerformanceenhancement(getIntVariable(execution, "performanceenhancement", score.getKey()));
         score.setPerformanceenhancementweight(getIntVariable(execution, "performanceenhancementweight", score.getKey()));
@@ -157,6 +155,10 @@ public class ScoreClassDelegate implements JavaDelegate {
         System.out.println("=== In Java Service Delegate == projectdesc" + score.getKey() + "       :-" + score.getProjectdesc());
         System.out.println("=== In Java Service Delegate == projectdesccomment" + score.getKey() + ":-" + score.getProjectdesccomment());
         System.out.println("=== In Java Service Delegate == projectdescweight" + score.getKey() + " :-" + score.getProjectdescweight());
+
+        System.out.println("=== In Java Service Delegate == cost" + score.getKey() + "       :-" + score.getCost());
+        System.out.println("=== In Java Service Delegate == costcomment" + score.getKey() + ":-" + score.getCostcomment());
+        System.out.println("=== In Java Service Delegate == costweight" + score.getKey() + " :-" + score.getCostweight());
 
         System.out.println("=== In Java Service Delegate == performance" + score.getKey() + "       :-" + score.getPerformanceenhancement());
         System.out.println("=== In Java Service Delegate == performance" + score.getKey() + "       :-" + score.getPerformanceenhancementweight());

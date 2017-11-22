@@ -1,12 +1,13 @@
 @(t: LocalTask,
   url:String,
   statusmap: Map[String, String]
-)
+)(implicit flash: Flash)
 
 @import org.joda.time.format.DateTimeFormat
+@import partials._
 
+@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url)), displayUserName=Some(flash.get("name").getOrElse(""))) {
 
-@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url))) {
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
@@ -14,35 +15,10 @@
             @t.name
         </h1>
 
-    <table  border="0">
-        <thead>
-        <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
-        </thead>
+        <table  border="0">
+            @taskInfo(t, url)
 
-        <tbody>
-        <tr>
-            <td>Id</td>
-            <td>@t.id.id</td>
-        </tr>
-        <tr>
-            <td>Name</td>
-            <td>@t.name</td>
-        </tr>
-       <tr>
-            <td>Applicant</td>
-            <td>@t.applicant.userId</td>
-        </tr>
-        <tr>
-            <td>Opportunity</td>
-            <td> @t.oppTitle </td>
-        </tr>
-        <tr>
-            <td>Application</td>
-            <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
-        </tr>
-
-        </tbody>
-        <tr>
+            <tr>
             <td>Comments</td>
             <td>
                 <div class="rifs-form-buttons">
@@ -65,71 +41,10 @@
             </td>
         </tr>
 
-
     </table>
     </div>
 
-    <div id="support-column" class="column-third">
-
-
-        <aside role="complementary">
-            <table class="process" border="0" >
-                <thead>
-                <tr>
-                    <th class="sideHeading-highlight" scope="col" colspan="2">
-                        <!--<h2 class="heading-medium no-top-margin">Task History</h2>-->
-                        <h3>Process History </h3>
-                    </th>
-                </tr>
-                </thead>
-                @for((o,i) <- t.taskHistories.zipWithIndex) {
-                <tbody>
-                <tr>
-                        <td>Task Name  </td><td>@o.name </td>
-                    </tr>
-                    <tr>
-                        <td>Status </td><td>@o.status </td>
-                    </tr>
-                    <tr>
-                        <td>Approver </td><td>@o.assignee </td>
-                     </tr>
-                    <tr>
-                        <td>Start time</td><td>@o.startTime</td>
-                    </tr>
-                    <tr>
-                        <td>End time</td><td>@o.endTime</td>
-                    </tr>
-
-
-
-                    @for((p,i) <- o.fullMessages.zipWithIndex) {
-                            @if(o.status == "Waiting" || o.fullMessages.length > 1) {
-                                <tr>
-                                    <td  colspan="2" class="sideHeading-subhighlight">
-                                        Request for Informatiom
-                                    </td>
-                                </tr>
-                            }
-                            <tr>
-                                    <td >Sent Time</td>
-                                    <td>@p.time</td>
-                            </tr>
-                            <tr>
-                                    <td >Comments</td>
-                                    <td>@p.fullMessage</td>
-                            </tr>
-
-                    }
-                    </tbody>
-
-                }
-
-                </table>
-
-
-        </aside>
-    </div>
-
+    @taskHistory(t)
 
 </div>
 

@@ -1,9 +1,11 @@
 @(t: LocalTask,
 url:String,
-assmtKey: Int
+assmtKey: Int,
+userId: Option[String] = None
 )
 
 @import org.joda.time.format.DateTimeFormat
+@import partials._
 
 
 @dropdowncheck(a:Option[AnyRef], b:String) = @{
@@ -19,29 +21,7 @@ if(a.getOrElse("") == b) "selected" else ""
         </h1>
 
         <table  border="0">
-            <thead>
-            <tr> <th scope="col" colspan="2">  Assessor @assmtKey Report</th> </tr>
-            </thead>
-
-            <tbody>
-            <tr>
-                <td>Id</td>
-                <td>@t.id.id</td>
-            </tr>
-            <tr>
-                <td>Assigned To</td>
-                <td>@t.groups</td>
-            </tr>
-            <tr>
-                <td>Opportunity</td>
-                <td> @t.oppTitle </td>
-            </tr>
-            <tr>
-                <td>Application</td>
-                <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
-            </tr>
-
-            </tbody>
+            @taskInfo(t, url)
 
                 <tr>
                     <td class="tdtopalign tdnobottomborder">Project Description  </td>  <input type="hidden" name="projectdescweight" value="0">
@@ -54,6 +34,21 @@ if(a.getOrElse("") == b) "selected" else ""
                     <td>
                         <div class="rifs-form-buttons">
                             @t.variables.get(s"projectdesccomment$assmtKey")
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td class="tdtopalign tdnobottomborder">Cost (25%) </td>  <input type="hidden" name="costweight" value="20">
+                    <td class="tdnobottomborder">
+                        @t.variables.get(s"cost$assmtKey")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign">Cost comments </td>
+                    <td>
+                        <div class="rifs-form-buttons">
+                            @t.variables.get(s"costcomment$assmtKey")
                         </div>
                     </td>
                 </tr>

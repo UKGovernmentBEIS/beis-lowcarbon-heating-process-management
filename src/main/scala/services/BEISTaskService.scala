@@ -43,6 +43,10 @@ import org.apache.commons.lang3.StringUtils
 import scala.collection.JavaConversions._
 
 import scala.util.{Try, Success, Failure}
+import validations.FieldError
+
+
+
 class ApplicationURLs(appBaseUrl: String) {
 
   /** Application DB URL **/
@@ -70,14 +74,15 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   implicit val messageIdFormat = Json.format[MessageId]
   implicit val messageFormat = Json.format[Message]
 
+  val taskService = ActivitiService.taskService
+  val processEngine = ActivitiService.processEngine
+  val historyService = ActivitiService.historyService
+  val runtimeService = ActivitiService.runtimeService
+  val identityService = ActivitiService.identityService
+
 
   override def showTask(id: LocalTaskId): Future[Option[LocalTask]] = {
     import collection.JavaConverters._
-
-    val processEngine: ProcessEngine = ActivitiTaskService.apply()
-    val historyService:HistoryService = processEngine.getHistoryService()
-    val runtimeService:RuntimeService = processEngine.getRuntimeService()
-    val taskService:TaskService = processEngine.getTaskService()
 
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
 
@@ -128,15 +133,11 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
         val tiebreakscore3 = Option(s.get("tiebreakscore3")) match { case Some(t) => t.getValue.toString.toDouble case None => 0.00 }
         val averageTiebreakscore = (tiebreakscore1 + tiebreakscore2 + tiebreakscore3) / 3
 
-        println("#########=====ff11=================="+ taskService.getVariable(t.getId(),"averagetiebreakscore"))
-        println("#########=====ff22=================="+ averageTiebreakscore +"==="+tiebreakscore1+"==="+tiebreakscore2+"==="+tiebreakscore3 )
-        s.map{
+         s.map{
             case (k,v) => (k,
               Try(v.getValue) match{
-                case Failure(e) => println("---errorrrr-in ----" + k + "===" + e.getMessage)
-                  0.asInstanceOf[AnyRef]
-                case Success(v) =>  println("1112222333====="+ k +  "===="+ v )
-                  v
+                case Failure(e) => 0.asInstanceOf[AnyRef]
+                case Success(v) => v
               }
             )
         } +=  (
@@ -161,8 +162,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
   override def getMembers(groupIds: Seq[String]): Option[Set[String]] = {
 
-    val processEngine: ProcessEngine = ActivitiTaskService.apply()
-    val identityService:IdentityService = processEngine.getIdentityService()
     val policyadmingroup = Config.config.bpm.policyadmingroup
     val userQuery: UserQuery = identityService.createUserQuery().memberOfGroup(policyadmingroup)
 
@@ -180,9 +179,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
   override def showTasks(userId: UserId): Future[Seq[LocalTaskSummary]] = {
     import collection.JavaConverters._
-    val processEngine = ActivitiTaskService.apply()
-    val runtimeService:RuntimeService = processEngine.getRuntimeService()
-    val taskService:TaskService = processEngine.getTaskService()
     val tasks = userId   match {
       case UserId("admin") =>
         taskService.createTaskQuery().list().map{ts=>
@@ -201,9 +197,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       val aws = getVariable[Double](runtimeService, t, "averageweightedscore", 0)
       val ams = getVariable[Double](runtimeService, t, "averagemoderatescore", 0)
 
-      println("===3333======="+ aws )
-      println("===44444======="+ ams )
-      LocalTaskSummary(
+       LocalTaskSummary(
         LocalTaskId(t.getId),
         t.getName,
         t.getTaskDefinitionKey(),
@@ -225,14 +219,11 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     import scala.util.Try
     Try((runtimeService.getVariable(task.getProcessInstanceId, v).asInstanceOf[AnyRef]).asInstanceOf[T] ).toOption match {
+
       case Some(s) if s==null => t
       case Some(s) if !StringUtils.isEmpty(s.toString) =>
               t match {
-
-                case c:java.lang.Double =>    println("===2======="+ s )
-
-                  s.toString().toDouble.asInstanceOf[T]
-
+                case c:java.lang.Double => s.toString().toDouble.asInstanceOf[T]
                 case c:String => s.asInstanceOf[T]
               }
       case _ => t
@@ -251,10 +242,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   }
 
   override def submitEligibility(id: LocalTaskId, userId: UserId, status: String, comment: String, technology: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
-
-    val processEngine: ProcessEngine = ActivitiTaskService.apply()
-    val runtimeService:RuntimeService = processEngine.getRuntimeService()
-    val taskService:TaskService = processEngine.getTaskService()
 
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
@@ -312,10 +299,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   override def submitAssignAssessors(id: LocalTaskId, userId: UserId, assignassessor1: String, assignassessor2: String,
                                      assignassessor3: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
 
-    val processEngine: ProcessEngine = ActivitiTaskService.apply()
-    val runtimeService:RuntimeService = processEngine.getRuntimeService()
-    val taskService:TaskService = processEngine.getTaskService()
-
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
     val applicant = runtimeService.getVariable(t.getProcessInstanceId, "Applicant").toString
@@ -345,12 +328,10 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     Future.successful(Option(LocalTaskId(t.getId)))
   }
 
+
+
   override def  submitAssessment(id: LocalTaskId, userId: UserId, asmtKey: Int,  score:Score,
                                  processInstanceId: String, buttonAction: String): Future[Option[LocalTaskId]] = {
-
-    val processEngine: ProcessEngine = ActivitiTaskService.apply()
-    val runtimeService:RuntimeService = processEngine.getRuntimeService()
-    val taskService:TaskService = processEngine.getTaskService()
 
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
@@ -364,6 +345,10 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       s"projectdesc$asmtKey" -> score.projectdesc.toString,
       s"projectdesccomment$asmtKey" -> score.projectdesccomment,
       s"projectdescweight$asmtKey" -> score.projectdescweight.toString,
+
+      s"cost$asmtKey" -> score.marketpotential.toString,
+      s"costcomment$asmtKey" -> score.marketpotentialcomment,
+      s"costweight$asmtKey" -> score.cost.toString,
 
       s"performanceenhancement$asmtKey" -> score.performanceenhancement.toString,
       s"performanceenhancementweight$asmtKey" -> score.performanceenhancementweight.toString,
@@ -423,10 +408,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
   override def submitModerateScore(id: LocalTaskId, userId: UserId, averagemoderatescore: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
 
-    val processEngine: ProcessEngine = ActivitiTaskService.apply()
-    val runtimeService:RuntimeService = processEngine.getRuntimeService()
-    val taskService:TaskService = processEngine.getTaskService()
-
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
 
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
@@ -463,10 +444,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
   override def submitMakePanelDecision(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
 
-    val processEngine: ProcessEngine = ActivitiTaskService.apply()
-    val runtimeService:RuntimeService = processEngine.getRuntimeService()
-    val taskService:TaskService = processEngine.getTaskService()
-
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
     val applicant = runtimeService.getVariable(t.getProcessInstanceId, "Applicant").toString
@@ -499,10 +476,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
   def submitConfirmEmailSent(id: LocalTaskId, userId: UserId, emailsent: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
 
-    val processEngine: ProcessEngine = ActivitiTaskService.apply()
-    val runtimeService:RuntimeService = processEngine.getRuntimeService()
-    val taskService:TaskService = processEngine.getTaskService()
-
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
     val applicant = runtimeService.getVariable(t.getProcessInstanceId, "Applicant").toString
@@ -530,11 +503,54 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   }
 
 
-  override def submitProcess(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
+  override def submitLogin(userId: String, password: String): Future[Boolean] = {
 
-    val processEngine: ProcessEngine = ActivitiTaskService.apply()
-    val runtimeService:RuntimeService = processEngine.getRuntimeService()
-    val taskService:TaskService = processEngine.getTaskService()
+    val isUserAuthonticated = identityService.checkPassword(userId, password)
+    Future.successful(isUserAuthonticated)
+  }
+
+  override def saveUser(userId: String, firstName: String, lastName: String, password: String, email: String): Future[Int] = {
+
+    import org.activiti.engine.identity.User
+
+    val user: User  = identityService.newUser(userId)
+    user.setFirstName(firstName)
+    user.setLastName(lastName)
+    user.setEmail(email)
+    user.setPassword(password)
+
+    Try(identityService.saveUser(user)) match {
+      case Success(s) => Future.successful(1)
+      case Failure(e) => println(s"Error in saving password for $userId :-"+ e.getMessage)
+                         Future.successful(0)
+    }
+  }
+
+
+  override def updatePassword(userId: String, password: String, newpassword: String): Future[Int] = {
+
+    import org.activiti.engine.identity.User
+    import collection.JavaConverters._
+
+    //Check current password is correct
+    val isUserAuthonticated = identityService.checkPassword(userId, password)
+
+    isUserAuthonticated match {
+      case true  =>
+        val user: User = identityService.createUserQuery().userId(userId).list().head
+        user.setPassword(newpassword)
+        Try(identityService.saveUser(user)) match {
+          case Success(s) => Future.successful(1)
+          case Failure(e) => println(s"Error in saving password for $userId :-"+ e.getMessage)
+            Future.successful(0)
+        }
+      case false  =>
+        Future.successful(2)
+    }
+
+  }
+
+  override def submitProcess(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
 
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
@@ -608,9 +624,14 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   }
 }
 
-object ActivitiTaskService{
+trait ActivitiServices {
+  val processEngine: ProcessEngine
+  val runtimeService:RuntimeService
+  val taskService:TaskService
+}
 
-  def apply(): ProcessEngine = {
+case object ActivitiService extends ActivitiServices{
+
     val jdbcUrl = Config.config.bpm.url
     val jdbcDriver = Config.config.bpm.driver
     val dbUser = Config.config.bpm.user
@@ -623,9 +644,12 @@ object ActivitiTaskService{
       .setJdbcDriver(jdbcDriver)
       .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE)
 
-    val processEngine: ProcessEngine = prconfig.buildProcessEngine()
-    processEngine
-  }
-
+  println("=====Calling activiti database======" )
+  val processEngine: ProcessEngine = prconfig.buildProcessEngine()
+  val historyService:HistoryService = processEngine.getHistoryService()
+  val runtimeService:RuntimeService = processEngine.getRuntimeService()
+  val taskService:TaskService = processEngine.getTaskService()
+  val identityService:IdentityService = processEngine.getIdentityService()
 }
+
 

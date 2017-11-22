@@ -1,7 +1,9 @@
-@(ts: Seq[LocalTaskSummary])
+@(ts: Seq[LocalTaskSummary],
+userId: Option[String] = None)
+
+@main(s"BEIS - Business Process Management", None, displayUserName=userId, showAllLinks=Some(true)) {
 
 
-@main(s"BEIS - Business Process Management") {
 <div>
     <h1 class="heading-xlarge">Task Management</h1>
 
