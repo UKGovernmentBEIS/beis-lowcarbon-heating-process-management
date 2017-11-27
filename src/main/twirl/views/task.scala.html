@@ -1,6 +1,7 @@
 @(t: LocalTask,
   url:String,
-  statusmap: Map[String, String]
+  statusmap: Map[String, String],
+error: Option[String] = None
 )(implicit flash: Flash)
 
 @import org.joda.time.format.DateTimeFormat

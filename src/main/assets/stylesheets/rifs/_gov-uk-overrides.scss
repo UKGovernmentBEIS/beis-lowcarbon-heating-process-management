@@ -54,10 +54,15 @@ hr {
          border-bottom: 2px solid $black;
          border-top: 2px solid $black;
       }
-  }
+}
 
-  .thwithlasttrborder {
+ .thwithlasttrborder {
          tr:last-of-type {
               border-bottom: 2px solid $black;
             }
-    }
+}
+
+
+linkdown  {
+    margin-top: 2.5em;
+  }

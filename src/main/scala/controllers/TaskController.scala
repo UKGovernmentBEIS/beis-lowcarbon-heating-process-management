@@ -24,7 +24,7 @@ import cats.data.ValidatedNel
 import models.{LocalTask, LocalTaskId, Score, UserId}
 import play.api.libs.json.JsValue
 import play.api.mvc.Results.{NotFound, Redirect}
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, Controller, Flash}
 import services.BEISTaskOps
 import config.Config
 import play.api.i18n.Messages
@@ -39,9 +39,14 @@ import org.apache.commons.lang3.StringUtils
 
 import scala.util.{Failure, Success, Try}
 import validations.FieldError
+import play.api.Play.current
+import play.api.i18n.Messages
+import play.api.i18n.Messages.Implicits._
 
 
 class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionContext) extends Controller {
+
+  implicit val messages = Messages
 
   def startPage = Action {
     Ok(views.html.startPage())
@@ -66,24 +71,50 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
         val assessorgroup = Config.config.bpm.assessorgroup
         val grp = List(assessorgroup)
 
+        val err = request.flash.get("ERROR").getOrElse("")
+        val comment = request.flash.get("commentText").getOrElse("")
+
         tsk.key match {
           case "assessEligibility" =>
-            Future(Ok(views.html.assessEligibility(tsk, appFrontEndUrl, technologyMap, submitStatusMap, Some(userId))))
+            Future(Ok(views.html.assessEligibility(tsk, appFrontEndUrl, technologyMap, submitStatusMap, Some(userId))
+            (Flash(Map("error" -> err, "comment" -> comment))) ))
           case "assignAssessors" =>
-            Future(Ok(views.html.assignAssessors(tsk, appFrontEndUrl, getMembers(grp), List(), Some(userId))))
+            Future(Ok(views.html.assignAssessors(tsk, appFrontEndUrl, getMembers(grp), List(), Some(userId))
+            (Flash(Map("error" -> err, "comment" -> comment))) ))
           //case "firstAssessment" | "secondAssessment" | "thirdAssessment"=>
           case "firstAssessment"=>
-            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "1", Some(userId))))
+            val errorCommentsMinLength = request.flash.get("errorCommentsMinLength").getOrElse("")
+            val errorCommentsListMinLength = if(StringUtils.isNotEmpty(errorCommentsMinLength)) errorCommentsMinLength.split(",").toList else List()
+            val errorCommentsMaxLength = request.flash.get("errorCommentsMaxLength").getOrElse("")
+            val errorCommentsListMaxLength = if(StringUtils.isNotEmpty(errorCommentsMaxLength)) errorCommentsMaxLength.split(",").toList else List()
+            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "1", Some(errorCommentsListMinLength),
+              Some(errorCommentsListMaxLength), Some(userId))
+            (Flash(Map("error" -> err))) ))
           case "secondAssessment"=>
-            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "2", Some(userId))))
+            val errorCommentsMinLength = request.flash.get("errorCommentsMinLength").getOrElse("")
+            val errorCommentsListMinLength = if(StringUtils.isNotEmpty(errorCommentsMinLength)) errorCommentsMinLength.split(",").toList else List()
+            val errorCommentsMaxLength = request.flash.get("errorCommentsMaxLength").getOrElse("")
+            val errorCommentsListMaxLength = if(StringUtils.isNotEmpty(errorCommentsMaxLength)) errorCommentsMaxLength.split(",").toList else List()
+            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "2", Some(errorCommentsListMinLength),
+              Some(errorCommentsListMaxLength), Some(userId))
+            (Flash(Map("error" -> err))) ))
           case "thirdAssessment"=>
-            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "3", Some(userId))))
+            val errorCommentsMinLength = request.flash.get("errorCommentsMinLength").getOrElse("")
+            val errorCommentsListMinLength = if(StringUtils.isNotEmpty(errorCommentsMinLength)) errorCommentsMinLength.split(",").toList else List()
+            val errorCommentsMaxLength = request.flash.get("errorCommentsMaxLength").getOrElse("")
+            val errorCommentsListMaxLength = if(StringUtils.isNotEmpty(errorCommentsMaxLength)) errorCommentsMaxLength.split(",").toList else List()
+            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "3", Some(errorCommentsListMinLength),
+              Some(errorCommentsListMaxLength), Some(userId))
+            (Flash(Map("error" -> err))) ))
           case "makePanelDecision" =>
-            Future(Ok(views.html.makePanelDecision(tsk, appFrontEndUrl, decisionMap, Some(userId))))
+            Future(Ok(views.html.makePanelDecision(tsk, appFrontEndUrl, decisionMap, Some(userId))
+            (Flash(Map("error" -> err, "comment" -> comment))) ))
           case "moderateScore" =>
-            Future(Ok(views.html.moderateScore(tsk, appFrontEndUrl, decisionMap, Some(userId))))
+            Future(Ok(views.html.moderateScore(tsk, appFrontEndUrl, decisionMap, Some(userId))
+            (Flash(Map("error" -> err, "comment" -> comment))) ))
           case "confirmEmailSent" =>
-            Future(Ok(views.html.confirmEmailSent(tsk, appFrontEndUrl, Some(userId))))
+            Future(Ok(views.html.confirmEmailSent(tsk, appFrontEndUrl, Some(userId))
+            (Flash(Map("error" -> err, "comment" -> comment))) ))
         }
       }
       case None => Future.successful(NotFound)
@@ -169,14 +200,21 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     val technology = getValueFromRequest("technology", mp )
     val comment = getValueFromRequest("comment", mp )
     val processInstanceId = getValueFromRequest("processInstanceId", mp )
+    val applicationId =     getValueFromRequest("applicationId", mp )
+    val opportunityId =     getValueFromRequest("opportunityId", mp )
 
-    localtasks.submitEligibility(id, UserId(userId), status, comment, technology, processInstanceId).map {
-      case Some(t) => {
-        val ts = localtasks.showTasks(UserId(userId))
-        Redirect(controllers.routes.TaskController.tasks())
+    if(commentMaxLengthCheck(comment, 1000))
+      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+        .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+    else {
+      localtasks.submitEligibility(id, UserId(userId), status, comment, technology, processInstanceId).map {
+        case Some(t) => {
+          val ts = localtasks.showTasks(UserId(userId))
+          Redirect(controllers.routes.TaskController.tasks())
+        }
+        case _ => NoContent
+
       }
-      case _ => NoContent
-
     }
   }
 
@@ -193,30 +231,40 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     val appFrontEndUrl = Config.config.business.appFrontEndUrl
 
+    val applicationId =     getValueFromRequest("applicationId", mp )
+    val opportunityId =     getValueFromRequest("opportunityId", mp )
+
     val errors = duplicateSelectionCheck(assignassessor1, assignassessor2, assignassessor3).fold(_.toList, _ => List())
-    errors.isEmpty match{
-      case true =>
-        localtasks.submitAssignAssessors (id, UserId (userId), assignassessor1, assignassessor2, assignassessor3, comment,
-          processInstanceId).map {
+
+    if(commentMaxLengthCheck(comment, 1000))
+      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+        .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+    else {
+      errors.isEmpty match{
+        case true =>
+          localtasks.submitAssignAssessors (id, UserId (userId), assignassessor1, assignassessor2, assignassessor3, comment,
+            processInstanceId).map {
             case Some (t) => {
-                val ts = localtasks.showTasks (UserId (userId) )
-                Redirect (controllers.routes.TaskController.tasks () )
+              val ts = localtasks.showTasks (UserId (userId) )
+              Redirect (controllers.routes.TaskController.tasks () )
             }
             case _ => NoContent
 
-        }
-      case false =>
+          }
+        case false =>
           val t = localtasks.showTask(id)
           val grp = List("assessor")
 
           t.flatMap {
-              case Some(lt) =>
-                Future.successful(Ok(views.html.assignAssessors(lt, appFrontEndUrl, getMembers(grp), errors)))
-              case None =>
-                Future.successful(NotFound)
+            case Some(lt) =>
+              Future.successful(Ok(views.html.assignAssessors(lt, appFrontEndUrl, getMembers(grp), errors)
+              (Flash(Map("comment" -> comment))) ))
+            case None =>
+              Future.successful(NotFound)
           }
-        }
+      }
     }
+  }
 
 
   def submitAssessment (id : LocalTaskId, key: String) = Action.async { implicit request =>
@@ -261,7 +309,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     val save_button_action =           getValueFromRequest("save", mp )
     val complete_button_action =       getValueFromRequest("complete", mp )
 
-
+    val processInstanceId =            getValueFromRequest("processInstanceId", mp )
+    val applicationId =                getValueFromRequest("applicationId", mp )
+    val opportunityId =                getValueFromRequest("opportunityId", mp )
 
     val button_action:String = if(!getValueFromRequest("save", mp ).equals("")) "save"
                               else if(!getValueFromRequest("complete", mp ).equals("")) "complete" else "save"
@@ -271,6 +321,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
       case "secondAssessment" => 2
       case "thirdAssessment" => 3
     }
+
     val performanceenhancementScore = performanceenhancement * performanceenhancementweight / 100.0
     val performancemanagementScore = performancemanagement * performancemanagementweight / 100.0
     val performanceintegrationScore = performanceintegration * performanceintegrationweight / 100.0
@@ -278,9 +329,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     val costScore = cost * costweight / 100.0
     val projectdeliveryScore = projectdelivery * projectdeliveryweight / 100.0
     val projectfinancingScore = projectfinancing * projectfinancingweight / 100.0
-    // Wider objective - Tie Breaker only - Dont add it now
-    val widerobjectiveScore = widerobjective * widerobjectiveweight / 100.0
 
+    /* Wider objective - Tie Breaker only - Dont add it now */
+    val widerobjectiveScore = widerobjective * widerobjectiveweight / 100.0
 
     val weightedScore = performanceenhancementScore + costScore+ performancemanagementScore + performanceintegrationScore + marketpotentialScore
                         + projectdeliveryScore + projectfinancingScore
@@ -336,16 +387,55 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     printAll(score) //Todo:- Delete this
 
-    val processInstanceId = request.body.asFormUrlEncoded.getOrElse(Map()).get("processInstanceId").headOption.map( _.head).getOrElse("")
+    val commentList =  List(
+      ("Project description comment", projectdesccomment), ("Cost comment", costcomment), ("Performance comment", performancecomment),
+      ("Market potential comment", marketpotentialcomment),  ("Project delivery comment", projectdeliverycomment),
+      ("Project financing comment", projectfinancingcomment), ("Wider objective comment", widerobjectivecomment),
+      ("Overall comment", overallcomment)
+    )
 
-      localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
-      case Some(t) => {
-        val ts = localtasks.showTasks(UserId(userId))
-        Redirect(controllers.routes.TaskController.tasks())
+    val errorComments_ = commentList.foldLeft(List[String]()) { (z,f) =>
+      if(commentMaxLengthCheck(f._2, 1000)) z :+ f._1
+      else z
+    }
+
+    val errorCommentsMinLength = commentList.foldLeft("") { (z,f) =>
+      val sep = if(StringUtils.isNotEmpty(z)) "," else ""
+      if(commentMinLengthCheck(f._2)) s"$z$sep${f._1}"
+      else z
+    }
+
+    val errorCommentsMaxLength = commentList.foldLeft("") { (z,f) =>
+      val sep = if(StringUtils.isNotEmpty(z)) "," else ""
+      if(commentMaxLengthCheck(f._2, 1000)) s"$z$sep${f._1}"
+      else z
+    }
+
+    if(StringUtils.isNotEmpty(errorCommentsMinLength) || StringUtils.isNotEmpty(errorCommentsMaxLength)) {
+      localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, "save").map {
+        case _ => NoContent
       }
-      case _ => NoContent
+      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+        .flashing("errorCommentsMinLength" -> errorCommentsMinLength, "errorCommentsMaxLength" -> errorCommentsMaxLength))
+    }
+    else {
+      localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
+        case Some(t) => {
+          val ts = localtasks.showTasks(UserId(userId))
+          Redirect(controllers.routes.TaskController.tasks())
+        }
+        case _ => NoContent
+      }
     }
   }
+
+  def commentMinLengthCheck(comment:String): Boolean =
+  //StringUtils.isEmpty(comment.replaceAll("\\s+", ""))
+    StringUtils.isEmpty(comment)
+
+
+  def commentMaxLengthCheck(comment:String, maxAllowed: Int): Boolean =
+      (StringUtils.isNotEmpty(comment) && comment.split(" ").toList.size > maxAllowed)
 
   def getValueFromRequest(key: String, keyValueMap: Map[String, Seq[String]]): String =
 
@@ -353,37 +443,53 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
 
   def submitMakePanelDecision (id : LocalTaskId) = Action.async { implicit request =>
+
     val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
-    val status = request.body.asFormUrlEncoded.getOrElse(Map()).get("approvestatus").headOption.map( _.head).getOrElse("")
-    val comment = request.body.asFormUrlEncoded.getOrElse(Map()).get("comment").headOption.map( _.head).getOrElse("")
-    val processInstanceId = request.body.asFormUrlEncoded.getOrElse(Map()).get("processInstanceId").headOption.map( _.head).getOrElse("")
+    val status =            getValueFromRequest("approvestatus", mp )
+    val comment =           getValueFromRequest("comment", mp )
+    val processInstanceId = getValueFromRequest("processInstanceId", mp )
+    val applicationId =     getValueFromRequest("applicationId", mp )
+    val opportunityId =     getValueFromRequest("opportunityId", mp )
 
-    localtasks.submitMakePanelDecision(id, UserId(userId), status, comment, processInstanceId).map {
-      case Some(t) => {
-        val ts = localtasks.showTasks(UserId(userId))
-        Redirect(controllers.routes.TaskController.tasks())
+    if(commentMaxLengthCheck(comment, 1000))
+    Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+      .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+    else {
+      localtasks.submitMakePanelDecision(id, UserId(userId), status, comment, processInstanceId).flatMap {
+        case Some(t) => {
+          val ts = localtasks.showTasks(UserId(userId))
+          Future.successful(Redirect(controllers.routes.TaskController.tasks()))
+        }
+        case _ => Future.successful(NotFound)
       }
-      case _ => NoContent
-
     }
   }
 
 
   def submitModerateScore (id : LocalTaskId) = Action.async { implicit request =>
     val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
-    val averagemoderatescore = request.body.asFormUrlEncoded.getOrElse(Map()).get("averagemoderatescore").headOption.map( _.head).getOrElse("")
-    val comment = request.body.asFormUrlEncoded.getOrElse(Map()).get("comment").headOption.map( _.head).getOrElse("")
-    val processInstanceId = request.body.asFormUrlEncoded.getOrElse(Map()).get("processInstanceId").headOption.map( _.head).getOrElse("")
+    val averagemoderatescore =     getValueFromRequest("averagemoderatescore", mp )
+    val comment =     getValueFromRequest("comment", mp )
+    val processInstanceId =     getValueFromRequest("processInstanceId", mp )
 
-    localtasks.submitModerateScore(id, UserId(userId), averagemoderatescore, comment, processInstanceId).map {
-      case Some(t) => {
-        val ts = localtasks.showTasks(UserId(userId))
-        Redirect(controllers.routes.TaskController.tasks())
+    val applicationId =     getValueFromRequest("applicationId", mp )
+    val opportunityId =     getValueFromRequest("opportunityId", mp )
+
+    if(commentMaxLengthCheck(comment, 1000))
+      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+        .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+    else {
+      localtasks.submitModerateScore(id, UserId(userId), averagemoderatescore, comment, processInstanceId).flatMap {
+        case Some(t) => {
+          val ts = localtasks.showTasks(UserId(userId))
+          Future.successful(Redirect(controllers.routes.TaskController.tasks()))
+        }
+        case None => Future.successful(NotFound)
       }
-      case _ => NoContent
-
     }
   }
 
@@ -409,19 +515,26 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     val comment = getValueFromRequest("comment", mp )
     val processInstanceId = getValueFromRequest("processInstanceId", mp )
 
-    val ems = emailsent match {
-      case s if StringUtils.isEmpty(s)  => "No email sent"
-      case s if !StringUtils.isEmpty(s)  => "Email sent"
-      case _ => "No email sent"
-    }
+    val applicationId =     getValueFromRequest("applicationId", mp )
+    val opportunityId =     getValueFromRequest("opportunityId", mp )
 
-    localtasks.submitConfirmEmailSent(id, UserId(userId), ems, comment, processInstanceId).map {
-      case Some(t) => {
-        val ts = localtasks.showTasks(UserId(userId))
-        Redirect(controllers.routes.TaskController.tasks())
+    if(commentMaxLengthCheck(comment, 1000))
+      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+        .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+    else {
+      val ems = emailsent match {
+        case s if StringUtils.isEmpty(s)  => "No email sent"
+        case s if !StringUtils.isEmpty(s)  => "Email sent"
+        case _ => "No email sent"
       }
-      case _ => NoContent
 
+      localtasks.submitConfirmEmailSent(id, UserId(userId), ems, comment, processInstanceId).map {
+        case Some(t) => {
+          val ts = localtasks.showTasks(UserId(userId))
+          Redirect(controllers.routes.TaskController.tasks())
+        }
+        case _ => NoContent
+      }
     }
   }
 

@@ -3,7 +3,11 @@
 technologymap: Map[String, String],
 statusmap: Map[String, String],
 userId: Option[String] = None
-)
+)(implicit flash: Flash)
+
+@errorClass = @{
+if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
+}
 
 @import org.joda.time.format.DateTimeFormat
 @import partials._
@@ -17,12 +21,28 @@ userId: Option[String] = None
             @t.name
         </h1>
 
+        @if(flash.get("error").getOrElse("").nonEmpty) {
+        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+
+            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+                The information you entered is not valid
+            </h1>
+            <p>
+                Please correct the problems indicated below.
+            </p>
+            <span class="error-message" role="alert">@flash.get("error").getOrElse("")</span>
+
+        </div>
+        }
+
+        <form method="POST"
+              action="@controllers.routes.TaskController.submitAssessEligibility(t.id)"
+              novalidate="novalidate" >
+
         <table class="thwithborder">
         @taskInfo(t, url)
 
-            <form method="POST"
-                  action="@controllers.routes.TaskController.submitAssessEligibility(t.id)"
-                  novalidate="novalidate" >
+
 
             <tr>
                 <td>Technology</td>
@@ -62,7 +82,18 @@ userId: Option[String] = None
                         <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                     </details>
 
-                    <textarea id="name" class="form-control textarea-resize" title="name" name="comment"></textarea>
+                    <div class="form-group @errorClass">
+
+                        <div class="form-group  @errorClass'">
+                            <label for="comment"></label>
+                            <textarea id="comment" class="form-control textarea-resize" title="comment" name="comment">@flash.get("comment").getOrElse("")</textarea>
+                            <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                <span class="js__hint" data-for="comment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
                     <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
                     <input type="submit" name="save" class="button button--start" value="Submit Process">
 

@@ -57,8 +57,8 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
   val loginform:Form[LoginForm] = Form(
     mapping(
-      "name" -> text,
-      "password" -> text
+      "name" -> text.verifying("Please enter a value in 'User name field", {!_.isEmpty}),
+      "password" -> text.verifying("Please enter a value in 'Password' field", {!_.isEmpty})
     ) (LoginForm.apply)(LoginForm.unapply) verifying ("Invalid password", result => result match {
       case loginForm => check(loginForm.name, loginForm.password)
     })
@@ -121,7 +121,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     loginform.bindFromRequest.fold(
       errors => {
-        Future.successful(Ok(views.html.loginForm("error", loginform)))
+        Future.successful(Ok(views.html.loginForm(errors.errors.head.message, loginform)))
       },
       user=> {
         implicit val userIdInSession = user.name
@@ -157,9 +157,6 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
 
     val pswrdErrors = passswordCheck("newpassword", Some(newpassword), "newpassword")
-
-
-    //check password same
 
     passwordresetform.bindFromRequest.fold(
       errors => {

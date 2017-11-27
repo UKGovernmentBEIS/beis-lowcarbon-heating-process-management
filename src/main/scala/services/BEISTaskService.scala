@@ -330,7 +330,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
 
 
-  override def  submitAssessment(id: LocalTaskId, userId: UserId, asmtKey: Int,  score:Score,
+  override def submitAssessment(id: LocalTaskId, userId: UserId, asmtKey: Int,  score:Score,
                                  processInstanceId: String, buttonAction: String): Future[Option[LocalTaskId]] = {
 
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
@@ -346,9 +346,9 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       s"projectdesccomment$asmtKey" -> score.projectdesccomment,
       s"projectdescweight$asmtKey" -> score.projectdescweight.toString,
 
-      s"cost$asmtKey" -> score.marketpotential.toString,
-      s"costcomment$asmtKey" -> score.marketpotentialcomment,
-      s"costweight$asmtKey" -> score.cost.toString,
+      s"cost$asmtKey" -> score.cost.toString,
+      s"costcomment$asmtKey" -> score.costcomment,
+      s"costweight$asmtKey" -> score.costweight.toString,
 
       s"performanceenhancement$asmtKey" -> score.performanceenhancement.toString,
       s"performanceenhancementweight$asmtKey" -> score.performanceenhancementweight.toString,

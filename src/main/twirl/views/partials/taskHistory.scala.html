@@ -16,33 +16,28 @@
             </tr>
             </thead>
             @for((o,i) <- t.taskHistories.zipWithIndex) {
-            <tbody>
-            <tr>
-                <td>Task Name  </td><td>@o.name </td>
-            </tr>
-            <tr>
-                <td>Status </td><td>@o.status </td>
-            </tr>
-            <tr>
-                <td>Completed by </td><td>@o.assignee </td>
-            </tr>
-            <tr>
-                <td>Start time</td><td>@o.startTime</td>
-            </tr>
-            <tr>
-                <td>End time</td><td>@o.endTime</td>
-            </tr>
+                <tbody>
+                <tr>
+                    <td>Task Name  </td><td>@o.name </td>
+                </tr>
+                <tr>
+                    <td>Status </td><td>@o.status </td>
+                </tr>
+                <tr>
+                    <td>Completed by </td><td>@o.assignee </td>
+                </tr>
+                <tr>
+                    <td>Start time</td><td>@o.startTime</td>
+                </tr>
+                <tr>
+                    <td>End time</td><td>@o.endTime</td>
+                </tr>
 
-            @for((p,i) <- o.fullMessages.zipWithIndex) {
-
-            <tr>
-                <td >Comments</td>
-                <td>@p.fullMessage</td>
-            </tr>
-
-            }
-            </tbody>
-
+                @if(o.fullMessages.size>0){
+                    <tr>
+                        <td>Comments</td><td>@o.fullMessages.head.fullMessage</td>
+                    </tr>
+                }
             }
 
         </table>

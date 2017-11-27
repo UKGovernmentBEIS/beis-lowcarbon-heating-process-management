@@ -11,5 +11,6 @@ error.BF004 = Please enter all mandatory fields
 error.BF005 = Incorrect password. Please enter password again
 error.BF006 = {0} must contain at least 8 characters
 error.BF007 = {0} must contain at least one letter and one number
+error.BF008 = Maximum word limit exceeded
 
 success.BF001 = database query successful

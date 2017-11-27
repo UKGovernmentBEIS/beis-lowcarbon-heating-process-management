@@ -20,9 +20,11 @@ url: String)
     <tr>
         <td>Opportunity</td>
         <td> @t.oppTitle </td>
+        <input type="hidden" name="opportunityId" value="@t.oppId">
     </tr>
     <tr>
         <td>Application</td>
         <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
+        <input type="hidden" name="applicationId" value="@t.appId">
     </tr>
     </tbody>

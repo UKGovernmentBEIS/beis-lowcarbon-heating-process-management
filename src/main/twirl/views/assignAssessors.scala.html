@@ -3,14 +3,14 @@
   statusmap: Map[String, String],
   errors: List[validations.FieldError],
   userId: Option[String] = None
-)
+)(implicit flash: Flash)
+
+@errorClass = @{
+if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
+}
 
 @import org.joda.time.format.DateTimeFormat
 @import partials._
-
-@errorClass = @{
-if(errors.nonEmpty) "error" else ""
-}
 
 @main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url)), displayUserName=userId) {
 <div class="grid-row">
@@ -20,16 +20,28 @@ if(errors.nonEmpty) "error" else ""
             @t.name
         </h1>
 
-        @errors.map { e =>
-        <span class="error-message" role="alert">@e.err</span>
-        }
+        @if(flash.get("error").getOrElse("").nonEmpty || errors.nonEmpty) {
+        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
 
-        <table class="thwithborder">
-            @taskInfo(t, url)
+            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+                The information you entered is not valid
+            </h1>
+            <p>
+                Please correct the problems indicated below.
+            </p>
+            <span class="error-message" role="alert">@flash.get("error").getOrElse("")</span>
+            @errors.map { e =>
+            <span class="error-message" role="alert">@e.err</span>
+            }
+        </div>
+        }
 
         <form method="POST"
               action="@controllers.routes.TaskController.submitAssignAssessors(t.id)"
               novalidate="novalidate" >
+
+        <table class="thwithborder">
+            @taskInfo(t, url)
 
         <tr>
             <td>First Assessor</td>
@@ -85,7 +97,18 @@ if(errors.nonEmpty) "error" else ""
                         <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                     </details>
 
-                    <textarea id="name" class="form-control textarea-resize" title="name" name="comment"></textarea>
+                    <div class="form-group @errorClass">
+
+                        <div class="form-group  @errorClass'">
+                            <label for="comment"></label>
+                            <textarea id="comment" class="form-control textarea-resize" title="comment" name="comment">@flash.get("comment").getOrElse("")</textarea>
+                            <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                <span class="js__hint" data-for="comment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                            </div>
+                        </div>
+
+                    </div>
+
                     <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
                     <input type="submit" name="save" class="button button--start" value="Submit Process">
 

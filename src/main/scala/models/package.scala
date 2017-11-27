@@ -22,7 +22,8 @@ import eu.timepit.refined.numeric.{NonNegative, Positive}
 package object models {
   type LongId = Long Refined Positive
 
-//  type NonEmptyString = String Refined NonEmpty
+
+  //  type NonEmptyString = String Refined NonEmpty
 //  type NonNegativeInt = Int Refined NonNegative
 //  type PosInt = Int Refined Positive
 //

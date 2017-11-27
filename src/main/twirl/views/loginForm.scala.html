@@ -29,7 +29,19 @@ if(errors.nonEmpty) "error" else ""
                         <p class="lede">
                             Please enter your User name and Password
                         </p>
-                    <span class="error-message" role="alert">@errors</span>
+                    @if(errors.nonEmpty) {
+                    <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+
+                        <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+                            The information you entered is not valid
+                        </h1>
+                        <p>
+                            Please correct the problems indicated below.
+                        </p>
+                        <span class="error-message" role="alert">@errors</span>
+
+                    </div>
+                    }
 
                     <table>
                            <tr>

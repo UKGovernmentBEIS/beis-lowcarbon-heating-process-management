@@ -3,8 +3,18 @@ url:String,
 yesnomap: Map[String, String],
 scoremap: Map[String, String],
 assmtKey: String,
+errorCommentsListMinLength: Option[List[String]]= None,
+errorCommentsListMaxLength: Option[List[String]]= None,
 userId: Option[String] = None
-)
+)(implicit flash: Flash)
+
+@errorClass = @{
+if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
+}
+
+@errorClassFor(f: String) = @{
+if(errorCommentsListMinLength.getOrElse(List()).contains(f) || errorCommentsListMaxLength.getOrElse(List()).contains(f)) "error" else ""
+}
 
 @import org.joda.time.format.DateTimeFormat
 @import partials._
@@ -14,6 +24,7 @@ userId: Option[String] = None
 if(a.getOrElse("") == b) "selected" else ""
 }
 
+
 @main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url)), displayUserName=userId) {
 <div class="grid-row">
     <div class="column-two-thirds">
@@ -22,12 +33,31 @@ if(a.getOrElse("") == b) "selected" else ""
             @t.name
         </h1>
 
-        <table class="thwithborder">
-            @taskInfo(t, url)
+        @if(errorCommentsListMinLength.getOrElse(List()).nonEmpty || errorCommentsListMaxLength.getOrElse(List()).nonEmpty) {
+        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
 
-            <form method="POST"
-                  action="@controllers.routes.TaskController.submitAssessment(t.id, t.key)"
-                  novalidate="novalidate" >
+            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+                The information you entered is not valid
+            </h1>
+            <p>
+                Please correct the problems indicated below.
+            </p>
+            @errorCommentsListMinLength.getOrElse(List()).map { e =>
+            <span class="error-message" role="alert"> '@e' No value entered</span>
+            }
+            @errorCommentsListMaxLength.getOrElse(List()).map { e =>
+            <span class="error-message" role="alert"> '@e' Word limit exceeded</span>
+            }
+        </div>
+        }
+
+
+        <form method="POST"
+              action="@controllers.routes.TaskController.submitAssessment(t.id, t.key)"
+              novalidate="novalidate" >
+
+        <table  border="0">
+            @taskInfo(t, url)
 
                 <tr>
                     <th class="tdtopalign tdnobottomborder">Project Description  </th>  <input type="hidden" name="projectdescweight" value="0">
@@ -49,7 +79,15 @@ if(a.getOrElse("") == b) "selected" else ""
                                 <summary role="button"><span class="summary">Help with this section</span></summary>
                                 <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                             </details>
-                            <textarea id="name" class="form-control textarea-resize" title="name" name="projectdescriptioncomment">@t.variables.get(s"projectdesccomment$assmtKey")</textarea>
+
+                            <div class='form-group @errorClassFor("Project description comment")'>
+                                <label for="projectdescriptioncomment"></label>
+                                <textarea id="projectdescriptioncomment" class="form-control textarea-resize" title="projectdescriptioncomment" name="projectdescriptioncomment">@t.variables.get(s"projectdesccomment$assmtKey")</textarea>
+                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                    <span class="js__hint" data-for="projectdescriptioncomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
@@ -76,7 +114,14 @@ if(a.getOrElse("") == b) "selected" else ""
                                 <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                             </details>
 
-                            <textarea id="name" class="form-control textarea-resize" title="name" name="costcomment">@t.variables.get(s"costcomment$assmtKey")</textarea>
+                            <div class='form-group @errorClassFor("Cost comment")'>
+                                <label for="costcomment"></label>
+                                <textarea id="costcomment" class="form-control textarea-resize" title="costcomment" name="costcomment">@t.variables.get(s"costcomment$assmtKey")</textarea>
+                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                    <span class="js__hint" data-for="costcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
@@ -135,7 +180,14 @@ if(a.getOrElse("") == b) "selected" else ""
                                 <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                             </details>
 
-                            <textarea id="name" class="form-control textarea-resize" title="name" name="performancecomment">@t.variables.get(s"performancecomment$assmtKey")</textarea>
+                            <div class='form-group @errorClassFor("Performance comment")'>
+                                <label for="performancecomment"></label>
+                                <textarea id="performancecomment" class="form-control textarea-resize" title="performancecomment" name="performancecomment">@t.variables.get(s"performancecomment$assmtKey")</textarea>
+                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                    <span class="js__hint" data-for="performancecomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
@@ -162,7 +214,14 @@ if(a.getOrElse("") == b) "selected" else ""
                                 <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                             </details>
 
-                            <textarea id="name" class="form-control textarea-resize" title="name" name="marketpotentialcomment">@t.variables.get(s"marketpotentialcomment$assmtKey")</textarea>
+                            <div class='form-group @errorClassFor("Market potential comment")'>
+                                <label for="marketpotentialcomment"></label>
+                                <textarea id="marketpotentialcomment" class="form-control textarea-resize" title="marketpotentialcomment" name="marketpotentialcomment">@t.variables.get(s"marketpotentialcomment$assmtKey")</textarea>
+                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                    <span class="js__hint" data-for="marketpotentialcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
@@ -189,7 +248,14 @@ if(a.getOrElse("") == b) "selected" else ""
                                 <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                             </details>
 
-                            <textarea id="name" class="form-control textarea-resize" title="name" name="projectdeliverycomment">@t.variables.get(s"projectdeliverycomment$assmtKey")</textarea>
+                            <div class='form-group @errorClassFor("Project delivery comment")'>
+                                <label for="projectdeliverycomment"></label>
+                                <textarea id="projectdeliverycomment" class="form-control textarea-resize" title="projectdeliverycomment" name="projectdeliverycomment">@t.variables.get(s"projectdeliverycomment$assmtKey")</textarea>
+                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                    <span class="js__hint" data-for="projectdeliverycomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
@@ -217,7 +283,14 @@ if(a.getOrElse("") == b) "selected" else ""
                                 <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                             </details>
 
-                            <textarea id="name" class="form-control textarea-resize" title="name" name="projectfinancingcomment">@t.variables.get(s"projectfinancingcomment$assmtKey")</textarea>
+                            <div class='form-group @errorClassFor("Project financing comment")'>
+                                <label for="projectfinancingcomment"></label>
+                                <textarea id="projectfinancingcomment" class="form-control textarea-resize" title="projectfinancingcomment" name="projectfinancingcomment">@t.variables.get(s"projectfinancingcomment$assmtKey")</textarea>
+                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                    <span class="js__hint" data-for="projectfinancingcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
@@ -230,7 +303,7 @@ if(a.getOrElse("") == b) "selected" else ""
                             <select class="form-control dropdown" id="select-box" name="widerobjectiveoption">
 
                                 @for((key, value) <- scoremap) {
-                                <option value=@key  t.variables.get(s"widerobj$assmtKey").getOrElse("").toString(), key)>@value</option>
+                                <option value=@key  t.variables.get(s"widerobjective$assmtKey").getOrElse("").toString(), key)>@value</option>
                                 }
                             </select>
                         </div>
@@ -245,7 +318,14 @@ if(a.getOrElse("") == b) "selected" else ""
                                 <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                             </details>
 
-                            <textarea id="name" class="form-control textarea-resize" title="name" name="widerobjectivecomment">@t.variables.get(s"widerobjcomment$assmtKey")</textarea>
+                            <div class='form-group @errorClassFor("Wider objective comment")'>
+                                <label for="widerobjectivecomment"></label>
+                                <textarea id="widerobjectivecomment" class="form-control textarea-resize" title="widerobjectivecomment" name="widerobjectivecomment">@t.variables.get(s"widerobjectivecomment$assmtKey")</textarea>
+                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                    <span class="js__hint" data-for="widerobjectivecomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                                </div>
+                            </div>
+
                         </div>
                     </td>
                 </tr>
@@ -267,7 +347,13 @@ if(a.getOrElse("") == b) "selected" else ""
 
                         <div class="rifs-form-buttons">
 
-                            <textarea id="overallcomment" class="form-control textarea-resize" title="name" name="overallcomment">@t.variables.get(s"overallcomment$assmtKey")</textarea>
+                            <div class='form-group @errorClassFor("Overall comment")'>
+                                <label for="overallcomment"></label>
+                                <textarea id="overallcomment" class="form-control textarea-resize" title="overallcomment" name="overallcomment">@t.variables.get(s"overallcomment$assmtKey")</textarea>
+                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                    <span class="js__hint" data-for="overallcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                                </div>
+                            </div>
                         </div>
                     </td>
                 </tr>
@@ -288,7 +374,7 @@ if(a.getOrElse("") == b) "selected" else ""
     @taskHistory(t)
 
 
- </div>
+</div>
 
 
- }
+}
