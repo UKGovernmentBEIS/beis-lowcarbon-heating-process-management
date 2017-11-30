@@ -121,17 +121,16 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     }
   }
 
-  def getMembers(s: List[String]) : Map[String, String]={
+  def getMembers(s: List[String]) : Map[String, String]=
+    localtasks.getMembers(s).getOrElse(Map[String, String]())
 
-    val members = localtasks.getMembers(s).getOrElse(Set())
-    members.map(s=> s -> s).toMap
-  }
 
+  /*
   def getMembers_(s: List[String]) : Map[String, String]={
-    val members = localtasks.getMembers(s).getOrElse(Set())
+    val members = localtasks.getMembers(s).getOrElse(Map())
     val membersMap = ListMap( (1 to members.size).zip(members): _*)
     membersMap.map(q => (q._1.toString, q._2)).toMap
-  }
+  }*/
 
   def tasks = Action.async  {   implicit request =>
     val sortstr = request.queryString.getOrElse("sort", List()).headOption.getOrElse("")
@@ -387,44 +386,58 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     printAll(score) //Todo:- Delete this
 
-    val commentList =  List(
-      ("Project description comment", projectdesccomment), ("Cost comment", costcomment), ("Performance comment", performancecomment),
-      ("Market potential comment", marketpotentialcomment),  ("Project delivery comment", projectdeliverycomment),
-      ("Project financing comment", projectfinancingcomment), ("Wider objective comment", widerobjectivecomment),
-      ("Overall comment", overallcomment)
-    )
-
-    val errorComments_ = commentList.foldLeft(List[String]()) { (z,f) =>
-      if(commentMaxLengthCheck(f._2, 1000)) z :+ f._1
-      else z
-    }
-
-    val errorCommentsMinLength = commentList.foldLeft("") { (z,f) =>
-      val sep = if(StringUtils.isNotEmpty(z)) "," else ""
-      if(commentMinLengthCheck(f._2)) s"$z$sep${f._1}"
-      else z
-    }
-
-    val errorCommentsMaxLength = commentList.foldLeft("") { (z,f) =>
-      val sep = if(StringUtils.isNotEmpty(z)) "," else ""
-      if(commentMaxLengthCheck(f._2, 1000)) s"$z$sep${f._1}"
-      else z
-    }
-
-    if(StringUtils.isNotEmpty(errorCommentsMinLength) || StringUtils.isNotEmpty(errorCommentsMaxLength)) {
-      localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, "save").map {
-        case _ => NoContent
-      }
-      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-        .flashing("errorCommentsMinLength" -> errorCommentsMinLength, "errorCommentsMaxLength" -> errorCommentsMaxLength))
-    }
-    else {
+    if (button_action.equalsIgnoreCase("save")){
       localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
         case Some(t) => {
           val ts = localtasks.showTasks(UserId(userId))
           Redirect(controllers.routes.TaskController.tasks())
         }
         case _ => NoContent
+      }
+    }
+    else {
+
+
+      val commentList = List(
+        ("Project description comment", projectdesccomment), ("Cost comment", costcomment), ("Performance comment", performancecomment),
+        ("Market potential comment", marketpotentialcomment), ("Project delivery comment", projectdeliverycomment),
+        ("Project financing comment", projectfinancingcomment), ("Wider objective comment", widerobjectivecomment),
+        ("Overall comment", overallcomment)
+      )
+
+      val errorComments_ = commentList.foldLeft(List[String]()) { (z, f) =>
+        if (commentMaxLengthCheck(f._2, 1000)) z :+ f._1
+        else z
+      }
+
+      val errorCommentsMinLength = commentList.foldLeft("") { (z, f) =>
+        val sep = if (StringUtils.isNotEmpty(z)) "," else ""
+        if (commentMinLengthCheck(f._2)) s"$z$sep${f._1}"
+        else z
+      }
+
+      val errorCommentsMaxLength = commentList.foldLeft("") { (z, f) =>
+        val sep = if (StringUtils.isNotEmpty(z)) "," else ""
+        if (commentMaxLengthCheck(f._2, 1000)) s"$z$sep${f._1}"
+        else z
+      }
+
+
+      if (StringUtils.isNotEmpty(errorCommentsMinLength) || StringUtils.isNotEmpty(errorCommentsMaxLength)) {
+        localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, "save").map {
+          case _ => NoContent
+        }
+        Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+          .flashing("errorCommentsMinLength" -> errorCommentsMinLength, "errorCommentsMaxLength" -> errorCommentsMaxLength))
+      }
+      else {
+        localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
+          case Some(t) => {
+            val ts = localtasks.showTasks(UserId(userId))
+            Redirect(controllers.routes.TaskController.tasks())
+          }
+          case _ => NoContent
+        }
       }
     }
   }

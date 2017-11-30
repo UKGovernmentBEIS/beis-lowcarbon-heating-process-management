@@ -17,7 +17,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
-            <span class="heading-secondary">@t.oppId: @t.oppTitle </span>
+            <span class="heading-secondary">@t.oppTitle </span>
             @t.name
         </h1>
 
@@ -47,21 +47,21 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 
 
                 <tr>
-                    <td>Average Weighted Score </td>
+                    <td>Average weighted score </td>
                     <td>
                         @t.variables.get(s"averageweightedscore").getOrElse("")
                     </td>
                 </tr>
 
                 <tr>
-                    <td>Average Tie-Break Score </td>
+                    <td>Average tie-break score </td>
                     <td>
                         @t.variables.get(s"averagetiebreakscore").getOrElse("")
                     </td>
                 </tr>
 
                 <tr>
-                    <td>Average Moderate Score </td>
+                    <td>Moderated score </td>
                     <td>
                         @t.variables.get(s"averagemoderatescore").getOrElse("")
                     </td>

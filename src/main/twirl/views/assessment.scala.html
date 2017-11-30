@@ -29,7 +29,7 @@ if(a.getOrElse("") == b) "selected" else ""
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
-            <span class="heading-secondary">@t.oppId: @t.oppTitle</span>
+            <span class="heading-secondary">@t.oppTitle</span>
             @t.name
         </h1>
 
@@ -63,7 +63,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <th class="tdtopalign tdnobottomborder">Project Description  </th>  <input type="hidden" name="projectdescweight" value="0">
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
-                            <select class="form-control dropdown" id="select-box" name="projectdescriptionoption">
+                            <select class="form-control" id="select-box" name="projectdescriptionoption">
 
                                 @for((key, value) <- yesnomap) {
                                 <option value=@key @dropdowncheck( t.variables.get(s"projectdesc$assmtKey"), key)>@value</option>
@@ -96,7 +96,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <th class="tdtopalign tdnobottomborder">Cost(25%) </th>  <input type="hidden" name="costweight" value="25">
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
-                            <select class="form-control dropdown" id="select-box" name="costoption">
+                            <select class="form-control" id="select-box" name="costoption">
 
                                 @for((key, value) <- scoremap) {
                                 <option value=@key @dropdowncheck( t.variables.get(s"cost$assmtKey"), key)>@value</option>
@@ -134,7 +134,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <td class="tdtopalign tdnobottomborder">Performance enhancement(15%) </td>  <input type="hidden" name="performanceenhancementweight" value="15">
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
-                            <select class="form-control dropdown" id="select-box" name="performanceenhancementoption">
+                            <select class="form-control" id="select-box" name="performanceenhancementoption">
 
                                 @for((key, value) <- scoremap) {
                                 <option value=@key @dropdowncheck( t.variables.get(s"performanceenhancement$assmtKey"), key)>@value</option>
@@ -148,7 +148,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <td class="tdtopalign tdnobottomborder">Performance management (5%) </td>  <input type="hidden" name="performancemanagementweight" value="5">
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
-                            <select class="form-control dropdown" id="select-box" name="performancemanagementoption">
+                            <select class="form-control" id="select-box" name="performancemanagementoption">
 
                                 @for((key, value) <- scoremap) {
                                 <option value=@key @dropdowncheck( t.variables.get(s"performancemanagement$assmtKey"), key)>@value</option>
@@ -162,7 +162,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <td class="tdtopalign tdnobottomborder">Performance integration into heating system (5%) </td>  <input type="hidden" name="performanceintegrationweight" value="5">
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
-                            <select class="form-control dropdown" id="select-box" name="performanceintegrationoption">
+                            <select class="form-control" id="select-box" name="performanceintegrationoption">
 
                                 @for((key, value) <- scoremap) {
                                 <option value=@key @dropdowncheck( t.variables.get(s"performanceintegration$assmtKey"), key)>@value</option>
@@ -196,7 +196,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <th class="tdtopalign tdnobottomborder">Market Potential (20%) </th>  <input type="hidden" name="marketpotentialweight" value="20">
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
-                            <select class="form-control dropdown" id="select-box" name="marketpotentialoption">
+                            <select class="form-control" id="select-box" name="marketpotentialoption">
 
                                 @for((key, value) <- scoremap) {
                                 <option value=@key @dropdowncheck( t.variables.get(s"marketpotential$assmtKey"), key)>@value</option>
@@ -230,7 +230,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <th class="tdtopalign tdnobottomborder">Project Delivery (20%) </th>  <input type="hidden" name="projectdeliveryweight" value="20">
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
-                            <select class="form-control dropdown" id="select-box" name="projectdeliveryoption">
+                            <select class="form-control" id="select-box" name="projectdeliveryoption">
 
                                 @for((key, value) <- scoremap) {
                                 <option value=@key @dropdowncheck( t.variables.get(s"projectdelivery$assmtKey"), key)>@value</option>
@@ -265,7 +265,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <th class="tdtopalign tdnobottomborder">Project Financing (10%) </th>  <input type="hidden" name="projectfinancingweight" value="10">
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
-                            <select class="form-control dropdown" id="select-box" name="projectfinancingoption">
+                            <select class="form-control" id="select-box" name="projectfinancingoption">
 
                                 @for((key, value) <- scoremap) {
                                 <option value=@key @dropdowncheck( t.variables.get(s"projectfinancing$assmtKey"), key)>@value</option>
@@ -300,7 +300,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <th class="tdtopalign tdnobottomborder">Wider Objective (10%) </th>     <input type="hidden" name="widerobjectiveweight" value="10">
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
-                            <select class="form-control dropdown" id="select-box" name="widerobjectiveoption">
+                            <select class="form-control" id="select-box" name="widerobjectiveoption">
 
                                 @for((key, value) <- scoremap) {
                                 <option value=@key  t.variables.get(s"widerobjective$assmtKey").getOrElse("").toString(), key)>@value</option>
@@ -363,8 +363,8 @@ if(a.getOrElse("") == b) "selected" else ""
         <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
 
         <p class="rifs-form-buttons">
-            <input type="submit" name="complete" class="button button--start" value="Complete">
-            <input type="submit" name="save" class="buttom--link-style" value="Save Process">
+            <input type="submit" name="complete" class="button button--start" value="Submit Process">
+            <input type="submit" name="save" class="buttom--link-style" value="Save Changes">
         </p>
 
         </form>

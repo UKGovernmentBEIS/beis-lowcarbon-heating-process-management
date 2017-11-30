@@ -16,13 +16,18 @@ if(a.getOrElse("") == b) "selected" else ""
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
-            <span class="heading-secondary">@t.oppId: @t.oppTitle</span>
-            @t.name
+            <span class="heading-secondary">@t.oppTitle</span>
+            Assessor's report
         </h1>
 
         <table class="thwithborder">
-            @taskInfo(t, url)
+            <thead>
+            <tr>
+                <th class="tdtopalign">Criteria </th>
+                <th class="tdtopalign">Score </th>
 
+            </tr>
+            </thead>
                 <tr>
                     <td class="tdtopalign tdnobottomborder">Project Description  </td>  <input type="hidden" name="projectdescweight" value="0">
                     <td class="tdnobottomborder">
@@ -30,8 +35,8 @@ if(a.getOrElse("") == b) "selected" else ""
                     </td>
                 </tr>
                 <tr>
-                    <td class="tdtopalign">Project Description Comments </td>
-                    <td>
+                    <!--td class="tdtopalign">Project Description Comments </td-->
+                    <td class="tdtopalign" colspan="2">
                         <div class="rifs-form-buttons">
                             @t.variables.get(s"projectdesccomment$assmtKey")
                         </div>
@@ -45,8 +50,8 @@ if(a.getOrElse("") == b) "selected" else ""
                     </td>
                 </tr>
                 <tr>
-                    <td class="tdtopalign">Cost comments </td>
-                    <td>
+                    <!--td class="tdtopalign">Cost comments </td-->
+                    <td class="tdtopalign" colspan="2">
                         <div class="rifs-form-buttons">
                             @t.variables.get(s"costcomment$assmtKey")
                         </div>
@@ -56,7 +61,7 @@ if(a.getOrElse("") == b) "selected" else ""
                     <td class="tdtopalign tdnobottomborder" colspan="2">Performance (25%) </td>
                 </tr>
                 <tr>
-                    <td class="tdtopalign tdnobottomborder">Performance enhancement(15%) </td>  <input type="hidden" name="performanceenhancementweight" value="15">
+                    <td class="tdtopalign tdnobottomborder">Performance enhancement (15%) </td>  <input type="hidden" name="performanceenhancementweight" value="15">
                     <td class="tdnobottomborder">
                         @t.variables.get(s"performanceenhancement$assmtKey")
                     </td>
@@ -77,8 +82,8 @@ if(a.getOrElse("") == b) "selected" else ""
                 </tr>
 
                 <tr>
-                    <td class="tdtopalign">Performance Comments </td>
-                    <td>
+                    <!--td class="tdtopalign">Performance Comments </td-->
+                    <td class="tdtopalign" colspan="2">
                         <div class="rifs-form-buttons">
                                 @t.variables.get(s"performancecomment$assmtKey")
                         </div>
@@ -92,8 +97,8 @@ if(a.getOrElse("") == b) "selected" else ""
                     </td>
                 </tr>
                 <tr>
-                    <td class="tdtopalign">Market Potential Comments </td>
-                    <td>
+                    <!--td class="tdtopalign">Market Potential Comments </td-->
+                    <td class="tdtopalign" colspan="2">
                         <div class="rifs-form-buttons">
                                  @t.variables.get(s"marketpotentialcomment$assmtKey")
                         </div>
@@ -107,49 +112,54 @@ if(a.getOrElse("") == b) "selected" else ""
                     </td>
                 </tr>
                 <tr>
-                    <td class="tdtopalign">Project Delivery Comments </td>
-                    <td>
+                    <!--td class="tdtopalign">Project delivery comments </td-->
+                    <td class="tdtopalign" colspan="2">
                                  @t.variables.get(s"projectdeliverycomment$assmtKey")
                     </td>
                 </tr>
 
 
                 <tr>
-                    <td class="tdtopalign tdnobottomborder">Project Financing (10%) </td>  <input type="hidden" name="projectfinancingweight" value="10">
+                    <td class="tdtopalign tdnobottomborder">Project financing (10%) </td>  <input type="hidden" name="projectfinancingweight" value="10">
                     <td class="tdnobottomborder">
                                  @t.variables.get(s"projectfinancing$assmtKey")
                     </td>
                 </tr>
                 <tr>
-                    <td class="tdtopalign">Project Financing Comments </td>
-                    <td colspan="2" >
+                    <!--td class="tdtopalign">Project financing comments </td-->
+                    <td  class="tdtopalign" colspan="2">
                                  @t.variables.get(s"projectfinancingcomment$assmtKey")
                     </td>
                 </tr>
 
 
                 <tr>
-                    <td class="tdtopalign tdnobottomborder">Wider Objective (10%) </td>     <input type="hidden" name="widerobjectiveweight" value="10">
+                    <td class="tdtopalign tdnobottomborder">Wider Objective</td>
+                    <input type="hidden" name="widerobjectiveweight" value="10">
                     <td class="tdnobottomborder">
                                  @t.variables.get(s"widerobjective$assmtKey").getOrElse("").toString()
                     </td>
                 </tr>
 
                 <tr>
-                    <td class="tdtopalign">Wider Objective Comments </td>
-                    <td>
+                    <!--td class="tdtopalign">Wider Objective Comments </td-->
+                    <td class="tdtopalign" colspan="2">
                                  @t.variables.get(s"widerobjectivecomment$assmtKey")
                     </td>
                 </tr>
 
 
                 <tr>
-                    <td class="tdtopalign">Overall Comments </td>
-                    <td>
+                    <td class="tdtopalign tdnobottomborder" colspan="2">Overall Comments </td>
+                </tr>
+                <tr>
+                    <td class="tdtopalign" colspan="2">
                                  @t.variables.get(s"overallcomment$assmtKey")
                     </td>
                 </tr>
-
+                <tr>
+                    <td class="tdtopalign tdnobottomborder" colspan="2"></td>
+                </tr>
 
         </table>
 

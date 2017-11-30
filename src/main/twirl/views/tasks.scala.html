@@ -5,27 +5,27 @@ userId: Option[String] = None)
 
 
 <div>
-    <h1 class="heading-xlarge">Task Management</h1>
+    <h1 class="heading-xlarge">Your inbox</h1>
 
-    <p class="lede">Links to all BEIS Tasks</p>
+    <p class="lede">List of tasks</p>
 
     <table class="spacious">
         <tr>
-            <th role="presentation">
-                Task Name
+            <th role="presentation" class="tdtopalign">
+                Task name
                 <a href="/tasks?sort=task-asc">
                     <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
                 <a href="/tasks?sort=task-desc">
                     <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
                 </th>
-            <th role="presentation">
-                Application Title
+            <th role="presentation" class="tdtopalign">
+                Application title
                 <a href="/tasks?sort=app-asc">
                     <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
                 <a href="/tasks?sort=app-desc">
                     <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
             </th>
-            <th role="presentation">
+            <th role="presentation" class="tdtopalign">
                 Status
                 <a href="/tasks?sort=status-asc">
                     <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
@@ -33,7 +33,7 @@ userId: Option[String] = None)
                     <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
             </th>
 
-            <th role="presentation">
+            <th role="presentation" class="tdtopalign">
                 Technology
                 <a href="/tasks?sort=technology-asc">
                     <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
@@ -41,16 +41,16 @@ userId: Option[String] = None)
                     <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
             </th>
 
-            <th role="presentation">
-                Average <br>Weighted Score
+            <th role="presentation" class="tdtopalign">
+                Weighted score
                 <a href="/tasks?sort=aws-asc">
                     <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
                 <a href="/tasks?sort=aws-desc">
                     <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
             </th>
 
-            <th role="presentation">
-                Average <br> Tie-break Score
+            <th role="presentation" class="tdtopalign">
+                Tie-break score
                 <a href="/tasks?sort=atbs-asc">
                     <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
                 <a href="/tasks?sort=atbs-desc">

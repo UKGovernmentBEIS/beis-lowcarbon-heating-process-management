@@ -159,7 +159,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     )))
   }
 
-
+/*
   override def getMembers(groupIds: Seq[String]): Option[Set[String]] = {
 
     val policyadmingroup = Config.config.bpm.policyadmingroup
@@ -174,6 +174,24 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       }
     }
     Option(userNames.toSet)
+  }
+  */
+
+  override def getMembers(groupIds: Seq[String]): Option[Map[String,String]] = {
+
+    val policyadmingroup = Config.config.bpm.policyadmingroup
+    val userQuery: UserQuery = identityService.createUserQuery().memberOfGroup(policyadmingroup)
+
+    //import org.activiti.engine.identity.User
+
+    //identityService.saveUser()saveUser()
+    val userNames = groupIds.foldLeft(Map[String,String]()) { (z,l) =>
+      z ++
+      identityService.createUserQuery().memberOfGroup(l).list().foldLeft(Map[String, String]()){ (a,b) =>
+        a +  (b.getId -> s"${b.getFirstName} ${b.getLastName}")
+      }
+    }
+    Option(userNames.toMap)
   }
 
 

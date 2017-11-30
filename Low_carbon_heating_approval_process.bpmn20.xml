@@ -2,7 +2,7 @@
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/processdef">
   <process id="low-carbon-heating-approval-process" name="Low carbon heating approval process" isExecutable="true">
     <startEvent id="startEvent1"></startEvent>
-    <userTask id="assessEligibility" name="Assess Eligibility" activiti:candidateGroups="policyadmin">
+    <userTask id="assessEligibility" name="Assess eligibility" activiti:candidateGroups="policyadmin">
       <extensionElements>
         <modeler:group-info-name-policyadmin xmlns:modeler="http://activiti.com/modeler"><![CDATA[Policyadmin]]></modeler:group-info-name-policyadmin>
         <modeler:activiti-idm-candidate-group xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-candidate-group>
@@ -10,7 +10,7 @@
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-F43366D0-CECF-4C31-BCD9-31AD1B8D04D4" sourceRef="startEvent1" targetRef="assessEligibility"></sequenceFlow>
-    <userTask id="assignAssessors" name="Assign Assessors" activiti:candidateGroups="policyadmin">
+    <userTask id="assignAssessors" name="Assign assessors" activiti:candidateGroups="policyadmin">
       <extensionElements>
         <modeler:group-info-name-policyadmin xmlns:modeler="http://activiti.com/modeler"><![CDATA[Policyadmin]]></modeler:group-info-name-policyadmin>
         <modeler:activiti-idm-candidate-group xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-candidate-group>
@@ -21,13 +21,13 @@
     <sequenceFlow id="sid-3F151D07-ACC2-499C-8833-5230B0452169" sourceRef="assessEligibility" targetRef="ifEligible"></sequenceFlow>
     <endEvent id="sid-CFC45444-51D3-4B8E-93F9-B7ECDE231B16"></endEvent>
     <parallelGateway id="sid-DE39C818-810F-4CD2-A220-52675631962A"></parallelGateway>
-    <userTask id="firstAssessment" name="First Assessment" activiti:candidateUsers="${assignee1}"></userTask>
-    <userTask id="secondAssessment" name="Second Assessment" activiti:candidateUsers="${assignee2}"></userTask>
-    <userTask id="thirdAssessment" name="Third Assessment" activiti:candidateUsers="${assignee3}"></userTask>
+    <userTask id="firstAssessment" name="Assessment" activiti:candidateUsers="${assignee1}"></userTask>
+    <userTask id="secondAssessment" name="Assessment" activiti:candidateUsers="${assignee2}"></userTask>
+    <userTask id="thirdAssessment" name="Assessment" activiti:candidateUsers="${assignee3}"></userTask>
     <parallelGateway id="sid-7C46ED9F-2CB2-4CDA-8F2D-F84FD5D82F56"></parallelGateway>
     <sequenceFlow id="sid-4DE5167A-6D32-4F81-87A9-0354FFEE91FA" sourceRef="secondAssessment" targetRef="sid-7C46ED9F-2CB2-4CDA-8F2D-F84FD5D82F56"></sequenceFlow>
     <sequenceFlow id="sid-DF4E3F6D-2E71-4481-84ED-D182D19C70AF" sourceRef="sid-7C46ED9F-2CB2-4CDA-8F2D-F84FD5D82F56" targetRef="servicetask2"></sequenceFlow>
-    <userTask id="makePanelDecision" name="Make Panel Decision" activiti:candidateGroups="policyadmin">
+    <userTask id="makePanelDecision" name="Make panel decision" activiti:candidateGroups="policyadmin">
       <extensionElements>
         <modeler:group-info-name-policyadmin xmlns:modeler="http://activiti.com/modeler"><![CDATA[Policyadmin]]></modeler:group-info-name-policyadmin>
         <modeler:activiti-idm-candidate-group xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-candidate-group>
@@ -36,21 +36,21 @@
     </userTask>
     <exclusiveGateway id="sid-66105FEE-F4DF-4EC3-ABA7-86BF24AB98FC" name="Check Deviation"></exclusiveGateway>
     <sequenceFlow id="sid-1318A033-577A-4616-B5B8-2075F0A7E91D" sourceRef="servicetask2" targetRef="sid-66105FEE-F4DF-4EC3-ABA7-86BF24AB98FC"></sequenceFlow>
-    <userTask id="moderateScore" name="Moderate Score" activiti:candidateGroups="policyadmin">
+    <userTask id="moderateScore" name="Moderate score" activiti:candidateGroups="policyadmin">
       <extensionElements>
         <modeler:group-info-name-policyadmin xmlns:modeler="http://activiti.com/modeler"><![CDATA[Policyadmin]]></modeler:group-info-name-policyadmin>
         <modeler:activiti-idm-candidate-group xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-candidate-group>
         <modeler:initiator-can-complete xmlns:modeler="http://activiti.com/modeler"><![CDATA[false]]></modeler:initiator-can-complete>
       </extensionElements>
     </userTask>
-    <serviceTask id="servicetask2" name="Calculate Average Score" activiti:class="rules.ScoreClassDelegate"></serviceTask>
+    <serviceTask id="servicetask2" name="Calculate average score" activiti:class="rules.ScoreClassDelegate"></serviceTask>
     <sequenceFlow id="sid-BD1553B9-2596-42EA-BF20-87BC17FE9D12" sourceRef="sid-DE39C818-810F-4CD2-A220-52675631962A" targetRef="secondAssessment"></sequenceFlow>
     <sequenceFlow id="sid-AC0E4DCA-3FFF-41C5-B9F7-18C8B80AB4F5" sourceRef="sid-DE39C818-810F-4CD2-A220-52675631962A" targetRef="firstAssessment"></sequenceFlow>
     <sequenceFlow id="sid-AE2CA64B-5130-4034-897E-09B91BCBD605" sourceRef="sid-DE39C818-810F-4CD2-A220-52675631962A" targetRef="thirdAssessment"></sequenceFlow>
     <sequenceFlow id="sid-6B8A974F-96BF-4B1E-A4AC-0626773C08A8" sourceRef="assignAssessors" targetRef="sid-DE39C818-810F-4CD2-A220-52675631962A"></sequenceFlow>
     <sequenceFlow id="sid-50AA5138-3DC2-4C4E-BA02-F61757F8185E" sourceRef="firstAssessment" targetRef="sid-7C46ED9F-2CB2-4CDA-8F2D-F84FD5D82F56"></sequenceFlow>
     <sequenceFlow id="sid-69E880E2-2440-4DCA-8147-835DE5C5B18C" sourceRef="thirdAssessment" targetRef="sid-7C46ED9F-2CB2-4CDA-8F2D-F84FD5D82F56"></sequenceFlow>
-    <userTask id="confirmEmailSent" name="Confirm Email Sent" activiti:candidateGroups="policyadmin">
+    <userTask id="confirmEmailSent" name="Confirm email sent" activiti:candidateGroups="policyadmin">
       <extensionElements>
         <modeler:group-info-name-policyadmin xmlns:modeler="http://activiti.com/modeler"><![CDATA[Policyadmin]]></modeler:group-info-name-policyadmin>
         <modeler:activiti-idm-candidate-group xmlns:modeler="http://activiti.com/modeler"><![CDATA[true]]></modeler:activiti-idm-candidate-group>
@@ -197,7 +197,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="sid-43561714-6A20-49A8-9000-D0730E077FBB" id="BPMNEdge_sid-43561714-6A20-49A8-9000-D0730E077FBB">
         <omgdi:waypoint x="752.0" y="615.0"></omgdi:waypoint>
-        <omgdi:waypoint x="658.5" y="615.0"></omgdi:waypoint>
+        <omgdi:waypoint x="658.0" y="615.0"></omgdi:waypoint>
         <omgdi:waypoint x="661.0" y="615.0"></omgdi:waypoint>
         <omgdi:waypoint x="565.0" y="615.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>

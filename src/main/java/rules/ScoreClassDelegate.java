@@ -34,7 +34,7 @@ public class ScoreClassDelegate implements JavaDelegate {
         execution.setVariable("maxDeviation", deviation);
         execution.setVariable("averageweightedscore", getAverageWeightedScore(score1, score2, score3));
         execution.setVariable("averagetiebreakscore", getAverageTiebreakScore(score1, score2, score3));
-        execution.setVariable("approvestatus", "Assessor assigned");
+        execution.setVariable("approvestatus", "Assessment completed");
 
     }
 

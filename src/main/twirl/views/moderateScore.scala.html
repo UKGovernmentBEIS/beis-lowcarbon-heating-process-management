@@ -16,7 +16,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
-            <span class="heading-secondary">@t.oppId: @t.oppTitle</span>
+            <span class="heading-secondary">@t.oppTitle</span>
             @t.name
         </h1>
 
@@ -59,9 +59,9 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 
             <tr>
                 <td class="tdwithpadding">Project description </td>
-                <td> </td>
-                <td> </td>
-                <td> </td>
+                <td class="tdwithpadding">@t.variables.get(s"projectdesc1").getOrElse("") </td>
+                <td class="tdwithpadding">@t.variables.get(s"projectdesc2").getOrElse("") </td>
+                <td class="tdwithpadding">@t.variables.get(s"projectdesc3").getOrElse("") </td>
             </tr>
             <tr>
                 <td class="tdwithpadding">Performance enhancement (@t.variables.get(s"performanceenhancementweight1").getOrElse("")%) </td>
@@ -106,10 +106,10 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
                 <td class="tdwithpadding">@t.variables.get(s"projectfinancing3").getOrElse("") </td>
             </tr>
             <tr>
-                <td class="tdwithpadding">Weighted score </td>
-                <td class="tdwithpadding">@t.variables.get(s"weightedscore1").getOrElse("") </td>
-                <td class="tdwithpadding">@t.variables.get(s"weightedscore2").getOrElse("") </td>
-                <td class="tdwithpadding">@t.variables.get(s"weightedscore3").getOrElse("") </td>
+                <td class="tdwithpadding"><span style="font-weight: bold;">Weighted score </span></td>
+                <td class="tdwithpadding"><span style="font-weight: bold;">@t.variables.get(s"weightedscore1").getOrElse("")</span></td>
+                <td class="tdwithpadding"><span style="font-weight: bold;">@t.variables.get(s"weightedscore2").getOrElse("")</span> </td>
+                <td class="tdwithpadding"><span style="font-weight: bold;">@t.variables.get(s"weightedscore3").getOrElse("")</span> </td>
             </tr>
             <tr>
                 <td COLSPAN="4"> </td>
@@ -120,12 +120,13 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
                 <td class="tdwithpadding">@t.variables.get(s"widerobjective2").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"widerobjective3").getOrElse("") </td>
             </tr>
-            <tr>
+            <!--tr>
                 <td class="tdwithpadding">Tie-break score</td>
                 <td class="tdwithpadding">@t.variables.get(s"tiebreakscore1").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"tiebreakscore2").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"tiebreakscore3").getOrElse("") </td>
-            </tr>
+            </tr-->
+
             </tbody>
         </table>
 
@@ -138,7 +139,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
                 </thead>
 
                 <tbody>
-                <tr> <td>  Average Weighted Score </td>
+                <tr> <td>  Average weighted score </td>
                      <td>  @t.variables.get(s"averageweightedscore").getOrElse("") </td>
                     <input type="hidden" name="averageweightedscore" value="@t.variables.get(s"averageweightedscore").getOrElse("")">
                 </tr>
@@ -148,7 +149,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
                 </tr>-->
                 <input type="hidden" name="averagetiebreakscore" value="@t.variables.get(s"averagetiebreakscore").getOrElse("")">
 
-                <tr> <td>  Average Moderate Score </td>
+                <tr> <td>  Moderated score </td>
                     <td> <input type="text" id="name" class="form-control text-field bignumber" title="name" name="averagemoderatescore"  aria-label="User Name" aria-invalid="false">
                     </td>
                 </tr>

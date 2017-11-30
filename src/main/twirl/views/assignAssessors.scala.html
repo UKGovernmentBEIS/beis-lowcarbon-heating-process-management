@@ -16,7 +16,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
-            <span class="heading-secondary">@t.oppId: @t.oppTitle</span>
+            <span class="heading-secondary">@t.oppTitle</span>
             @t.name
         </h1>
 
@@ -48,7 +48,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
             <td>
                 <div class="rifs-form-buttons">
 
-                    <select class="form-control dropdown" id="select-box" name="assignassessor1">
+                    <select class="form-control" id="select-box" name="assignassessor1">
 
                         @for((key, value) <- statusmap) {
                         <option value=@key>@value</option>
@@ -63,7 +63,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
             <td>
                 <div class="rifs-form-buttons">
 
-                    <select class="form-control dropdown" id="select-box" name="assignassessor2">
+                    <select class="form-control" id="select-box" name="assignassessor2">
 
                         @for((key, value) <- statusmap) {
                         <option value=@key>@value</option>
@@ -78,7 +78,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
             <td>
                 <div class="rifs-form-buttons">
 
-                    <select class="form-control dropdown" id="select-box" name="assignassessor3">
+                    <select class="form-control" id="select-box" name="assignassessor3">
 
                         @for((key, value) <- statusmap) {
                         <option value=@key>@value</option>
@@ -89,7 +89,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
         </tr>
 
         <tr>
-            <td colspan="2">Comments
+            <td colspan="2">Comments (max, 1,000 words)
                 <div class="rifs-form-buttons">
 
                     <details>

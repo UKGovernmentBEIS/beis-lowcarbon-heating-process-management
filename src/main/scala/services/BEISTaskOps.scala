@@ -32,6 +32,6 @@ trait BEISTaskOps {
   def updatePassword(userId: String, password: String, newpassword: String): Future[Int]
   def saveUser(userId: String, firstName: String, lastName: String, password: String, email: String): Future[Int]
 
-  def getMembers(groupIds: Seq[String]): Option[Set[String]]
+  def getMembers(groupIds: Seq[String]): Option[Map[String,String]]
 
 }
