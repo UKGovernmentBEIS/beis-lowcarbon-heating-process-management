@@ -72,7 +72,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 
                         <div class="rifs-form-buttons">
 
-                            <select class="form-control dropdown" id="select-box" name="approvestatus">
+                            <select class="form-control" id="select-box" name="approvestatus">
 
                                 @for((key, value) <- decisionmap) {
                                 <option value=@key>@value</option>
