@@ -97,7 +97,6 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
                         <div class="panel panel-border-narrow">Test Test Test Test Test</div>
                     </details>
 
-                    <div class="form-group @errorClass">
 
                         <div class="form-group  @errorClass'">
                             <label for="comment"></label>
@@ -107,7 +106,6 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
                             </div>
                         </div>
 
-                    </div>
 
                     <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
                     <input type="submit" name="save" class="button button--start" value="Submit Process">
