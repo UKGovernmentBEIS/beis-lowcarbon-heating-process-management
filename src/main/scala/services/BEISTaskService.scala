@@ -293,23 +293,26 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     taskService.setVariableLocal(t.getId(), "technology", technology )
     taskService.setVariableLocal(t.getId(), "submiteligibilitycomment", comment)
 
-    taskService.setVariableLocal(t.getId(), "approvestatus", Complete.status) //History purpose
+    taskService.setVariableLocal(t.getId(), "approvestatus", Completed.status) //History purpose
     taskService.setVariableLocal(t.getId(), "completedby", userId.userId)     //History purpose
     taskService.setVariableLocal(t.getId(), "comment", comment)               //History purpose
 
     runtimeService.setVariable(t.getProcessInstanceId,"technology",technology) //Process variable for TaskSummary
-    runtimeService.setVariable(t.getProcessInstanceId,"approvestatus",
-             status match { case "eligible" => Eligible.status
-             case "noteligible" => NotEligible.status
-             case _ => NotEligible.status}) //Process variable for TaskSummary
+
+    val processStatus = status match { case "eligible" => Eligible.status
+    case "noteligible" => NotEligible.status
+    case _ => NotEligible.status}
+
+    runtimeService.setVariable(t.getProcessInstanceId,"approvestatus",processStatus) //Process variable for TaskSummary
 
     taskService.complete(t.getId(), mp, false)
 
     /** Update Application DB - Update Application Status **/
-    val st = s"WIP"
+    //val st = s"WIP"
     /*val stsc = "WIP"
     val s = s"$stsc (by $user)"*/
-    updateAppStatus(ApplicationId(applicationId), st ) //TODO:- Should we update Application status to show to user in BEIS forms?
+
+    updateAppStatus(ApplicationId(applicationId), processStatus ) //TODO:- Should we update Application status to show to user in BEIS forms?
 
     Future.successful(Option(LocalTaskId(t.getId)))
   }
@@ -323,13 +326,13 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     /* Add comments to the Task for that Process Instance */
     val user = userId.userId
-    val st = s"WIP"
+    //val st = s"WIP"
     taskService.addComment(t.getId, t.getProcessInstanceId, comment)
 
     taskService.setVariableLocal(t.getId(), "assignee1", assignassessor1)
     taskService.setVariableLocal(t.getId(), "assignee2", assignassessor2)
     taskService.setVariableLocal(t.getId(), "assignee3", assignassessor3)
-    taskService.setVariableLocal(t.getId(), "approvestatus", Complete.status) //History purpose
+    taskService.setVariableLocal(t.getId(), "approvestatus", Completed.status) //History purpose
     taskService.setVariableLocal(t.getId(), "completedby", userId.userId)     //History purpose
     taskService.setVariableLocal(t.getId(), "comment", comment)               //History purpose
 
@@ -339,9 +342,9 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       "assignee3" -> assignassessor3, "assignassessorscomment" -> comment ), false)
 
     /** Update Application DB - Update Application Status **/
-    val stsc = "WIP"
-    val s = s"$stsc (by $user)"
-    updateAppStatus(ApplicationId(applicationId), st ) //TODO:- should we update Application status to show to user in BEIS forms
+    //val stsc = "WIP"
+    //val s = s"$stsc (by $user)"
+    updateAppStatus(ApplicationId(applicationId), AssessorsAssigned.status ) //TODO:- should we update Application status to show to user in BEIS forms
 
     Future.successful(Option(LocalTaskId(t.getId)))
   }
@@ -357,7 +360,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     /* Add comments to the Task for that Process Instance */
     val user = userId.userId
-    val st = s"WIP"
+    //val st = s"WIP"
 
     val mp = Map(
       s"projectdesc$asmtKey" -> score.projectdesc.toString,
@@ -391,7 +394,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
       s"widerobjective$asmtKey" -> score.widerobjective.toString,
       s"widerobjectivecomment$asmtKey" -> score.widerobjectivecomment,
-      s"widerobjectiveweight$asmtKey" -> score.widerobjectiveweight.toString,
+     // s"widerobjectiveweight$asmtKey" -> score.widerobjectiveweight.toString,
 
       s"overallcomment$asmtKey" -> score.overallcomment,
       s"weightedscore$asmtKey" -> score.weightedscore.toString,
@@ -399,17 +402,20 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     )
 
     taskService.setVariablesLocal(t.getId(), mp)
-    taskService.setVariableLocal(t.getId(), "approvestatus", Complete.status) //History purpose
+    taskService.setVariableLocal(t.getId(), "approvestatus", Completed.status) //History purpose
 
     buttonAction match {
       //case "save" => taskService.saveTask(t)
       case "complete" =>
         taskService.setVariableLocal(t.getId(), "completedby", userId.userId) //History purpose
         val approvests = runtimeService.getVariable(t.getProcessInstanceId,"approvestatus")
+/*
         val sts = approvests.toString match {
           case AssessorsAssigned.status =>  s"${Assessed.status} by Assessor $asmtKey"
           case _ => s"$approvests and $asmtKey"
         }
+*/
+        val sts = AssessorsAssigned.status
 
        runtimeService.setVariable(t.getProcessInstanceId,"approvestatus", sts ) //Process variable for TaskSummary
        taskService.complete(t.getId(), mp, false)
@@ -417,9 +423,9 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     }
 
     /** Update Application DB - Update Application Status **/
-    val stsc = "WIP"
-    val s = s"$stsc (by $user)"
-    updateAppStatus(ApplicationId(applicationId), st ) //TODO:- should we update Application status to show to user in BEIS forms
+    //val stsc = "WIP"
+    //val s = s"$stsc (by $user)"
+    updateAppStatus(ApplicationId(applicationId), AssessorsAssigned.status ) //TODO:- should we update Application status to show to user in BEIS forms
 
     Future.successful(Option(LocalTaskId(t.getId)))
   }
@@ -433,7 +439,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     /* Add comments to the Task for that Process Instance */
     val user = userId.userId
-    val st = s"WIP"
+    //val st = s"WIP"
 
     val averagetiebreakscore = taskService.getVariable(t.getId(),"averagetiebreakscore")
 
@@ -441,7 +447,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     taskService.setVariableLocal(t.getId(), "averagemoderatescore", averagemoderatescore )
     taskService.setVariableLocal(t.getId(), "averagetiebreakscore", averagetiebreakscore )
     taskService.setVariableLocal(t.getId(), "moderatescorecomments", comment)
-    taskService.setVariableLocal(t.getId(), "approvestatus", Complete.status) //History purpose
+    taskService.setVariableLocal(t.getId(), "approvestatus", Completed.status) //History purpose
     taskService.setVariableLocal(t.getId(), "completedby", userId.userId)     //History purpose
     taskService.setVariableLocal(t.getId(), "comment", comment)               //History purpose
 
@@ -452,9 +458,9 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     taskService.complete(t.getId(), Map("averagemoderatescore" -> averagemoderatescore), false)
 
     /** Update Application DB - Update Application Status **/
-    val stsc = "WIP"
-    val s = s"$stsc (by $user)"
-    updateAppStatus(ApplicationId(applicationId), st ) //TODO:- should we update Application status to show to user in BEIS forms
+    //val stsc = "WIP"
+    //val s = s"$stsc (by $user)"
+    updateAppStatus(ApplicationId(applicationId), AssessmentCompleted.status ) //TODO:- should we update Application status to show to user in BEIS forms
 
     Future.successful(Option(LocalTaskId(t.getId)))
   }
@@ -468,12 +474,12 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     /* Add comments to the Task for that Process Instance */
     val user = userId.userId
-    val st = s"WIP"
+    //val st = s"WIP"
     taskService.addComment(t.getId, t.getProcessInstanceId, comment)
     taskService.setVariableLocal(t.getId(), "makepaneldecisioncomments", comment)
     taskService.setVariableLocal(t.getId(), "makepaneldecisioncomments", comment)
     taskService.setVariableLocal(t.getId(), "finaldecision", status)
-    taskService.setVariableLocal(t.getId(), "approvestatus", Complete.status) //History purpose
+    taskService.setVariableLocal(t.getId(), "approvestatus", Completed.status) //History purpose
     taskService.setVariableLocal(t.getId(), "completedby", userId.userId)     //History purpose
     taskService.setVariableLocal(t.getId(), "comment", comment)               //History purpose
 
@@ -484,9 +490,9 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     taskService.complete(t.getId(), Map("makepaneldecisioncomments" -> comment, "finaldecision"-> status), false)
 
     /** Update Application DB - Update Application Status **/
-    val stsc = "WIP"
-    val s = s"$stsc (by $user)"
-    updateAppStatus(ApplicationId(applicationId), st ) //TODO:- should we update Application status to show to user in BEIS forms
+    //val stsc = "WIP"
+    //val s = s"$stsc (by $user)"
+    updateAppStatus(ApplicationId(applicationId), sts ) //TODO:- should we update Application status to show to user in BEIS forms
 
     Future.successful(Option(LocalTaskId(t.getId)))
   }
@@ -505,17 +511,17 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     taskService.setVariableLocal(t.getId(), "emailsent", emailsent )
     taskService.setVariableLocal(t.getId(), "submitconfirmemailsentcomment", comment)
 
-    taskService.setVariableLocal(t.getId(), "approvestatus", Complete.status) //History purpose
+    taskService.setVariableLocal(t.getId(), "approvestatus", Completed.status) //History purpose
     taskService.setVariableLocal(t.getId(), "completedby", userId.userId)     //History purpose
     taskService.setVariableLocal(t.getId(), "comment", comment)               //History purpose
 
     taskService.complete(t.getId(), Map("emailsent" -> emailsent, "submiteligibilitycomment" -> comment), false)
 
     /** Update Application DB - Update Application Status **/
-    val st = s"WIP"
+    //val st = s"WIP"
     /*val stsc = "WIP"
     val s = s"$stsc (by $user)"*/
-    updateAppStatus(ApplicationId(applicationId), st ) //TODO:- Should we update Application status to show to user in BEIS forms?
+    updateAppStatus(ApplicationId(applicationId), Completed.status ) //TODO:- Should we update Application status to show to user in BEIS forms?
 
     Future.successful(Option(LocalTaskId(t.getId)))
   }

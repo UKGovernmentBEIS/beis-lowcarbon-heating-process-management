@@ -30,8 +30,8 @@ case object InProgress extends Status {
   override val status = "In progress"
 }
 
-case object Complete extends Status {
-  override val status = "Complete"
+case object Completed extends Status {
+  override val status = "Completed"
 }
 
 case object Eligible extends Status {

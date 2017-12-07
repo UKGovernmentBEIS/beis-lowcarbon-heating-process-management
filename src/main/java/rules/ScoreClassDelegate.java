@@ -75,7 +75,7 @@ public class ScoreClassDelegate implements JavaDelegate {
         double projectdelivery = score.getProjectdelivery() * score.getProjectdeliveryweight()    /100.0;
         double projectfinancing = score.getProjectfinancing() * score.getProjectfinancingweight() /100.0;
         // Wider objective - Tie Breaker only - Dont add it now
-        double widerobj = score.getWiderobj() * score.getWiderobjweight() /100.0;
+        //double widerobj = score.getWiderobj() * score.getWiderobjweight() /100.0;
 
         /*System.out.println("=== score " + score.getKey() + "==  " + performanceenhancement);
         System.out.println("=== score " + score.getKey() + "==  " + performancemanagement);
@@ -87,7 +87,7 @@ public class ScoreClassDelegate implements JavaDelegate {
         System.out.println("=== score " + score.getKey() + "==  " + widerobj);*/
 
         double weightedScore = performanceenhancement + performancemanagement + cost + performanceintegration + marketpotential + projectdelivery
-                + projectfinancing + widerobj;
+                + projectfinancing;// + widerobj;
 
         return weightedScore * 10.0;
     }
@@ -139,7 +139,7 @@ public class ScoreClassDelegate implements JavaDelegate {
 
 
         score.setWiderobj(getIntVariable(execution, "widerobj", score.getKey()));
-        score.setWiderobjweight(getIntVariable(execution, "widerobjweight", score.getKey()));
+        //score.setWiderobjweight(getIntVariable(execution, "widerobjweight", score.getKey()));
         score.setWiderobjcomment(getStrVariable(execution, "widerobjcomment", score.getKey()));
 
         score.setOverallcomment(getStrVariable(execution, "overallcomment", score.getKey()));
@@ -182,7 +182,7 @@ public class ScoreClassDelegate implements JavaDelegate {
 
         System.out.println("=== In Java Service Delegate == widerobj" + score.getKey() + "          :-" + score.getWiderobj());
         System.out.println("=== In Java Service Delegate == widerobj" + score.getKey() + "          :-" + score.getWiderobjcomment());
-        System.out.println("=== In Java Service Delegate == widerobj" + score.getKey() + "          :-" + score.getWiderobjweight());
+        //System.out.println("=== In Java Service Delegate == widerobj" + score.getKey() + "          :-" + score.getWiderobjweight());
 
         System.out.println("=== In Java Service Delegate == overallcomment" + score.getKey() + "    :-" + score.getOverallcomment());
         System.out.println("=== In Java Service Delegate == Weightedscore" + score.getKey() + "     :-" + score.getWeightedscore());

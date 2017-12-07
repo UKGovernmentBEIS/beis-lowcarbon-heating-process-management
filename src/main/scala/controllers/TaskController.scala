@@ -301,7 +301,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     val widerobjective =               getValueFromRequest("widerobjectiveoption", mp ).toInt
     val widerobjectivecomment =        getValueFromRequest("widerobjectivecomment", mp )
-    val widerobjectiveweight =         getValueFromRequest("widerobjectiveweight", mp ).toInt
+    //val widerobjectiveweight =         getValueFromRequest("widerobjectiveweight", mp ).toInt
 
     val overallcomment =               getValueFromRequest("overallcomment", mp )
 
@@ -330,15 +330,15 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     val projectfinancingScore = projectfinancing * projectfinancingweight / 100.0
 
     /* Wider objective - Tie Breaker only - Dont add it now */
-    val widerobjectiveScore = widerobjective * widerobjectiveweight / 100.0
+    val widerobjectiveScore = widerobjective //* widerobjectiveweight / 100.0
 
-    val weightedScore = performanceenhancementScore + costScore+ performancemanagementScore + performanceintegrationScore + marketpotentialScore
-                        + projectdeliveryScore + projectfinancingScore
+    val weightedScore = performanceenhancementScore +  performancemanagementScore + performanceintegrationScore + costScore + marketpotentialScore + projectdeliveryScore + projectfinancingScore
 
-    val tiebreakScore = weightedScore + widerobjectiveScore
+    val tiebreakScore =  widerobjectiveScore
 
 
-    /*println("=== score " + "" + "==  " + performanceenhancement)
+/*
+    println("=== score " + "" + "==  " + performanceenhancement)
     println("=== score " + "" + "==  " + performancemanagement)
     println("=== score " + "" + "==  " + performanceintegration)
     println("=== score " + "" + "==  " + cost)
@@ -354,7 +354,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     println("=== score weight" + "" + "==  " + costweight)
     println("=== score weight" + "" + "==  " + projectdeliveryweight)
     println("=== score weight" + "" + "==  " + projectfinancingweight)
-    println("=== score weight" + "" + "==  " + widerobjectiveweight)
+    //println("=== score weight" + "" + "==  " + widerobjectiveweight)
 
 
 
@@ -367,8 +367,8 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     println("=== score Score" + "" + "==  " + projectfinancingScore)
     println("=== score Score" + "" + "==  " + widerobjectiveScore)
     println("=== weightedScore " + "" + "==  " + weightedScore)
-    println("=== tiebreakScore " + "" + "==  " + tiebreakScore)*/
-
+    println("=== tiebreakScore " + "" + "==  " + tiebreakScore)
+*/
 
     val score = Score(
       projectdesc, projectdesccomment, projectdescweight.toInt,
@@ -379,7 +379,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
       marketpotential.toInt, marketpotentialcomment, marketpotentialweight.toInt,
       projectdelivery.toInt, projectdeliverycomment, projectdeliveryweight.toInt,
       projectfinancing.toInt, projectfinancingcomment, projectfinancingweight.toInt,
-      widerobjective.toInt, widerobjectivecomment, widerobjectiveweight.toInt,
+      widerobjective.toInt, widerobjectivecomment,
       overallcomment, BigDecimal(weightedScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble,
       BigDecimal(tiebreakScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
     )
@@ -585,10 +585,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
     println("=== In Task Controller == projectfinancing" + ":" + "  :-" + score.projectfinancingweight)
     println("=== In Task Controller == widerobjective" + ":" + "    :-" + score.widerobjective)
     println("=== In Task Controller == widerobjective" + ":" + "    :-" + score.widerobjectivecomment)
-    println("=== In Task Controller == widerobjective" + ":" + "    :-" + score.widerobjectiveweight)
+//    println("=== In Task Controller == widerobjective" + ":" + "    :-" + score.widerobjectiveweight)
     println("=== In Task Controller == overallcomment" + ":" + "    :-" + score.overallcomment)
     println("=== In Task Controller == weightedscore" + ":" + "     :-" + score.weightedscore)
-    println("=== In Task Controller == tiebreakscore" + ":" + "     :-" + score.tiebreakscore)
+      println("=== In Task Controller == tiebreakscore" + ":" + "     :-" + score.tiebreakscore)
   }
 }
 
