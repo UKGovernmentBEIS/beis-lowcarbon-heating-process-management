@@ -64,25 +64,26 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
                 <td class="tdwithpadding">@t.variables.get(s"projectdesc3").getOrElse("") </td>
             </tr>
             <tr>
-                <td class="tdwithpadding">Performance enhancement (@t.variables.get(s"performanceenhancementweight1").getOrElse("")%) </td>
-                <td class="tdwithpadding">@t.variables.get(s"performanceenhancement1").getOrElse("") </td>
-                <td class="tdwithpadding">@t.variables.get(s"performanceenhancement2").getOrElse("") </td>
-                <td class="tdwithpadding">@t.variables.get(s"performanceenhancement3").getOrElse("") </td>
-            </tr>
-            <tr>
                 <td class="tdwithpadding">Cost (@t.variables.get(s"costweight1").getOrElse("")%) </td>
                 <td class="tdwithpadding">@t.variables.get(s"cost1").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"cost2").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"cost3").getOrElse("") </td>
             </tr>
             <tr>
+                <td class="tdwithpadding">Performance enhancement (@t.variables.get(s"performanceenhancementweight1").getOrElse("")%) </td>
+                <td class="tdwithpadding">@t.variables.get(s"performanceenhancement1").getOrElse("") </td>
+                <td class="tdwithpadding">@t.variables.get(s"performanceenhancement2").getOrElse("") </td>
+                <td class="tdwithpadding">@t.variables.get(s"performanceenhancement3").getOrElse("") </td>
+            </tr>
+
+            <tr>
                 <td class="tdwithpadding">Performance management (@t.variables.get(s"performancemanagementweight1").getOrElse("")%) </td>
                 <td class="tdwithpadding">@t.variables.get(s"performancemanagement1").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"performancemanagement2").getOrElse("") </td>
-                <td class="tdwithpadding">@t.variables.get(s"performancemanagement2").getOrElse("") </td>
+                <td class="tdwithpadding">@t.variables.get(s"performancemanagement3").getOrElse("") </td>
             </tr>
             <tr>
-                <td class="tdwithpadding">Project integration (@t.variables.get(s"performanceintegrationweight1").getOrElse("")%) </td>
+                <td class="tdwithpadding">Performance integration (@t.variables.get(s"performanceintegrationweight1").getOrElse("")%) </td>
                 <td class="tdwithpadding">@t.variables.get(s"performanceintegration1").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"performanceintegration2").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"performanceintegration3").getOrElse("") </td>
@@ -106,7 +107,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
                 <td class="tdwithpadding">@t.variables.get(s"projectfinancing3").getOrElse("") </td>
             </tr>
             <tr>
-                <td class="tdwithpadding"><span style="font-weight: bold;">Weighted score </span></td>
+                <td class="tdwithpadding boldtext">Weighted score </td>
                 <td class="tdwithpadding"><span style="font-weight: bold;">@t.variables.get(s"weightedscore1").getOrElse("")</span></td>
                 <td class="tdwithpadding"><span style="font-weight: bold;">@t.variables.get(s"weightedscore2").getOrElse("")</span> </td>
                 <td class="tdwithpadding"><span style="font-weight: bold;">@t.variables.get(s"weightedscore3").getOrElse("")</span> </td>
@@ -115,7 +116,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
                 <td COLSPAN="4"> </td>
             </tr>
             <tr>
-                <td class="tdwithpadding">Wider objective (@t.variables.get(s"widerobjectiveweight1").getOrElse("")%) </td>
+                <td class="tdwithpadding">Wider objective </td>
                 <td class="tdwithpadding">@t.variables.get(s"widerobjective1").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"widerobjective2").getOrElse("") </td>
                 <td class="tdwithpadding">@t.variables.get(s"widerobjective3").getOrElse("") </td>

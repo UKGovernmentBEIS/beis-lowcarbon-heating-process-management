@@ -39,7 +39,7 @@ public class AssessScore {
 
     int widerobj = 0;
     String widerobjcomment = null;
-    int widerobjweight = 0;
+    //int widerobjweight = 0;
 
     String overallcomment = null;
 
@@ -216,7 +216,7 @@ public class AssessScore {
     public void setWiderobjcomment(String widerobjcomment) {
         this.widerobjcomment = widerobjcomment;
     }
-
+/*
     public int getWiderobjweight() {
         return widerobjweight;
     }
@@ -224,7 +224,7 @@ public class AssessScore {
     public void setWiderobjweight(int widerobjweight) {
         this.widerobjweight = widerobjweight;
     }
-
+*/
     public String getOverallcomment() {
         return overallcomment;
     }

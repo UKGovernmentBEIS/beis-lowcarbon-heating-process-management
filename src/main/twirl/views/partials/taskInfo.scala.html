@@ -24,7 +24,11 @@ url: String)
     </tr>
     <tr>
         <td>Application</td>
-        <td> <a href="@url/application/@t.appId"> @t.appRef</a></td>
+
+        <td><a href="@url/application/@t.appId" target="_blank">
+            <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
+        </td>
+
         <input type="hidden" name="applicationId" value="@t.appId">
     </tr>
     </tbody>

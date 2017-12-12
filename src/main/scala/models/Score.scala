@@ -11,6 +11,6 @@ case class Score(projectdesc:String, projectdesccomment:String, projectdescweigh
                  marketpotential:Int, marketpotentialcomment:String, marketpotentialweight:Int,
                  projectdelivery:Int, projectdeliverycomment:String, projectdeliveryweight:Int,
                  projectfinancing:Int, projectfinancingcomment:String, projectfinancingweight:Int,
-                 widerobjective:Int, widerobjectivecomment:String, widerobjectiveweight:Int,
+                 widerobjective:Int, widerobjectivecomment:String,
                  overallcomment:String, weightedscore:Double, tiebreakscore:Double
                 )
