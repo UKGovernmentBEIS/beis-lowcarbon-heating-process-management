@@ -125,14 +125,15 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
       },
       user=> {
         implicit val userIdInSession = user.name
-        val isUserAuthenticated = localtasks.submitLogin(user.name, user.password)
+        val grp = localtasks.submitLogin(user.name, user.password)
 
-        isUserAuthenticated.flatMap{
-          case true => {
+        grp.flatMap{
+          case Some(g) => {
             val appFrontEndUrl = Config.config.business.appFrontEndUrl
-            Future.successful(Redirect(controllers.routes.TaskController.tasks()).withSession(Security.username -> user.name))
+            Future.successful(Redirect(controllers.routes.TaskController.tasks()).withSession(
+              (Security.username -> user.name), ("role" -> g)))
           }
-          case false => Future.successful(NotFound)
+          case None => Future.successful(NotFound)
             val errMsg = Messages("error.BF002")
             Future.successful(Ok(views.html.loginForm(errMsg, loginform)))
         }

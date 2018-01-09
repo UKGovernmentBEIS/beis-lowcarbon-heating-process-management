@@ -26,7 +26,7 @@ import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration
 import org.activiti.engine.task.{Comment, IdentityLink, Task, TaskQuery}
 import config.Config
 import org.activiti.engine.history.HistoricTaskInstance
-import org.activiti.engine.identity.UserQuery
+import org.activiti.engine.identity.{GroupQuery, UserQuery}
 import org.activiti.engine.impl.persistence.entity.VariableInstance
 import org.activiti.engine.runtime.ProcessInstance
 import org.joda.time.{DateTime, DateTimeZone}
@@ -41,8 +41,7 @@ import scala.util.Try
 import org.apache.commons.lang3.StringUtils
 
 import scala.collection.JavaConversions._
-
-import scala.util.{Try, Success, Failure}
+import scala.util.{Failure, Success, Try}
 import validations.FieldError
 
 
@@ -527,10 +526,17 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   }
 
 
-  override def submitLogin(userId: String, password: String): Future[Boolean] = {
+  override def submitLogin(userId: String, password: String): Future[Option[String]] = {
 
     val isUserAuthonticated = identityService.checkPassword(userId, password)
-    Future.successful(isUserAuthonticated)
+    val grp = identityService.createGroupQuery().groupMember(userId).list().headOption
+    grp.isEmpty match{
+      case false =>
+        val grpId = grp.get.getId
+        Future.successful(Option(grpId))
+      case true =>
+        Future.successful(None)
+    }
   }
 
   override def saveUser(userId: String, firstName: String, lastName: String, password: String, email: String): Future[Int] = {
