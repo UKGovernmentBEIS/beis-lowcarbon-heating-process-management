@@ -113,7 +113,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
   }
 
   def passwordresetForm = Action{ implicit request =>
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     Ok(views.html.passwordForm(passwordresetform, userId, List()))
   }
 
@@ -131,7 +131,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
           case Some(g) => {
             val appFrontEndUrl = Config.config.business.appFrontEndUrl
             Future.successful(Redirect(controllers.routes.TaskController.tasks()).withSession(
-              (Security.username -> user.name), ("role" -> g)))
+              ("username" -> user.name),("username_process" -> user.name), ("role" -> g)))
           }
           case None => Future.successful(NotFound)
             val errMsg = Messages("error.BF002")
@@ -148,7 +148,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
   def updatePassword =  Action.async { implicit request =>
 
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
 
     val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
@@ -196,7 +196,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
   def registrationSubmit =  Action.async { implicit request =>
 
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
     val firstname = getValueFromRequest("firstname", mp )

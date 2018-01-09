@@ -55,7 +55,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
   def task (id : LocalTaskId, appId : Long, oppId : Long) = Action.async { implicit request =>
     val t = localtasks.showTask(id)
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
 
     t.flatMap{
       case Some(tsk) => {
@@ -85,11 +85,15 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           4. Then Reads Payload and apply business logic to give a Resource access
         *****************************************************************/
 
-        val userId = request.session.get("username").getOrElse("Unauthorised User")
+        val userId = request.session.get("username_process").getOrElse("Unauthorised User")
         val grpId = request.session.get("role").getOrElse("")
+
+        println("==userId==="+ userId)
         val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, tsk.appId.toString)).toString()
         val appAuthToken = jwt.createToken(appAuthpayload)
         val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${tsk.appId}?token=$appAuthToken"
+        println("==appFrontEndUrlWithJWTToken==="+ appFrontEndUrlWithJWTToken)
+
         /*****************JWT ends ***************************************/
 
         tsk.key match {
@@ -153,7 +157,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   def tasks = Action.async  {   implicit request =>
     val sortstr = request.queryString.getOrElse("sort", List()).headOption.getOrElse("")
 
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     val ts = localtasks.showTasks(UserId(userId))
 
     ts.flatMap{
@@ -191,7 +195,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   }
 
   def submit (id : LocalTaskId) = Action.async { implicit request =>
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
 
     val status = request.body.asFormUrlEncoded.getOrElse(Map()).get("approvestatus").headOption.map( _.head).getOrElse("")
     val comment = request.body.asFormUrlEncoded.getOrElse(Map()).get("comment").headOption.map( _.head).getOrElse("")
@@ -209,7 +213,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
   def submitAssessEligibility (id : LocalTaskId) = Action.async { implicit request =>
 
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
 
     val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
@@ -236,7 +240,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   }
 
   def submitAssignAssessors (id : LocalTaskId) = Action.async { implicit request =>
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
 
     val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
@@ -285,7 +289,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
 
   def submitAssessment (id : LocalTaskId, key: String) = Action.async { implicit request =>
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
 
     val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
@@ -475,7 +479,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
   def submitMakePanelDecision (id : LocalTaskId) = Action.async { implicit request =>
 
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
     val status =            getValueFromRequest("approvestatus", mp )
@@ -500,7 +504,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
 
   def submitModerateScore (id : LocalTaskId) = Action.async { implicit request =>
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
     val averagemoderatescore =     getValueFromRequest("averagemoderatescore", mp )
@@ -538,7 +542,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   }
 
   def submitConfirmEmailSent (id : LocalTaskId) = Action.async { implicit request =>
-    val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
 
     val mp = request.body.asFormUrlEncoded.getOrElse(Map())
 
