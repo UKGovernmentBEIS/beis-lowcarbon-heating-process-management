@@ -359,8 +359,13 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val applicant = runtimeService.getVariable(t.getProcessInstanceId, "Applicant").toString
 
     /* Add comments to the Task for that Process Instance */
-    val user = userId.userId
+    //val user = userId.userId
     //val st = s"WIP"
+    /* Get assessors's name */
+
+    val user = identityService.createUserQuery().userId(userId.userId).singleResult()
+
+
 
     val mp = Map(
       s"projectdesc$asmtKey" -> score.projectdesc.toString,
@@ -398,7 +403,11 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
       s"overallcomment$asmtKey" -> score.overallcomment,
       s"weightedscore$asmtKey" -> score.weightedscore.toString,
-      s"tiebreakscore$asmtKey" -> score.tiebreakscore.toString
+      s"tiebreakscore$asmtKey" -> score.tiebreakscore.toString,
+      s"assessor$asmtKey" -> (user.getFirstName() + " " + user.getLastName())
+
+
+
     )
 
     taskService.setVariablesLocal(t.getId(), mp)

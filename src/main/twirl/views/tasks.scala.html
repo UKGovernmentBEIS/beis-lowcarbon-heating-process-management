@@ -19,7 +19,7 @@ userId: Option[String] = None)
                     <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
                 </th>
             <th role="presentation" class="tdtopalign">
-                Application title
+                Application
                 <a href="/tasks?sort=app-asc">
                     <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
                 <a href="/tasks?sort=app-desc">
@@ -69,7 +69,7 @@ userId: Option[String] = None)
                     @{i+1}. <a href="/task/@t.id.id/application/@t.appId/opportunity/@t.oppId">
                     @t.key</a>
             </td>
-            <td>@t.appRef</td>
+            <td>@(t.appId+1000) - @t.appRef</td>
             <td class="tdnormal">@t.status</td>
             <td>@t.technology</td>
             <td>@t.averageweightedscore</td>

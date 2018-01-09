@@ -65,7 +65,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
         val technologyMap = ListMap("technology1" -> "Technology1", "technology2" -> "Technology2", "technology3" -> "Technology3",
                                   "technology4" -> "Technology4", "technology5  " -> "Technology5")
         val decisionMap = Map("approved" -> "Approved", "notapproved" -> "Not Approved")
-        val scoreMap = ListMap("1" -> "1", "2" -> "2", "3" -> "3", "4" -> "4", "5" -> "5", "6" -> "6", "7" -> "7",
+        val scoreMap = ListMap("0" -> "0","1" -> "1", "2" -> "2", "3" -> "3", "4" -> "4", "5" -> "5", "6" -> "6", "7" -> "7",
                           "8" -> "8", "9" -> "9", "10" -> "10")
 
         val assessorgroup = Config.config.bpm.assessorgroup

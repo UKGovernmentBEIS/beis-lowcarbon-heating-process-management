@@ -17,11 +17,12 @@ if(a.getOrElse("") == b) "selected" else ""
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">
             <span class="heading-secondary">@t.oppTitle</span>
-            Assessor's report
+             Assessment report
+            <span class="heading-secondary"> Assessor - @t.variables.get(s"assessor$assmtKey")</span>
         </h1>
-
         <table class="thwithborder">
             <thead>
+
             <tr>
                 <th class="tdtopalign">Criteria </th>
                 <th class="tdtopalign">Score </th>
