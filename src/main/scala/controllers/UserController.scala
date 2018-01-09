@@ -131,7 +131,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
           case Some(g) => {
             val appFrontEndUrl = Config.config.business.appFrontEndUrl
             Future.successful(Redirect(controllers.routes.TaskController.tasks()).withSession(
-              ("username" -> user.name),("username_process" -> user.name), ("role" -> g)))
+              ("username_process" -> user.name), ("role" -> g)))
           }
           case None => Future.successful(NotFound)
             val errMsg = Messages("error.BF002")

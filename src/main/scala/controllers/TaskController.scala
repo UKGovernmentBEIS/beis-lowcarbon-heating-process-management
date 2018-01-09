@@ -88,11 +88,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
         val userId = request.session.get("username_process").getOrElse("Unauthorised User")
         val grpId = request.session.get("role").getOrElse("")
 
-        println("==userId==="+ userId)
         val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, tsk.appId.toString)).toString()
         val appAuthToken = jwt.createToken(appAuthpayload)
         val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${tsk.appId}?token=$appAuthToken"
-        println("==appFrontEndUrlWithJWTToken==="+ appFrontEndUrlWithJWTToken)
 
         /*****************JWT ends ***************************************/
 
