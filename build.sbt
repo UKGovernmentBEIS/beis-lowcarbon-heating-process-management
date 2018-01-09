@@ -45,6 +45,8 @@ val akkaVersion = "2.4.18"
 
 libraryDependencies ++= Seq(
   ws,
+  "com.jason-goodwin" % "authentikat-jwt_2.11" % "0.4.5",
+  "net.codingwell" %% "scala-guice" % "4.0.0",
   "joda-time" % "joda-time" % "2.9.6",
   "org.joda" % "joda-convert" % "1.8.1",
   "org.typelevel" %% "cats-core" % "0.8.1",

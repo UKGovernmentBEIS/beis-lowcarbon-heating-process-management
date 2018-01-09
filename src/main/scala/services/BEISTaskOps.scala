@@ -28,7 +28,7 @@ trait BEISTaskOps {
   def submitModerateScore(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
   def submitConfirmEmailSent(id: LocalTaskId, userId: UserId, emailsent: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
 
-  def submitLogin(userId: String, password: String): Future[Boolean]
+  def submitLogin(userId: String, password: String): Future[Option[String]]
   def updatePassword(userId: String, password: String, newpassword: String): Future[Int]
   def saveUser(userId: String, firstName: String, lastName: String, password: String, email: String): Future[Int]
 

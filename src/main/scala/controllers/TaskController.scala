@@ -21,11 +21,11 @@ import java.text.DecimalFormat
 import javax.inject.Inject
 
 import cats.data.ValidatedNel
-import models.{LocalTask, LocalTaskId, Score, UserId}
+import models._
 import play.api.libs.json.JsValue
 import play.api.mvc.Results.{NotFound, Redirect}
 import play.api.mvc.{Action, Controller, Flash}
-import services.BEISTaskOps
+import services.{BEISTaskOps, JWTOps}
 import config.Config
 import play.api.i18n.Messages
 
@@ -42,11 +42,12 @@ import validations.FieldError
 import play.api.Play.current
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
+import play.api.libs.json._
 
-
-class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionContext) extends Controller {
+class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit ec: ExecutionContext) extends Controller {
 
   implicit val messages = Messages
+  implicit val appAuthPayloadWrites = Json.writes[AppAuthPayload]
 
   def startPage = Action {
     Ok(views.html.startPage())
@@ -74,12 +75,29 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
         val err = request.flash.get("ERROR").getOrElse("")
         val comment = request.flash.get("commentText").getOrElse("")
 
+        /****************************************************************
+             Authorisation of a Resource using JWT (JSON Web Token)
+         ----------------------------------------------------------------
+          Usage: Access Front-end server URL from Process management server
+          1. Create a JWT token using 1. Auth header 2. ClaimsSet (Payload) 3. JwtSecretKey
+          2. Send as Query string with each call to Front-end server
+          3. Front-end server Decode the Token using SecretKey and decide it is from Authorised source
+          4. Then Reads Payload and apply business logic to give a Resource access
+        *****************************************************************/
+
+        val userId = request.session.get("username").getOrElse("Unauthorised User")
+        val grpId = request.session.get("role").getOrElse("")
+        val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, tsk.appId.toString)).toString()
+        val appAuthToken = jwt.createToken(appAuthpayload)
+        val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${tsk.appId}?token=$appAuthToken"
+        /*****************JWT ends ***************************************/
+
         tsk.key match {
           case "assessEligibility" =>
-            Future(Ok(views.html.assessEligibility(tsk, appFrontEndUrl, technologyMap, submitStatusMap, Some(userId))
+            Future(Ok(views.html.assessEligibility(tsk, appFrontEndUrlWithJWTToken, technologyMap, submitStatusMap, Some(userId))
             (Flash(Map("error" -> err, "comment" -> comment))) ))
           case "assignAssessors" =>
-            Future(Ok(views.html.assignAssessors(tsk, appFrontEndUrl, getMembers(grp), List(), Some(userId))
+            Future(Ok(views.html.assignAssessors(tsk, appFrontEndUrlWithJWTToken, getMembers(grp), List(), Some(userId))
             (Flash(Map("error" -> err, "comment" -> comment))) ))
           //case "firstAssessment" | "secondAssessment" | "thirdAssessment"=>
           case "firstAssessment"=>
@@ -107,13 +125,13 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
               Some(errorCommentsListMaxLength), Some(userId))
             (Flash(Map("error" -> err))) ))
           case "makePanelDecision" =>
-            Future(Ok(views.html.makePanelDecision(tsk, appFrontEndUrl, decisionMap, Some(userId))
+            Future(Ok(views.html.makePanelDecision(tsk, appFrontEndUrlWithJWTToken, decisionMap, Some(userId))
             (Flash(Map("error" -> err, "comment" -> comment))) ))
           case "moderateScore" =>
-            Future(Ok(views.html.moderateScore(tsk, appFrontEndUrl, decisionMap, Some(userId))
+            Future(Ok(views.html.moderateScore(tsk, appFrontEndUrlWithJWTToken, decisionMap, Some(userId))
             (Flash(Map("error" -> err, "comment" -> comment))) ))
           case "confirmEmailSent" =>
-            Future(Ok(views.html.confirmEmailSent(tsk, appFrontEndUrl, Some(userId))
+            Future(Ok(views.html.confirmEmailSent(tsk, appFrontEndUrlWithJWTToken, Some(userId))
             (Flash(Map("error" -> err, "comment" -> comment))) ))
         }
       }
@@ -135,7 +153,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
   def tasks = Action.async  {   implicit request =>
     val sortstr = request.queryString.getOrElse("sort", List()).headOption.getOrElse("")
 
-   val userId = request.session.get("username").getOrElse("Unauthorised User")
+    val userId = request.session.get("username").getOrElse("Unauthorised User")
     val ts = localtasks.showTasks(UserId(userId))
 
     ts.flatMap{
