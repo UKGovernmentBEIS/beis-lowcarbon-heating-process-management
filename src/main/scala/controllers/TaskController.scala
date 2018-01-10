@@ -107,7 +107,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             val errorCommentsListMinLength = if(StringUtils.isNotEmpty(errorCommentsMinLength)) errorCommentsMinLength.split(",").toList else List()
             val errorCommentsMaxLength = request.flash.get("errorCommentsMaxLength").getOrElse("")
             val errorCommentsListMaxLength = if(StringUtils.isNotEmpty(errorCommentsMaxLength)) errorCommentsMaxLength.split(",").toList else List()
-            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "1", Some(errorCommentsListMinLength),
+            Future(Ok(views.html.assessment(tsk, appFrontEndUrlWithJWTToken, yesnoMap, scoreMap, "1", Some(errorCommentsListMinLength),
               Some(errorCommentsListMaxLength), Some(userId))
             (Flash(Map("error" -> err))) ))
           case "secondAssessment"=>
@@ -115,7 +115,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             val errorCommentsListMinLength = if(StringUtils.isNotEmpty(errorCommentsMinLength)) errorCommentsMinLength.split(",").toList else List()
             val errorCommentsMaxLength = request.flash.get("errorCommentsMaxLength").getOrElse("")
             val errorCommentsListMaxLength = if(StringUtils.isNotEmpty(errorCommentsMaxLength)) errorCommentsMaxLength.split(",").toList else List()
-            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "2", Some(errorCommentsListMinLength),
+            Future(Ok(views.html.assessment(tsk, appFrontEndUrlWithJWTToken, yesnoMap, scoreMap, "2", Some(errorCommentsListMinLength),
               Some(errorCommentsListMaxLength), Some(userId))
             (Flash(Map("error" -> err))) ))
           case "thirdAssessment"=>
@@ -123,7 +123,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             val errorCommentsListMinLength = if(StringUtils.isNotEmpty(errorCommentsMinLength)) errorCommentsMinLength.split(",").toList else List()
             val errorCommentsMaxLength = request.flash.get("errorCommentsMaxLength").getOrElse("")
             val errorCommentsListMaxLength = if(StringUtils.isNotEmpty(errorCommentsMaxLength)) errorCommentsMaxLength.split(",").toList else List()
-            Future(Ok(views.html.assessment(tsk, appFrontEndUrl, yesnoMap, scoreMap, "3", Some(errorCommentsListMinLength),
+            Future(Ok(views.html.assessment(tsk, appFrontEndUrlWithJWTToken, yesnoMap, scoreMap, "3", Some(errorCommentsListMinLength),
               Some(errorCommentsListMaxLength), Some(userId))
             (Flash(Map("error" -> err))) ))
           case "makePanelDecision" =>
