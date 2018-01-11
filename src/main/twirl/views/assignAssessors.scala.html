@@ -36,8 +36,12 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
         </div>
         }
 
-        <form method="POST"
+        <!-- <form method="POST"
               action="@controllers.routes.TaskController.submitAssignAssessors(t.id)"
+              novalidate="novalidate" > -->
+
+        <form method="POST"
+              action="@controllers.routes.TaskController.submitConfirm(t.id)"
               novalidate="novalidate" >
 
         <table class="thwithborder">
@@ -109,7 +113,8 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 
 
                     <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
-                    <input type="submit" name="save" class="button button--start" value="Submit Process">
+                    <input type="hidden" name="nextAction" value="submitAssignAssessors">
+                    <input type="submit" name="complete" class="button button--start" value="Submit Process">
 
 
                 </div>

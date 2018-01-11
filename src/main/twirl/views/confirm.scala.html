@@ -1,0 +1,53 @@
+@(t: LocalTask, nextAction:String, buttonAction:String
+)(implicit flash: Flash)
+
+
+@import helper._
+@import play.api.Play.current
+@import play.api.i18n.Messages.Implicits._
+@import partials._
+
+@main(s"Department for Business, Energy & Industrial Strategy - BEIS") {
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <h1 class="heading-xlarge">
+                <span class="heading-secondary">@t.oppTitle</span>
+                @t.name
+        </h1>
+
+        <table class="thwithborder">
+            @taskInfo(t, "")
+        </table>
+        <form method="POST"
+              action="/@nextAction?taskid=@t.id.id"
+              novalidate="novalidate" >
+
+            <div class="form-group">
+                <fieldset class="inline">
+                    <legend>
+                        <h1 class="heading-medium">
+                            Do you wish to @buttonAction data?
+                        </h1>
+                    </legend>
+
+                    <div class="multiple-choice">
+                        <input id="radio-inline-1" type="radio" name="confirmsubmit" value="Yes">
+                        <label for="radio-inline-1">Yes</label>
+                    </div>
+                    <div class="multiple-choice">
+                        <input id="radio-inline-2" type="radio" name="confirmsubmit" value="No" checked>
+                        <label for="radio-inline-2">No</label>
+                    </div>
+                </fieldset>
+                <input type="hidden" name="formdata" value="@flash.get("formdata").getOrElse("")">
+
+                <div class="rifs-form-buttons">
+                    <input type="submit" name="Save" class="button button--start" value="Submit">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+}

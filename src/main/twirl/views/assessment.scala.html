@@ -52,327 +52,334 @@ if(a.getOrElse("") == b) "selected" else ""
         }
 
 
+        <!--<form method="POST"
+             action="@controllers.routes.TaskController.submitAssessment(t.id)"
+             novalidate="novalidate" > -->
+
         <form method="POST"
-              action="@controllers.routes.TaskController.submitAssessment(t.id, t.key)"
+              action="@controllers.routes.TaskController.submitConfirm(t.id)"
               novalidate="novalidate" >
 
-        <table  border="0">
-            @taskInfo(t, url)
+       <table  border="0">
+           @taskInfo(t, url)
 
-                <tr>
-                    <th class="tdtopalign tdnobottomborder">Project description  </th>  <input type="hidden" name="projectdescweight" value="0">
-                    <td class="tdnobottomborder">
-                        <div class="rifs-form-buttons">
-                            <select class="form-control" id="select-box" name="projectdescriptionoption">
+               <tr>
+                   <th class="tdtopalign tdnobottomborder">Project description  </th>  <input type="hidden" name="projectdescweight" value="0">
+                   <td class="tdnobottomborder">
+                       <div class="rifs-form-buttons">
+                           <select class="form-control" id="select-box" name="projectdescriptionoption">
 
-                                @for((key, value) <- yesnomap) {
-                                <option value=@key @dropdowncheck( t.variables.get(s"projectdesc$assmtKey"), key)>@value</option>
-                                }
-                            </select>
-                        </div>
-
-
-                        
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" >
-                        <div class="rifs-form-buttons">
-                            <details>
-                                <summary role="button"><span class="summary">Help with this section</span></summary>
-                                <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
-                            </details>
-
-                            <div class='form-group @errorClassFor("Project description comment")'>
-                                <label for="projectdescriptioncomment"></label>
-                                <textarea id="projectdescriptioncomment" class="form-control textarea-resize" title="projectdescriptioncomment" name="projectdescriptioncomment">@t.variables.get(s"projectdesccomment$assmtKey")</textarea>
-                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
-                                    <span class="js__hint" data-for="projectdescriptioncomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
-                                </div>
-                            </div>
-
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <th class="tdtopalign tdnobottomborder">Cost(25%) </th>  <input type="hidden" name="costweight" value="25">
-                    <td class="tdnobottomborder">
-                        <div class="rifs-form-buttons">
-                            <select class="form-control" id="select-box" name="costoption">
-
-                                @for((key, value) <- scoremap) {
-                                <option value=@key @dropdowncheck( t.variables.get(s"cost$assmtKey"), key)>@value</option>
-                                }
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" >
-                        <div class="rifs-form-buttons">
-
-                            <details>
-                                <summary role="button"><span class="summary">Help with this section</span></summary>
-                                <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
-                            </details>
-
-                            <div class='form-group @errorClassFor("Cost comment")'>
-                                <label for="costcomment"></label>
-                                <textarea id="costcomment" class="form-control textarea-resize" title="costcomment" name="costcomment">@t.variables.get(s"costcomment$assmtKey")</textarea>
-                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
-                                    <span class="js__hint" data-for="costcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
-                                </div>
-                            </div>
-
-                        </div>
-                    </td>
-                </tr>
+                               @for((key, value) <- yesnomap) {
+                               <option value=@key @dropdowncheck( t.variables.get(s"projectdesc$assmtKey"), key)>@value</option>
+                               }
+                           </select>
+                       </div>
 
 
-                <tr>
-                    <th class="tdtopalign tdnobottomborder" colspan="2">Performance (25%) </th>
-                </tr>
-                <tr>
-                    <td class="tdtopalign tdnobottomborder">Performance enhancement(15%) </td>  <input type="hidden" name="performanceenhancementweight" value="15">
-                    <td class="tdnobottomborder">
-                        <div class="rifs-form-buttons">
-                            <select class="form-control" id="select-box" name="performanceenhancementoption">
 
-                                @for((key, value) <- scoremap) {
-                                <option value=@key @dropdowncheck( t.variables.get(s"performanceenhancement$assmtKey"), key)>@value</option>
-                                }
-                            </select>
-                        </div>
-                    </td>
-                </tr>
+                   </td>
+               </tr>
+               <tr>
+                   <td colspan="2" >
+                       <div class="rifs-form-buttons">
+                           <details>
+                               <summary role="button"><span class="summary">Help with this section</span></summary>
+                               <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
+                           </details>
 
-                <tr>
-                    <td class="tdtopalign tdnobottomborder">Performance management (5%) </td>  <input type="hidden" name="performancemanagementweight" value="5">
-                    <td class="tdnobottomborder">
-                        <div class="rifs-form-buttons">
-                            <select class="form-control" id="select-box" name="performancemanagementoption">
+                           <div class='form-group @errorClassFor("Project description comment")'>
+                               <label for="projectdescriptioncomment"></label>
+                               <textarea id="projectdescriptioncomment" class="form-control textarea-resize" title="projectdescriptioncomment" name="projectdescriptioncomment">@t.variables.get(s"projectdesccomment$assmtKey")</textarea>
+                               <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                   <span class="js__hint" data-for="projectdescriptioncomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                               </div>
+                           </div>
 
-                                @for((key, value) <- scoremap) {
-                                <option value=@key @dropdowncheck( t.variables.get(s"performancemanagement$assmtKey"), key)>@value</option>
-                                }
-                            </select>
-                        </div>
-                    </td>
-                </tr>
+                       </div>
+                   </td>
+               </tr>
 
-                <tr>
-                    <td class="tdtopalign tdnobottomborder">Performance integration into heating system (5%) </td>  <input type="hidden" name="performanceintegrationweight" value="5">
-                    <td class="tdnobottomborder">
-                        <div class="rifs-form-buttons">
-                            <select class="form-control" id="select-box" name="performanceintegrationoption">
+               <tr>
+                   <th class="tdtopalign tdnobottomborder">Cost(25%) </th>  <input type="hidden" name="costweight" value="25">
+                   <td class="tdnobottomborder">
+                       <div class="rifs-form-buttons">
+                           <select class="form-control" id="select-box" name="costoption">
 
-                                @for((key, value) <- scoremap) {
-                                <option value=@key @dropdowncheck( t.variables.get(s"performanceintegration$assmtKey"), key)>@value</option>
-                                }
-                            </select>
-                        </div>
-                    </td>
-                </tr>
+                               @for((key, value) <- scoremap) {
+                               <option value=@key @dropdowncheck( t.variables.get(s"cost$assmtKey"), key)>@value</option>
+                               }
+                           </select>
+                       </div>
+                   </td>
+               </tr>
+               <tr>
+                   <td colspan="2" >
+                       <div class="rifs-form-buttons">
 
-                <tr>
-                    <td colspan="2" >
-                        <div class="rifs-form-buttons">
-                            <details>
-                                <summary role="button"><span class="summary">Help with this section</span></summary>
-                                <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
-                            </details>
+                           <details>
+                               <summary role="button"><span class="summary">Help with this section</span></summary>
+                               <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
+                           </details>
 
-                            <div class='form-group @errorClassFor("Performance comment")'>
-                                <label for="performancecomment"></label>
-                                <textarea id="performancecomment" class="form-control textarea-resize" title="performancecomment" name="performancecomment">@t.variables.get(s"performancecomment$assmtKey")</textarea>
-                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
-                                    <span class="js__hint" data-for="performancecomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
-                                </div>
-                            </div>
+                           <div class='form-group @errorClassFor("Cost comment")'>
+                               <label for="costcomment"></label>
+                               <textarea id="costcomment" class="form-control textarea-resize" title="costcomment" name="costcomment">@t.variables.get(s"costcomment$assmtKey")</textarea>
+                               <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                   <span class="js__hint" data-for="costcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                               </div>
+                           </div>
 
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <th class="tdtopalign tdnobottomborder">Market potential (20%) </th>  <input type="hidden" name="marketpotentialweight" value="20">
-                    <td class="tdnobottomborder">
-                        <div class="rifs-form-buttons">
-                            <select class="form-control" id="select-box" name="marketpotentialoption">
-
-                                @for((key, value) <- scoremap) {
-                                <option value=@key @dropdowncheck( t.variables.get(s"marketpotential$assmtKey"), key)>@value</option>
-                                }
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" >
-                        <div class="rifs-form-buttons">
-
-                            <details>
-                                <summary role="button"><span class="summary">Help with this section</span></summary>
-                                <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
-                            </details>
-
-                            <div class='form-group @errorClassFor("Market potential comment")'>
-                                <label for="marketpotentialcomment"></label>
-                                <textarea id="marketpotentialcomment" class="form-control textarea-resize" title="marketpotentialcomment" name="marketpotentialcomment">@t.variables.get(s"marketpotentialcomment$assmtKey")</textarea>
-                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
-                                    <span class="js__hint" data-for="marketpotentialcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
-                                </div>
-                            </div>
-
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <th class="tdtopalign tdnobottomborder">Project delivery (20%) </th>  <input type="hidden" name="projectdeliveryweight" value="20">
-                    <td class="tdnobottomborder">
-                        <div class="rifs-form-buttons">
-                            <select class="form-control" id="select-box" name="projectdeliveryoption">
-
-                                @for((key, value) <- scoremap) {
-                                <option value=@key @dropdowncheck( t.variables.get(s"projectdelivery$assmtKey"), key)>@value</option>
-                                }
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" >
-                        <div class="rifs-form-buttons">
-
-                            <details>
-                                <summary role="button"><span class="summary">Help with this section</span></summary>
-                                <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
-                            </details>
-
-                            <div class='form-group @errorClassFor("Project delivery comment")'>
-                                <label for="projectdeliverycomment"></label>
-                                <textarea id="projectdeliverycomment" class="form-control textarea-resize" title="projectdeliverycomment" name="projectdeliverycomment">@t.variables.get(s"projectdeliverycomment$assmtKey")</textarea>
-                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
-                                    <span class="js__hint" data-for="projectdeliverycomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
-                                </div>
-                            </div>
-
-                        </div>
-                    </td>
-                </tr>
+                       </div>
+                   </td>
+               </tr>
 
 
-                <tr>
-                    <th class="tdtopalign tdnobottomborder">Project financing (10%) </th>  <input type="hidden" name="projectfinancingweight" value="10">
-                    <td class="tdnobottomborder">
-                        <div class="rifs-form-buttons">
-                            <select class="form-control" id="select-box" name="projectfinancingoption">
+               <tr>
+                   <th class="tdtopalign tdnobottomborder" colspan="2">Performance (25%) </th>
+               </tr>
+               <tr>
+                   <td class="tdtopalign tdnobottomborder">Performance enhancement(15%) </td>  <input type="hidden" name="performanceenhancementweight" value="15">
+                   <td class="tdnobottomborder">
+                       <div class="rifs-form-buttons">
+                           <select class="form-control" id="select-box" name="performanceenhancementoption">
 
-                                @for((key, value) <- scoremap) {
-                                <option value=@key @dropdowncheck( t.variables.get(s"projectfinancing$assmtKey"), key)>@value</option>
-                                }
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" >
-                        <div class="rifs-form-buttons">
+                               @for((key, value) <- scoremap) {
+                               <option value=@key @dropdowncheck( t.variables.get(s"performanceenhancement$assmtKey"), key)>@value</option>
+                               }
+                           </select>
+                       </div>
+                   </td>
+               </tr>
 
-                            <details>
-                                <summary role="button"><span class="summary">Help with this section</span></summary>
-                                <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
-                            </details>
+               <tr>
+                   <td class="tdtopalign tdnobottomborder">Performance management (5%) </td>  <input type="hidden" name="performancemanagementweight" value="5">
+                   <td class="tdnobottomborder">
+                       <div class="rifs-form-buttons">
+                           <select class="form-control" id="select-box" name="performancemanagementoption">
 
-                            <div class='form-group @errorClassFor("Project financing comment")'>
-                                <label for="projectfinancingcomment"></label>
-                                <textarea id="projectfinancingcomment" class="form-control textarea-resize" title="projectfinancingcomment" name="projectfinancingcomment">@t.variables.get(s"projectfinancingcomment$assmtKey")</textarea>
-                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
-                                    <span class="js__hint" data-for="projectfinancingcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
-                                </div>
-                            </div>
+                               @for((key, value) <- scoremap) {
+                               <option value=@key @dropdowncheck( t.variables.get(s"performancemanagement$assmtKey"), key)>@value</option>
+                               }
+                           </select>
+                       </div>
+                   </td>
+               </tr>
 
-                        </div>
-                    </td>
-                </tr>
+               <tr>
+                   <td class="tdtopalign tdnobottomborder">Performance integration into heating system (5%) </td>  <input type="hidden" name="performanceintegrationweight" value="5">
+                   <td class="tdnobottomborder">
+                       <div class="rifs-form-buttons">
+                           <select class="form-control" id="select-box" name="performanceintegrationoption">
+
+                               @for((key, value) <- scoremap) {
+                               <option value=@key @dropdowncheck( t.variables.get(s"performanceintegration$assmtKey"), key)>@value</option>
+                               }
+                           </select>
+                       </div>
+                   </td>
+               </tr>
+
+               <tr>
+                   <td colspan="2" >
+                       <div class="rifs-form-buttons">
+                           <details>
+                               <summary role="button"><span class="summary">Help with this section</span></summary>
+                               <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
+                           </details>
+
+                           <div class='form-group @errorClassFor("Performance comment")'>
+                               <label for="performancecomment"></label>
+                               <textarea id="performancecomment" class="form-control textarea-resize" title="performancecomment" name="performancecomment">@t.variables.get(s"performancecomment$assmtKey")</textarea>
+                               <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                   <span class="js__hint" data-for="performancecomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                               </div>
+                           </div>
+
+                       </div>
+                   </td>
+               </tr>
+
+               <tr>
+                   <th class="tdtopalign tdnobottomborder">Market potential (20%) </th>  <input type="hidden" name="marketpotentialweight" value="20">
+                   <td class="tdnobottomborder">
+                       <div class="rifs-form-buttons">
+                           <select class="form-control" id="select-box" name="marketpotentialoption">
+
+                               @for((key, value) <- scoremap) {
+                               <option value=@key @dropdowncheck( t.variables.get(s"marketpotential$assmtKey"), key)>@value</option>
+                               }
+                           </select>
+                       </div>
+                   </td>
+               </tr>
+               <tr>
+                   <td colspan="2" >
+                       <div class="rifs-form-buttons">
+
+                           <details>
+                               <summary role="button"><span class="summary">Help with this section</span></summary>
+                               <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
+                           </details>
+
+                           <div class='form-group @errorClassFor("Market potential comment")'>
+                               <label for="marketpotentialcomment"></label>
+                               <textarea id="marketpotentialcomment" class="form-control textarea-resize" title="marketpotentialcomment" name="marketpotentialcomment">@t.variables.get(s"marketpotentialcomment$assmtKey")</textarea>
+                               <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                   <span class="js__hint" data-for="marketpotentialcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                               </div>
+                           </div>
+
+                       </div>
+                   </td>
+               </tr>
+
+               <tr>
+                   <th class="tdtopalign tdnobottomborder">Project delivery (20%) </th>  <input type="hidden" name="projectdeliveryweight" value="20">
+                   <td class="tdnobottomborder">
+                       <div class="rifs-form-buttons">
+                           <select class="form-control" id="select-box" name="projectdeliveryoption">
+
+                               @for((key, value) <- scoremap) {
+                               <option value=@key @dropdowncheck( t.variables.get(s"projectdelivery$assmtKey"), key)>@value</option>
+                               }
+                           </select>
+                       </div>
+                   </td>
+               </tr>
+               <tr>
+                   <td colspan="2" >
+                       <div class="rifs-form-buttons">
+
+                           <details>
+                               <summary role="button"><span class="summary">Help with this section</span></summary>
+                               <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
+                           </details>
+
+                           <div class='form-group @errorClassFor("Project delivery comment")'>
+                               <label for="projectdeliverycomment"></label>
+                               <textarea id="projectdeliverycomment" class="form-control textarea-resize" title="projectdeliverycomment" name="projectdeliverycomment">@t.variables.get(s"projectdeliverycomment$assmtKey")</textarea>
+                               <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                   <span class="js__hint" data-for="projectdeliverycomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                               </div>
+                           </div>
+
+                       </div>
+                   </td>
+               </tr>
 
 
-                <tr>
-                    <th class="tdtopalign tdnobottomborder">Wider objectives </th>     <input type="hidden" name="widerobjectiveweight" value="10">
-                    <td class="tdnobottomborder">
-                        <div class="rifs-form-buttons">
-                            <select class="form-control" id="select-box" name="widerobjectiveoption">
+               <tr>
+                   <th class="tdtopalign tdnobottomborder">Project financing (10%) </th>  <input type="hidden" name="projectfinancingweight" value="10">
+                   <td class="tdnobottomborder">
+                       <div class="rifs-form-buttons">
+                           <select class="form-control" id="select-box" name="projectfinancingoption">
 
-                                @for((key, value) <- scoremap) {
-                                <option value=@key  t.variables.get(s"widerobjective$assmtKey").getOrElse("").toString(), key)>@value</option>
-                                }
-                            </select>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" >
-                        <div class="rifs-form-buttons">
+                               @for((key, value) <- scoremap) {
+                               <option value=@key @dropdowncheck( t.variables.get(s"projectfinancing$assmtKey"), key)>@value</option>
+                               }
+                           </select>
+                       </div>
+                   </td>
+               </tr>
+               <tr>
+                   <td colspan="2" >
+                       <div class="rifs-form-buttons">
 
-                            <details>
-                                <summary role="button"><span class="summary">Help with this section</span></summary>
-                                <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
-                            </details>
+                           <details>
+                               <summary role="button"><span class="summary">Help with this section</span></summary>
+                               <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
+                           </details>
 
-                            <div class='form-group @errorClassFor("Wider objective comment")'>
-                                <label for="widerobjectivecomment"></label>
-                                <textarea id="widerobjectivecomment" class="form-control textarea-resize" title="widerobjectivecomment" name="widerobjectivecomment">@t.variables.get(s"widerobjectivecomment$assmtKey")</textarea>
-                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
-                                    <span class="js__hint" data-for="widerobjectivecomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
-                                </div>
-                            </div>
+                           <div class='form-group @errorClassFor("Project financing comment")'>
+                               <label for="projectfinancingcomment"></label>
+                               <textarea id="projectfinancingcomment" class="form-control textarea-resize" title="projectfinancingcomment" name="projectfinancingcomment">@t.variables.get(s"projectfinancingcomment$assmtKey")</textarea>
+                               <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                   <span class="js__hint" data-for="projectfinancingcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                               </div>
+                           </div>
 
-                        </div>
-                    </td>
-                </tr>
+                       </div>
+                   </td>
+               </tr>
 
 
-                <tr>
-                    <th colspan="2" class="tdtopalign tdnobottomborder">Overall comments </th>
+               <tr>
+                   <th class="tdtopalign tdnobottomborder">Wider objectives </th>     <input type="hidden" name="widerobjectiveweight" value="10">
+                   <td class="tdnobottomborder">
+                       <div class="rifs-form-buttons">
+                           <select class="form-control" id="select-box" name="widerobjectiveoption">
 
-                </tr>
-                <tr>
-                    <td colspan="2" >
-                        <div class="rifs-form-buttons">
+                               @for((key, value) <- scoremap) {
+                               <option value=@key  t.variables.get(s"widerobjective$assmtKey").getOrElse("").toString(), key)>@value</option>
+                               }
+                           </select>
+                       </div>
+                   </td>
+               </tr>
+               <tr>
+                   <td colspan="2" >
+                       <div class="rifs-form-buttons">
 
-                            <details>
-                                <summary role="button"><span class="summary">Help with this section</span></summary>
-                                <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
-                            </details>
-                        </div>
+                           <details>
+                               <summary role="button"><span class="summary">Help with this section</span></summary>
+                               <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
+                           </details>
 
-                        <div class="rifs-form-buttons">
+                           <div class='form-group @errorClassFor("Wider objective comment")'>
+                               <label for="widerobjectivecomment"></label>
+                               <textarea id="widerobjectivecomment" class="form-control textarea-resize" title="widerobjectivecomment" name="widerobjectivecomment">@t.variables.get(s"widerobjectivecomment$assmtKey")</textarea>
+                               <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                   <span class="js__hint" data-for="widerobjectivecomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                               </div>
+                           </div>
 
-                            <div class='form-group @errorClassFor("Overall comment")'>
-                                <label for="overallcomment"></label>
-                                <textarea id="overallcomment" class="form-control textarea-resize" title="overallcomment" name="overallcomment">@t.variables.get(s"overallcomment$assmtKey")</textarea>
-                                <div class="inline right-align hint-text" id="fundsReceived_hint_text">
-                                    <span class="js__hint" data-for="overallcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
+                       </div>
+                   </td>
+               </tr>
 
-        </table>
 
-        <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
+               <tr>
+                   <th colspan="2" class="tdtopalign tdnobottomborder">Overall comments </th>
 
-        <p class="rifs-form-buttons">
-            <input type="submit" name="complete" class="button button--start" value="Submit Process">
-            <input type="submit" name="save" class="buttom--link-style" value="Save Changes">
-        </p>
+               </tr>
+               <tr>
+                   <td colspan="2" >
+                       <div class="rifs-form-buttons">
 
-        </form>
+                           <details>
+                               <summary role="button"><span class="summary">Help with this section</span></summary>
+                               <div class="panel panel-border-narrow">Please refer to the Technical Assessor Guidance Notes and the Low Carbon Heating Technology Innovation Fund Guidance Notes for further information.</div>
+                           </details>
+                       </div>
 
-    </div>
+                       <div class="rifs-form-buttons">
+
+                           <div class='form-group @errorClassFor("Overall comment")'>
+                               <label for="overallcomment"></label>
+                               <textarea id="overallcomment" class="form-control textarea-resize" title="overallcomment" name="overallcomment">@t.variables.get(s"overallcomment$assmtKey")</textarea>
+                               <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                   <span class="js__hint" data-for="overallcomment" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                               </div>
+                           </div>
+                       </div>
+                   </td>
+               </tr>
+
+       </table>
+
+            <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
+            <input type="hidden" name="nextAction" value="submitAssessment">
+           <input type="hidden" name="taskKey" value="@t.key">
+
+       <p class="rifs-form-buttons">
+           <input type="submit" name="complete" class="button button--start" value="Submit Process">
+           <input type="submit" name="save" class="buttom--link-style" formaction="@controllers.routes.TaskController.submitAssessment(t.id)" value="Save Changes">
+
+       </p>
+
+       </form>
+
+   </div>
 
 
 

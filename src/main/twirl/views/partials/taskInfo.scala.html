@@ -1,18 +1,15 @@
 @(t: LocalTask,
 url: String)
 
-
 @import partials._
+@import org.apache.commons.lang3.StringUtils
 
     <thead>
     <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
     </thead>
 
     <tbody>
-    <!--tr>
-        <td>Id</td>
-        <td>@t.id.id</td>
-    </tr-->
+
     <tr>
         <td>Assigned to</td>
         <td>@t.groups</td>
@@ -29,7 +26,12 @@ url: String)
             <img src="@routes.Assets.at("images/new-window.png")" width="22" height="20" alt="" style="visibility: visible"></a>
         </td>-->
 
-        <td> <a href="@url" target="_blank"> @(t.appId+1000) - @t.appRef</a></td>
+        <td>
+        @if(StringUtils.isNotEmpty(url)){
+            <a href="@url" target="_blank"> @(t.appId+1000) - @t.appRef</a></td>
+        }else{
+            @(t.appId+1000) - @t.appRef
+        }
 
         <input type="hidden" name="applicationId" value="@t.appId">
     </tr>

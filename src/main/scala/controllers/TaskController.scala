@@ -43,6 +43,36 @@ import play.api.Play.current
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.libs.json._
+import services.RestService.JsonParseException
+
+/**
+  * -------------------------------------------------------------------
+  * 11 Jan 2018 - Venkata Mutyala
+  * -------------------------------------------------------------------
+  * Confirmation page added:-
+  * This class takes care of all form submissions
+  * Each form contain Submit and Save buttons.
+  * 1. Submit is interrupted with Confirmation screen which contain Submit 'Yes' or 'No' Radio buttons.
+  *    The formdata is stored in hidden variable as JSON string in Confirm page
+  *    The Submit data then goes to Confirm page and then posted to this method
+  * 2. Save is not interrupted and straight come to the specific method
+  * Need to determine where the call come from and call Activiti API call accordingly.
+  * For Save we only save the data in the form
+  * For Submit we 'Save data' and 'Complete' the task.
+  * So I used 'Json formdata' from Confirm page to determine this.
+  * -------------------------------------------------------------------
+  * Flow:- Task List -> Task -> Confirmation page -> Task list
+  * Task page:-
+  *    1. Submits all the data to Confirmation page to be stored as JSON data in Hidden field
+  *    2. Supply the corresponding Controller action method name
+  *    3. If action is Save (not Submit), it bypass the COnfirmation page by providing other action in the submit button
+  * Confirmation page:-
+  *    1. Stores the data in its field as JSON string
+  *    2. Form action to corresponding Controller action method name
+  *    3. Select 'No' radio button, takes User to Tasklist page
+  *    4. On any Error, the Task page with errors is shown again.
+  * -------------------------------------------------------------------
+  **/
 
 class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit ec: ExecutionContext) extends Controller {
 
@@ -209,256 +239,297 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     }
   }
 
+
   def submitAssessEligibility (id : LocalTaskId) = Action.async { implicit request =>
 
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
+    val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
+    val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
+    val mp = Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
 
-    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
+    confirmsubmit match {
+        case "Yes" =>
+            val status = getValueFromRequest("eligibilitystatus", mp)
+            val technology = getValueFromRequest("technology", mp)
+            val comment = getValueFromRequest("comment", mp)
+            val processInstanceId = getValueFromRequest("processInstanceId", mp)
+            val applicationId = getValueFromRequest("applicationId", mp)
+            val opportunityId = getValueFromRequest("opportunityId", mp)
 
-    val status = getValueFromRequest("eligibilitystatus", mp )
-    val technology = getValueFromRequest("technology", mp )
-    val comment = getValueFromRequest("comment", mp )
-    val processInstanceId = getValueFromRequest("processInstanceId", mp )
-    val applicationId =     getValueFromRequest("applicationId", mp )
-    val opportunityId =     getValueFromRequest("opportunityId", mp )
+            if (commentMaxLengthCheck(comment, 1000))
+              Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+                .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+            else {
+              localtasks.submitEligibility(id, UserId(userId), status, comment, technology, processInstanceId).map {
+                case Some(t) => {
+                  val ts = localtasks.showTasks(UserId(userId))
+                  Redirect(controllers.routes.TaskController.tasks())
+                }
+                case _ => NoContent
 
-    if(commentMaxLengthCheck(comment, 1000))
-      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-        .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
-    else {
-      localtasks.submitEligibility(id, UserId(userId), status, comment, technology, processInstanceId).map {
-        case Some(t) => {
-          val ts = localtasks.showTasks(UserId(userId))
-          Redirect(controllers.routes.TaskController.tasks())
-        }
-        case _ => NoContent
-
-      }
+              }
+            }
+        case "No" =>
+            Future(Redirect(controllers.routes.TaskController.tasks()))
     }
   }
 
   def submitAssignAssessors (id : LocalTaskId) = Action.async { implicit request =>
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
+    val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
+    val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
+    val mp = Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
 
-    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
+    confirmsubmit match {
+      case "Yes" =>
+          val comment = getValueFromRequest("comment", mp )
+          val processInstanceId = getValueFromRequest("processInstanceId", mp )
+          val assignassessor1 = getValueFromRequest("assignassessor1", mp )
+          val assignassessor2 = getValueFromRequest("assignassessor2", mp )
+          val assignassessor3 = getValueFromRequest("assignassessor3", mp )
 
-    val comment = getValueFromRequest("comment", mp )
-    val processInstanceId = getValueFromRequest("processInstanceId", mp )
-    val assignassessor1 = getValueFromRequest("assignassessor1", mp )
-    val assignassessor2 = getValueFromRequest("assignassessor2", mp )
-    val assignassessor3 = getValueFromRequest("assignassessor3", mp )
+          val appFrontEndUrl = Config.config.business.appFrontEndUrl
 
-    val appFrontEndUrl = Config.config.business.appFrontEndUrl
+          val applicationId =     getValueFromRequest("applicationId", mp )
+          val opportunityId =     getValueFromRequest("opportunityId", mp )
 
-    val applicationId =     getValueFromRequest("applicationId", mp )
-    val opportunityId =     getValueFromRequest("opportunityId", mp )
+          val errors = duplicateSelectionCheck(assignassessor1, assignassessor2, assignassessor3).fold(_.toList, _ => List())
 
-    val errors = duplicateSelectionCheck(assignassessor1, assignassessor2, assignassessor3).fold(_.toList, _ => List())
+          if(commentMaxLengthCheck(comment, 1000))
+            Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+              .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+          else {
+            errors.isEmpty match{
+              case true =>
+                localtasks.submitAssignAssessors (id, UserId (userId), assignassessor1, assignassessor2, assignassessor3, comment,
+                  processInstanceId).map {
+                  case Some (t) => {
+                    val ts = localtasks.showTasks (UserId (userId) )
+                    Redirect (controllers.routes.TaskController.tasks () )
+                  }
+                  case _ => NoContent
 
-    if(commentMaxLengthCheck(comment, 1000))
-      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-        .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
-    else {
-      errors.isEmpty match{
-        case true =>
-          localtasks.submitAssignAssessors (id, UserId (userId), assignassessor1, assignassessor2, assignassessor3, comment,
-            processInstanceId).map {
-            case Some (t) => {
-              val ts = localtasks.showTasks (UserId (userId) )
-              Redirect (controllers.routes.TaskController.tasks () )
+                }
+              case false =>
+                val t = localtasks.showTask(id)
+                val grp = List("assessor")
+
+                t.flatMap {
+                  case Some(lt) =>
+                    Future.successful(Ok(views.html.assignAssessors(lt, appFrontEndUrl, getMembers(grp), errors)
+                    (Flash(Map("comment" -> comment))) ))
+                  case None =>
+                    Future.successful(NotFound)
+                }
             }
-            case _ => NoContent
-
           }
-        case false =>
-          val t = localtasks.showTask(id)
-          val grp = List("assessor")
-
-          t.flatMap {
-            case Some(lt) =>
-              Future.successful(Ok(views.html.assignAssessors(lt, appFrontEndUrl, getMembers(grp), errors)
-              (Flash(Map("comment" -> comment))) ))
-            case None =>
-              Future.successful(NotFound)
-          }
-      }
-    }
+      case "No" =>
+          Future(Redirect(controllers.routes.TaskController.tasks()))
+  }
   }
 
+  /**
+    *This method takes care of form submission of Assessment
+    * This form contain Submit and Save buttons.
+    * 1. Submit is interrupted with Confirmation screen which contain Submit 'Yes' or 'No' Radio buttons.
+    *    The formdata is stored in hidden variable as JSON string in Confirm page
+    *    The Submit data then goes to Confirm page and then posted to this method
+    * 2. Save is not interrupted and straight come to this method
+    * Need to determine where the call come from and call API call accordingly.
+    * For Save we only save the data in the form
+    * For Subit we save and Complete the task.
+    * So I used 'formdata' from Confirm page to determine this.
+    * All this method needs is Map (mp) object of form data
+    *
+    * @param id
+    * @return result
+    */
 
-  def submitAssessment (id : LocalTaskId, key: String) = Action.async { implicit request =>
+  def submitAssessment (id : LocalTaskId) = Action.async { implicit request =>
+
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
+    val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
+    val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
 
-    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
-
-    val projectdesc =                  getValueFromRequest("projectdescriptionoption", mp )
-    val projectdesccomment =           getValueFromRequest("projectdescriptioncomment", mp )
-    val projectdescweight =            getValueFromRequest("projectdescweight", mp ).toInt
-
-    val cost =                         getValueFromRequest("costoption", mp ).toInt
-    val costcomment =                  getValueFromRequest("costcomment", mp )
-    val costweight =                   getValueFromRequest("costweight", mp ).toInt
-
-    val performanceenhancement =       getValueFromRequest("performanceenhancementoption", mp ).toInt
-    val performancemanagement =        getValueFromRequest("performancemanagementoption", mp ).toInt
-    val performanceintegration =       getValueFromRequest("performanceintegrationoption", mp ).toInt
-    val performanceenhancementweight = getValueFromRequest("performanceenhancementweight", mp ).toInt
-    val performancemanagementweight =  getValueFromRequest("performancemanagementweight", mp ).toInt
-    val performanceintegrationweight = getValueFromRequest("performanceintegrationweight", mp ).toInt
-    val performancecomment =           getValueFromRequest("performancecomment", mp )
-
-    val marketpotential =              getValueFromRequest("marketpotentialoption", mp ).toInt
-    val marketpotentialcomment =       getValueFromRequest("marketpotentialcomment", mp )
-    val marketpotentialweight =        getValueFromRequest("marketpotentialweight", mp ).toInt
-
-    val projectdelivery =              getValueFromRequest("projectdeliveryoption", mp ).toInt
-    val projectdeliverycomment =       getValueFromRequest("projectdeliverycomment", mp )
-    val projectdeliveryweight =        getValueFromRequest("projectdeliveryweight", mp ).toInt
-
-    val projectfinancing =             getValueFromRequest("projectfinancingoption", mp ).toInt
-    val projectfinancingcomment =      getValueFromRequest("projectfinancingcomment", mp )
-    val projectfinancingweight =       getValueFromRequest("projectfinancingweight", mp ).toInt
-
-    val widerobjective =               getValueFromRequest("widerobjectiveoption", mp ).toInt
-    val widerobjectivecomment =        getValueFromRequest("widerobjectivecomment", mp )
-    //val widerobjectiveweight =         getValueFromRequest("widerobjectiveweight", mp ).toInt
-
-    val overallcomment =               getValueFromRequest("overallcomment", mp )
-
-    val save_button_action =           getValueFromRequest("save", mp )
-    val complete_button_action =       getValueFromRequest("complete", mp )
-
-    val processInstanceId =            getValueFromRequest("processInstanceId", mp )
-    val applicationId =                getValueFromRequest("applicationId", mp )
-    val opportunityId =                getValueFromRequest("opportunityId", mp )
-
-    val button_action:String = if(!getValueFromRequest("save", mp ).equals("")) "save"
-                              else if(!getValueFromRequest("complete", mp ).equals("")) "complete" else "save"
-
-    val asmtKey = key match {
-      case "firstAssessment" => 1
-      case "secondAssessment" => 2
-      case "thirdAssessment" => 3
+    val mp = jsonFormdata match {
+      case "nodata" => request.body.asFormUrlEncoded.getOrElse(Map())
+      case _ =>  Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
     }
 
-    val performanceenhancementScore = performanceenhancement * performanceenhancementweight / 100.0
-    val performancemanagementScore = performancemanagement * performancemanagementweight / 100.0
-    val performanceintegrationScore = performanceintegration * performanceintegrationweight / 100.0
-    val marketpotentialScore = marketpotential * marketpotentialweight / 100.0
-    val costScore = cost * costweight / 100.0
-    val projectdeliveryScore = projectdelivery * projectdeliveryweight / 100.0
-    val projectfinancingScore = projectfinancing * projectfinancingweight / 100.0
+    confirmsubmit match {
+      case "Yes" =>
 
-    /* Wider objective - Tie Breaker only - Dont add it now */
-    val widerobjectiveScore = widerobjective //* widerobjectiveweight / 100.0
+        val projectdesc = getValueFromRequest("projectdescriptionoption", mp)
+        val projectdesccomment = getValueFromRequest("projectdescriptioncomment", mp)
+        val projectdescweight = getValueFromRequest("projectdescweight", mp).toInt
 
-    val weightedScore = performanceenhancementScore +  performancemanagementScore + performanceintegrationScore + costScore + marketpotentialScore + projectdeliveryScore + projectfinancingScore
+        val cost = getValueFromRequest("costoption", mp).toInt
+        val costcomment = getValueFromRequest("costcomment", mp)
+        val costweight = getValueFromRequest("costweight", mp).toInt
 
-    val tiebreakScore =  widerobjectiveScore
+        val performanceenhancement = getValueFromRequest("performanceenhancementoption", mp).toInt
+        val performancemanagement = getValueFromRequest("performancemanagementoption", mp).toInt
+        val performanceintegration = getValueFromRequest("performanceintegrationoption", mp).toInt
+        val performanceenhancementweight = getValueFromRequest("performanceenhancementweight", mp).toInt
+        val performancemanagementweight = getValueFromRequest("performancemanagementweight", mp).toInt
+        val performanceintegrationweight = getValueFromRequest("performanceintegrationweight", mp).toInt
+        val performancecomment = getValueFromRequest("performancecomment", mp)
 
+        val marketpotential = getValueFromRequest("marketpotentialoption", mp).toInt
+        val marketpotentialcomment = getValueFromRequest("marketpotentialcomment", mp)
+        val marketpotentialweight = getValueFromRequest("marketpotentialweight", mp).toInt
 
-/*
-    println("=== score " + "" + "==  " + performanceenhancement)
-    println("=== score " + "" + "==  " + performancemanagement)
-    println("=== score " + "" + "==  " + performanceintegration)
-    println("=== score " + "" + "==  " + cost)
-    println("=== score " + "" + "==  " + marketpotential)
-    println("=== score " + "" + "==  " + projectdelivery)
-    println("=== score " + "" + "==  " + projectfinancing)
-    println("=== score " + "" + "==  " + widerobjective)
+        val projectdelivery = getValueFromRequest("projectdeliveryoption", mp).toInt
+        val projectdeliverycomment = getValueFromRequest("projectdeliverycomment", mp)
+        val projectdeliveryweight = getValueFromRequest("projectdeliveryweight", mp).toInt
 
-    println("=== score weight" + "" + "==  " + performanceenhancementweight)
-    println("=== score weight" + "" + "==  " + performancemanagementweight)
-    println("=== score weight" + "" + "==  " + performanceintegrationweight)
-    println("=== score weight" + "" + "==  " + marketpotentialweight)
-    println("=== score weight" + "" + "==  " + costweight)
-    println("=== score weight" + "" + "==  " + projectdeliveryweight)
-    println("=== score weight" + "" + "==  " + projectfinancingweight)
-    //println("=== score weight" + "" + "==  " + widerobjectiveweight)
+        val projectfinancing = getValueFromRequest("projectfinancingoption", mp).toInt
+        val projectfinancingcomment = getValueFromRequest("projectfinancingcomment", mp)
+        val projectfinancingweight = getValueFromRequest("projectfinancingweight", mp).toInt
 
+        val widerobjective = getValueFromRequest("widerobjectiveoption", mp).toInt
+        val widerobjectivecomment = getValueFromRequest("widerobjectivecomment", mp)
+        //val widerobjectiveweight =         getValueFromRequest("widerobjectiveweight", mp ).toInt
 
+        val overallcomment = getValueFromRequest("overallcomment", mp)
 
-    println("=== score Score" + "" + "==  " + performanceenhancementScore)
-    println("=== score Score" + "" + "==  " + performancemanagementScore)
-    println("=== score Score" + "" + "==  " + performanceintegrationScore)
-    println("=== score Score" + "" + "==  " + costScore)
-    println("=== score Score" + "" + "==  " + marketpotentialScore)
-    println("=== score Score" + "" + "==  " + projectdeliveryScore)
-    println("=== score Score" + "" + "==  " + projectfinancingScore)
-    println("=== score Score" + "" + "==  " + widerobjectiveScore)
-    println("=== weightedScore " + "" + "==  " + weightedScore)
-    println("=== tiebreakScore " + "" + "==  " + tiebreakScore)
-*/
+        val save_button_action = getValueFromRequest("save", mp)
+        val complete_button_action = getValueFromRequest("complete", mp)
 
-    val score = Score(
-      projectdesc, projectdesccomment, projectdescweight.toInt,
-      cost.toInt, costcomment, costweight.toInt,
-      performanceenhancement.toInt, performanceenhancementweight.toInt,
-      performancemanagement.toInt, performancemanagementweight.toInt,
-      performanceintegration.toInt, performancecomment, performanceintegrationweight.toInt,
-      marketpotential.toInt, marketpotentialcomment, marketpotentialweight.toInt,
-      projectdelivery.toInt, projectdeliverycomment, projectdeliveryweight.toInt,
-      projectfinancing.toInt, projectfinancingcomment, projectfinancingweight.toInt,
-      widerobjective.toInt, widerobjectivecomment,
-      overallcomment, BigDecimal(weightedScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble,
-      BigDecimal(tiebreakScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
-    )
+        val processInstanceId = getValueFromRequest("processInstanceId", mp)
+        val applicationId = getValueFromRequest("applicationId", mp)
+        val opportunityId = getValueFromRequest("opportunityId", mp)
 
-    printAll(score) //Todo:- Delete this
+        val taskKey = getValueFromRequest("taskKey", mp)
 
-    if (button_action.equalsIgnoreCase("save")){
-      localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
-        case Some(t) => {
-          val ts = localtasks.showTasks(UserId(userId))
-          Redirect(controllers.routes.TaskController.tasks())
+        val button_action: String = if (!getValueFromRequest("save", mp).equals("")) "save"
+        else if (!getValueFromRequest("complete", mp).equals("")) "complete" else "save"
+
+        val asmtKey = taskKey match {
+          case "firstAssessment" => 1
+          case "secondAssessment" => 2
+          case "thirdAssessment" => 3
         }
-        case _ => NoContent
-      }
-    }
-    else {
+
+        val performanceenhancementScore = performanceenhancement * performanceenhancementweight / 100.0
+        val performancemanagementScore = performancemanagement * performancemanagementweight / 100.0
+        val performanceintegrationScore = performanceintegration * performanceintegrationweight / 100.0
+        val marketpotentialScore = marketpotential * marketpotentialweight / 100.0
+        val costScore = cost * costweight / 100.0
+        val projectdeliveryScore = projectdelivery * projectdeliveryweight / 100.0
+        val projectfinancingScore = projectfinancing * projectfinancingweight / 100.0
+
+        /* Wider objective is the  Tie Breaker score*/
+        val widerobjectiveScore = widerobjective //* widerobjectiveweight / 100.0
+
+        val weightedScore = performanceenhancementScore + performancemanagementScore + performanceintegrationScore + costScore + marketpotentialScore + projectdeliveryScore + projectfinancingScore
+
+        val tiebreakScore = widerobjectiveScore
 
 
-      val commentList = List(
-        ("Project description comment", projectdesccomment), ("Cost comment", costcomment), ("Performance comment", performancecomment),
-        ("Market potential comment", marketpotentialcomment), ("Project delivery comment", projectdeliverycomment),
-        ("Project financing comment", projectfinancingcomment), ("Wider objective comment", widerobjectivecomment),
-        ("Overall comment", overallcomment)
-      )
+        println("=== score " + "" + "==  " + performanceenhancement)
+        println("=== score " + "" + "==  " + performancemanagement)
+        println("=== score " + "" + "==  " + performanceintegration)
+        println("=== score " + "" + "==  " + cost)
+        println("=== score " + "" + "==  " + marketpotential)
+        println("=== score " + "" + "==  " + projectdelivery)
+        println("=== score " + "" + "==  " + projectfinancing)
+        println("=== score " + "" + "==  " + widerobjective)
 
-      val errorComments_ = commentList.foldLeft(List[String]()) { (z, f) =>
-        if (commentMaxLengthCheck(f._2, 1000)) z :+ f._1
-        else z
-      }
-
-      val errorCommentsMinLength = commentList.foldLeft("") { (z, f) =>
-        val sep = if (StringUtils.isNotEmpty(z)) "," else ""
-        if (commentMinLengthCheck(f._2)) s"$z$sep${f._1}"
-        else z
-      }
-
-      val errorCommentsMaxLength = commentList.foldLeft("") { (z, f) =>
-        val sep = if (StringUtils.isNotEmpty(z)) "," else ""
-        if (commentMaxLengthCheck(f._2, 1000)) s"$z$sep${f._1}"
-        else z
-      }
+        println("=== score weight" + "" + "==  " + performanceenhancementweight)
+        println("=== score weight" + "" + "==  " + performancemanagementweight)
+        println("=== score weight" + "" + "==  " + performanceintegrationweight)
+        println("=== score weight" + "" + "==  " + marketpotentialweight)
+        println("=== score weight" + "" + "==  " + costweight)
+        println("=== score weight" + "" + "==  " + projectdeliveryweight)
+        println("=== score weight" + "" + "==  " + projectfinancingweight)
+        //println("=== score weight" + "" + "==  " + widerobjectiveweight)
 
 
-      if (StringUtils.isNotEmpty(errorCommentsMinLength) || StringUtils.isNotEmpty(errorCommentsMaxLength)) {
-        localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, "save").map {
-          case _ => NoContent
-        }
-        Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-          .flashing("errorCommentsMinLength" -> errorCommentsMinLength, "errorCommentsMaxLength" -> errorCommentsMaxLength))
-      }
-      else {
-        localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
-          case Some(t) => {
-            val ts = localtasks.showTasks(UserId(userId))
-            Redirect(controllers.routes.TaskController.tasks())
+        println("=== score Score" + "" + "==  " + performanceenhancementScore)
+        println("=== score Score" + "" + "==  " + performancemanagementScore)
+        println("=== score Score" + "" + "==  " + performanceintegrationScore)
+        println("=== score Score" + "" + "==  " + costScore)
+        println("=== score Score" + "" + "==  " + marketpotentialScore)
+        println("=== score Score" + "" + "==  " + projectdeliveryScore)
+        println("=== score Score" + "" + "==  " + projectfinancingScore)
+        println("=== score Score" + "" + "==  " + widerobjectiveScore)
+        println("=== weightedScore " + "" + "==  " + weightedScore)
+        println("=== tiebreakScore " + "" + "==  " + tiebreakScore)
+
+
+        val score = Score(
+          projectdesc, projectdesccomment, projectdescweight.toInt,
+          cost.toInt, costcomment, costweight.toInt,
+          performanceenhancement.toInt, performanceenhancementweight.toInt,
+          performancemanagement.toInt, performancemanagementweight.toInt,
+          performanceintegration.toInt, performancecomment, performanceintegrationweight.toInt,
+          marketpotential.toInt, marketpotentialcomment, marketpotentialweight.toInt,
+          projectdelivery.toInt, projectdeliverycomment, projectdeliveryweight.toInt,
+          projectfinancing.toInt, projectfinancingcomment, projectfinancingweight.toInt,
+          widerobjective.toInt, widerobjectivecomment,
+          overallcomment, BigDecimal(weightedScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble,
+          BigDecimal(tiebreakScore).setScale(2, BigDecimal.RoundingMode.HALF_UP).toDouble
+        )
+
+        printAll(score) //Todo:- Delete this
+
+        if (button_action.equalsIgnoreCase("save")) {
+          localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
+            case Some(t) => {
+              val ts = localtasks.showTasks(UserId(userId))
+              Redirect(controllers.routes.TaskController.tasks())
+            }
+            case _ => NoContent
           }
-          case _ => NoContent
         }
-      }
+        else {
+
+
+          val commentList = List(
+            ("Project description comment", projectdesccomment), ("Cost comment", costcomment), ("Performance comment", performancecomment),
+            ("Market potential comment", marketpotentialcomment), ("Project delivery comment", projectdeliverycomment),
+            ("Project financing comment", projectfinancingcomment), ("Wider objective comment", widerobjectivecomment),
+            ("Overall comment", overallcomment)
+          )
+
+          val errorComments_ = commentList.foldLeft(List[String]()) { (z, f) =>
+            if (commentMaxLengthCheck(f._2, 1000)) z :+ f._1
+            else z
+          }
+
+          val errorCommentsMinLength = commentList.foldLeft("") { (z, f) =>
+            val sep = if (StringUtils.isNotEmpty(z)) "," else ""
+            if (commentMinLengthCheck(f._2)) s"$z$sep${f._1}"
+            else z
+          }
+
+          val errorCommentsMaxLength = commentList.foldLeft("") { (z, f) =>
+            val sep = if (StringUtils.isNotEmpty(z)) "," else ""
+            if (commentMaxLengthCheck(f._2, 1000)) s"$z$sep${f._1}"
+            else z
+          }
+
+
+          if (StringUtils.isNotEmpty(errorCommentsMinLength) || StringUtils.isNotEmpty(errorCommentsMaxLength)) {
+            localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, "save").map {
+              case _ => NoContent
+            }
+            Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+              .flashing("errorCommentsMinLength" -> errorCommentsMinLength, "errorCommentsMaxLength" -> errorCommentsMaxLength))
+          }
+          else {
+            localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
+              case Some(t) => {
+                val ts = localtasks.showTasks(UserId(userId))
+                Redirect(controllers.routes.TaskController.tasks())
+              }
+              case _ => NoContent
+            }
+          }
+        }
+      case "No" =>
+        Future(Redirect(controllers.routes.TaskController.tasks()))
     }
   }
 
@@ -468,7 +539,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
 
   def commentMaxLengthCheck(comment:String, maxAllowed: Int): Boolean =
-      (StringUtils.isNotEmpty(comment) && comment.split(" ").toList.size > maxAllowed)
+    (StringUtils.isNotEmpty(comment) && comment.split(" ").toList.size > maxAllowed)
+
+  def confirmBoxCheck(comment:String, maxAllowed: Int): Boolean =
+    (StringUtils.isNotEmpty(comment) && comment.split(" ").toList.size > maxAllowed)
 
   def getValueFromRequest(key: String, keyValueMap: Map[String, Seq[String]]): String =
 
@@ -478,52 +552,66 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   def submitMakePanelDecision (id : LocalTaskId) = Action.async { implicit request =>
 
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
-    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
+    val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
+    val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
+    val mp = Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
 
-    val status =            getValueFromRequest("approvestatus", mp )
-    val comment =           getValueFromRequest("comment", mp )
-    val processInstanceId = getValueFromRequest("processInstanceId", mp )
-    val applicationId =     getValueFromRequest("applicationId", mp )
-    val opportunityId =     getValueFromRequest("opportunityId", mp )
+    confirmsubmit match {
+      case "Yes" =>
+          val status =            getValueFromRequest("approvestatus", mp )
+          val comment =           getValueFromRequest("comment", mp )
+          val processInstanceId = getValueFromRequest("processInstanceId", mp )
+          val applicationId =     getValueFromRequest("applicationId", mp )
+          val opportunityId =     getValueFromRequest("opportunityId", mp )
 
-    if(commentMaxLengthCheck(comment, 1000))
-    Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-      .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
-    else {
-      localtasks.submitMakePanelDecision(id, UserId(userId), status, comment, processInstanceId).flatMap {
-        case Some(t) => {
-          val ts = localtasks.showTasks(UserId(userId))
-          Future.successful(Redirect(controllers.routes.TaskController.tasks()))
-        }
-        case _ => Future.successful(NotFound)
-      }
+          if(commentMaxLengthCheck(comment, 1000))
+          Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+            .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+          else {
+            localtasks.submitMakePanelDecision(id, UserId(userId), status, comment, processInstanceId).flatMap {
+              case Some(t) => {
+                val ts = localtasks.showTasks(UserId(userId))
+                Future.successful(Redirect(controllers.routes.TaskController.tasks()))
+              }
+              case _ => Future.successful(NotFound)
+            }
+          }
+      case "No" =>
+          Future(Redirect(controllers.routes.TaskController.tasks()))
     }
   }
 
 
   def submitModerateScore (id : LocalTaskId) = Action.async { implicit request =>
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
-    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
+    val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
+    val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
+    val mp = Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
 
-    val averagemoderatescore =     getValueFromRequest("averagemoderatescore", mp )
-    val comment =     getValueFromRequest("comment", mp )
-    val processInstanceId =     getValueFromRequest("processInstanceId", mp )
+    confirmsubmit match {
+      case "Yes" =>
+          val averagemoderatescore =     getValueFromRequest("averagemoderatescore", mp )
+          val comment =     getValueFromRequest("comment", mp )
+          val processInstanceId =     getValueFromRequest("processInstanceId", mp )
 
-    val applicationId =     getValueFromRequest("applicationId", mp )
-    val opportunityId =     getValueFromRequest("opportunityId", mp )
+          val applicationId =     getValueFromRequest("applicationId", mp )
+          val opportunityId =     getValueFromRequest("opportunityId", mp )
 
-    if(commentMaxLengthCheck(comment, 1000))
-      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-        .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
-    else {
-      localtasks.submitModerateScore(id, UserId(userId), averagemoderatescore, comment, processInstanceId).flatMap {
-        case Some(t) => {
-          val ts = localtasks.showTasks(UserId(userId))
-          Future.successful(Redirect(controllers.routes.TaskController.tasks()))
-        }
-        case None => Future.successful(NotFound)
-      }
-    }
+          if(commentMaxLengthCheck(comment, 1000))
+            Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+              .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+          else {
+            localtasks.submitModerateScore(id, UserId(userId), averagemoderatescore, comment, processInstanceId).flatMap {
+              case Some(t) => {
+                val ts = localtasks.showTasks(UserId(userId))
+                Future.successful(Redirect(controllers.routes.TaskController.tasks()))
+              }
+              case None => Future.successful(NotFound)
+            }
+          }
+      case "No" =>
+          Future(Redirect(controllers.routes.TaskController.tasks()))
+  }
   }
 
 
@@ -541,33 +629,43 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
   def submitConfirmEmailSent (id : LocalTaskId) = Action.async { implicit request =>
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
+    val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
+    val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
+    val mp = Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
 
-    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
+    confirmsubmit match {
+      case "Yes" =>
+          val emailsent = getValueFromRequest("emailsent", mp )
+          val comment = getValueFromRequest("comment", mp )
+          val processInstanceId = getValueFromRequest("processInstanceId", mp )
 
-    val emailsent = getValueFromRequest("emailsent", mp )
-    val comment = getValueFromRequest("comment", mp )
-    val processInstanceId = getValueFromRequest("processInstanceId", mp )
+          val applicationId =     getValueFromRequest("applicationId", mp )
+          val opportunityId =     getValueFromRequest("opportunityId", mp )
 
-    val applicationId =     getValueFromRequest("applicationId", mp )
-    val opportunityId =     getValueFromRequest("opportunityId", mp )
+          if(commentMaxLengthCheck(comment, 1000))
+            Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+              .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+          else if(!mp.isDefinedAt("emailsent"))
+            Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+              .flashing("ERROR" -> Messages("error.BF009"), "commentText" -> comment))
+          else {
+            val ems = emailsent match {
+              case s if StringUtils.isEmpty(s)  => "No email sent"
+              case s if !StringUtils.isEmpty(s)  => "Email sent"
+              case _ => "No email sent"
+            }
 
-    if(commentMaxLengthCheck(comment, 1000))
-      Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-        .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
-    else {
-      val ems = emailsent match {
-        case s if StringUtils.isEmpty(s)  => "No email sent"
-        case s if !StringUtils.isEmpty(s)  => "Email sent"
-        case _ => "No email sent"
-      }
-
-      localtasks.submitConfirmEmailSent(id, UserId(userId), ems, comment, processInstanceId).map {
-        case Some(t) => {
-          val ts = localtasks.showTasks(UserId(userId))
-          Redirect(controllers.routes.TaskController.tasks())
-        }
-        case _ => NoContent
-      }
+            localtasks.submitConfirmEmailSent(id, UserId(userId), ems, comment, processInstanceId).map {
+              case Some(t) => {
+                val ts = localtasks.showTasks(UserId(userId))
+                Redirect(controllers.routes.TaskController.tasks())
+              }
+              case _ => NoContent
+            }
+            //Future(Redirect(controllers.routes.TaskController.tasks()))
+          }
+      case "No" =>
+            Future(Redirect(controllers.routes.TaskController.tasks()))
     }
   }
 
@@ -576,6 +674,27 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     !s1.equals(s2) && !s1.equals(s3) && !s2.equals(s3) match {
       case false =>  FieldError("assignassessor1", "Please select different Assessors in each selection").invalidNel
       case true => "".validNel
+    }
+  }
+
+  def submitConfirm(id : LocalTaskId) = Action.async { implicit request =>
+    val t = localtasks.showTask(id)
+    val mp = request.body.asFormUrlEncoded.getOrElse(Map())
+    val button_action:String = if(!getValueFromRequest("save", mp ).equals("")) "save"
+    else if(!getValueFromRequest("complete", mp ).equals("")) "submit" else "save"
+
+    val nextAction = getValueFromRequest("nextAction", mp )
+    val mpRefined = mp.foldLeft(Map[String, Seq[String]]()) { (z ,v) =>
+      z + (v._1 -> Seq(v._2.headOption.getOrElse("")))
+    }
+
+    t.flatMap {
+      case Some(tsk) => {
+        val userId = request.session.get("username_process").getOrElse("Unauthorised User")
+        Future.successful(Ok(views.html.confirm(tsk, nextAction, button_action)
+        (Flash(Map("formdata" -> Json.toJson(mpRefined).toString() ))) ))
+      }
+      case None => Future.successful(NotFound)
     }
   }
 

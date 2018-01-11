@@ -17,12 +17,14 @@ GET         /task/:taskid/application/:appid/opportunity/:oppid  controllers.Tas
 POST        /submit                                              controllers.TaskController.submit(taskid:LocalTaskId)
 POST        /submitAssessEligibility                             controllers.TaskController.submitAssessEligibility(taskid:LocalTaskId)
 POST        /submitAssignAssessors                               controllers.TaskController.submitAssignAssessors(taskid:LocalTaskId)
-POST        /submitAssessment                                    controllers.TaskController.submitAssessment(taskid:LocalTaskId, key: String)
+POST        /submitAssessment                                    controllers.TaskController.submitAssessment(taskid:LocalTaskId)
 POST        /submitMakePanelDecision                             controllers.TaskController.submitMakePanelDecision(taskid:LocalTaskId)
 POST        /submitModerateScore                                 controllers.TaskController.submitModerateScore(taskid:LocalTaskId)
 POST        /submitConfirmEmailSent                              controllers.TaskController.submitConfirmEmailSent(taskid:LocalTaskId)
 POST        /updatePassword                                      controllers.UserController.updatePassword
 GET         /task/:taskid/assessor/:assessorid/assessor-report   controllers.TaskController.assessorReport(taskid:LocalTaskId, assessorid:Int)
+#GET         /confirm                                             controllers.TaskController.confirm
+POST        /confirm/task/:taskid                                controllers.TaskController.submitConfirm(taskid:LocalTaskId)
 
 
 #GET         /opportunity/:id/section/:num                       controllers.OpportunityController.showOpportunitySection(id:OpportunityId, num:OppSectionNumber)
