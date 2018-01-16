@@ -1,0 +1,48 @@
+@(p: LocalProcess,
+url:String,
+userId: Option[String] = None
+)(implicit flash: Flash)
+
+@errorClass = @{
+if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
+}
+
+@import org.joda.time.format.DateTimeFormat
+@import partials._
+
+@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Process list","/tasks_processes#process-list")), displayUserName=userId) {
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <h1 class="heading-xlarge">
+            <!--<span class="heading-secondary">@p.oppId: @p.oppTitle</span>-->
+            Process Details
+        </h1>
+
+        @if(flash.get("error").getOrElse("").nonEmpty) {
+        <div class="error-summary" role="group" aria-labelledby="error-summary-heading" tabindex="-1">
+
+            <h1 class="heading-medium error-summary-heading" id="error-summary-heading">
+                The information you entered is not valid
+            </h1>
+            <p>
+                Please correct the problems indicated below.
+            </p>
+            <span class="error-message" role="alert">@flash.get("error").getOrElse("")</span>
+
+        </div>
+        }
+
+
+            <table class="thwithborder">
+                @processInfo(p, url)
+
+            </table>
+    </div>
+
+    @taskHistory(p.taskHistories)
+
+
+</div>
+
+
+}

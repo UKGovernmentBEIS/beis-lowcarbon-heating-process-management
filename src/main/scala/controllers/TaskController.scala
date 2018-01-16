@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 import cats.data.ValidatedNel
 import models._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsValue, Json, _}
 import play.api.mvc.Results.{NotFound, Redirect}
 import play.api.mvc.{Action, Controller, Flash}
 import services.{BEISTaskOps, JWTOps}
@@ -42,7 +42,7 @@ import validations.FieldError
 import play.api.Play.current
 import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
-import play.api.libs.json._
+import play.api.libs.json
 import services.RestService.JsonParseException
 
 /**
@@ -82,6 +82,107 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   def startPage = Action {
     Ok(views.html.startPage())
   }
+
+    def tasks_processes = Action.async { implicit request =>
+
+    val sortstr = request.queryString.getOrElse("sort", List()).headOption.getOrElse("")
+
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
+    val grpId = request.session.get("role").getOrElse("").toString
+    val adminRole = Config.config.jwt.adminRole
+
+    for(
+      ts <- localtasks.showTasks(UserId(userId));
+      ps <- grpId.equalsIgnoreCase(adminRole) match {
+        case true => localtasks.showProcesses(UserId(userId))
+        case false => Future(Seq())
+      }
+    )yield(
+
+      sortstr match {
+        /* Tasks sorting*/
+        case "task-asc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.key), ps, Some(userId)))
+        case "task-desc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.key).reverse, ps, Some(userId) ))
+        case "app-asc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.appRef), ps, Some(userId)))
+        case "app-desc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.appRef).reverse, ps, Some(userId) ))
+        case "technology-asc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.technology), ps, Some(userId)))
+        case "technology-desc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.technology).reverse, ps, Some(userId) ))
+        case "aws-asc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.averageweightedscore), ps, Some(userId)))
+        case "aws-desc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.averageweightedscore).reverse, ps, Some(userId) ))
+        case "atbs-asc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.averagetiebreakscore), ps, Some(userId)))
+        case "atbs-desc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.averagetiebreakscore).reverse, ps, Some(userId) ))
+        case "status-asc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.status), ps, Some(userId)))
+        case "status-desc" =>
+          Ok(views.html.tasks_processes(ts.sortBy(_.status).reverse, ps, Some(userId) ))
+
+        /* Processes sorting*/
+        case "proc_app-asc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.appRef), Some(userId)))
+        case "proc_app-desc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.appRef).reverse, Some(userId)))
+        case "proc_status-asc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.status), Some(userId)))
+        case "proc_status-desc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.status).reverse, Some(userId)))
+        case "proc_technology-asc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.technology), Some(userId)))
+        case "proc_technology-desc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.technology).reverse, Some(userId)))
+        case "proc_aws-asc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.averageweightedscore), Some(userId)))
+        case "proc_aws-desc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.averageweightedscore).reverse, Some(userId)))
+        case "proc_atbs-asc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.averagetiebreakscore), Some(userId)))
+        case "proc_atbs-desc" =>
+          Ok(views.html.tasks_processes(ts, ps.sortBy(_.averagetiebreakscore).reverse, Some(userId)))
+
+        case _ =>
+          Ok(views.html.tasks_processes(ts, ps, Some(userId)))
+      })
+  }
+
+  def process (id : ProcessId) = Action.async { implicit request =>
+    val p = localtasks.showProcess(id)
+
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
+    val grpId = request.session.get("role").getOrElse("")
+    val appFrontEndUrl = Config.config.business.appFrontEndUrl
+
+    p.flatMap{
+      case Some(proc) => {
+
+        /****************************************************************
+             Authorisation of a Resource using JWT (JSON Web Token)
+         ----------------------------------------------------------------
+          Usage: Access Front-end server URL from Process management server
+          1. Create a JWT token using 1. Auth header 2. ClaimsSet (Payload) 3. JwtSecretKey
+          2. Send as Query string with each call to Front-end server
+          3. Front-end server Decode the Token using SecretKey and decide it is from Authorised source
+          4. Then Reads Payload and apply business logic to give a Resource access
+          *****************************************************************/
+        val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, proc.appId.toString)).toString()
+        val appAuthToken = jwt.createToken(appAuthpayload)
+        val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${proc.appId}?token=$appAuthToken"
+        /*****************JWT ends ***************************************/
+
+        Future(Ok(views.html.process(proc, appFrontEndUrlWithJWTToken, Option(userId))))
+      }
+      case None => Future.successful(NotFound)
+    }
+  }
+
 
   def task (id : LocalTaskId, appId : Long, oppId : Long) = Action.async { implicit request =>
     val t = localtasks.showTask(id)
@@ -590,7 +691,8 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
     confirmsubmit match {
       case "Yes" =>
-          val averagemoderatescore =     getValueFromRequest("averagemoderatescore", mp )
+        val averagemoderatescore =     getValueFromRequest("averagemoderatescore", mp )
+        val averageweightedscore =     getValueFromRequest("averageweightedscore", mp )
           val comment =     getValueFromRequest("comment", mp )
           val processInstanceId =     getValueFromRequest("processInstanceId", mp )
 
@@ -601,7 +703,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
               .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
           else {
-            localtasks.submitModerateScore(id, UserId(userId), averagemoderatescore, comment, processInstanceId).flatMap {
+            localtasks.submitModerateScore(id, UserId(userId), averageweightedscore, averagemoderatescore, comment, processInstanceId).flatMap {
               case Some(t) => {
                 val ts = localtasks.showTasks(UserId(userId))
                 Future.successful(Redirect(controllers.routes.TaskController.tasks()))

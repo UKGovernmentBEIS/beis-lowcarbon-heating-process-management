@@ -1,0 +1,202 @@
+@(ts: Seq[LocalTaskSummary],
+ps: Seq[ProcessInstanceSummary],
+userId: Option[String] = None)
+
+@import helpers._
+
+@main(s"BEIS - Business Process Management", None, displayUserName=userId, showAllLinks=Some(true)) {
+
+<section class="more">
+
+    <div class="js-tabs nav-tabs">
+        <ul>
+            <li><a href="#task-list">Tasks</a></li>
+            @if(!ps.isEmpty){
+            <li><a href="#process-list">Processes</a></li>
+            }
+        </ul>
+    </div>
+    <div class="js-tab-content tab-content">
+
+        <!-- 1st Tab --------------------------------------------------->
+        <div id="task-list" class="js-tab-pane tab-pane">
+
+            <div>
+                <h1 class="heading-xlarge">Your inbox</h1>
+
+                <p class="lede">List of tasks</p>
+
+                <table class="spacious">
+                    <tr>
+                        <th role="presentation" class="tdtopalign">
+                            Task name
+                            <a href="/tasks_processes#task-list?sort=task-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                            <a href="/tasks_processes#task-list?sort=task-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                        </th>
+                        <th role="presentation" class="tdtopalign">
+                            Application
+                            <a href="/tasks_processes#task-list?sort=app-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                            <a href="/tasks_processes#task-list?sort=app-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                        </th>
+                        <th role="presentation" class="tdtopalign">
+                            Status
+                            <a href="/tasks_processes#task-list?sort=status-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                            <a href="/tasks_processes#task-list?sort=status-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                        </th>
+
+                        <th role="presentation" class="tdtopalign">
+                            Technology
+                            <a href="/tasks_processes#task-list?sort=technology-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                            <a href="/tasks_processes#task-list?sort=technology-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                        </th>
+
+                        <th role="presentation" class="tdtopalign">
+                            Weighted score
+                            <a href="/tasks_processes#task-list?sort=aws-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                            <a href="/tasks_processes#task-list?sort=aws-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                        </th>
+
+                        <th role="presentation" class="tdtopalign">
+                            Tie-break score
+                            <a href="/tasks_processes#task-list?sort=atbs-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                            <a href="/tasks_processes#task-list?sort=atbs-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt="" style="visibility: visible"></a>
+                        </th>
+                    </tr>
+
+                    @if(ts.isEmpty){
+                    <tr>
+                        <td> No Tasks</td>
+                    </tr>
+                    }
+                    @for((t,i) <- ts.zipWithIndex) {
+                    <tr>
+                        <td class="tdnormal">
+                            @{i+1}. <a href="/task/@t.id.id/application/@t.appId/opportunity/@t.oppId">
+                            @t.key</a>
+                        </td>
+                        <td>@(t.appId+1000) - @t.appRef</td>
+                        <td class="tdnormal">@t.status</td>
+                        <td>@t.technology</td>
+                        <td>@t.averageweightedscore</td>
+                        <td>@t.averagetiebreakscore</td>
+                    </tr>
+                    }
+                </table>
+
+            </div>
+        </div>
+        @if(!ps.isEmpty){
+        <!-- 2nd Tab --------------------------------------------------->
+        <div id="process-list" class="js-tab-pane tab-pane">
+
+            <div>
+                <p class="lede">List of Processes</p>
+
+                <table class="spacious">
+                    <tr>
+
+                        <th role="presentation" class="tdtopalign">
+                            Application
+                            <a href="/tasks_processes#process-list?sort=proc-app-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes#process-list?sort=proc-app-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+                        <th role="presentation" class="tdtopalign">
+                            Status
+                            <a href="/tasks_processes#process-list?sort=proc-status-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes#process-list?sort=proc-status-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+
+                        <th role="presentation" class="tdtopalign">
+                            Technology
+                            <a href="/tasks_processes#process-list?sort=proc-technology-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes#process-list?sort=proc-technology-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+
+                        <th role="presentation" class="tdtopalign">
+                            Weighted score
+                            <a href="/tasks_processes#process-list?sort=proc-aws-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes#process-list?sort=proc-aws-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+
+                        <th role="presentation" class="tdtopalign">
+                            Tie-break score
+                            <a href="/tasks_processes#process-list?sort=proc-atbs-asc">
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes#process-list?sort=proc-atbs-desc">
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+
+                    </tr>
+
+                    @if(ps.isEmpty){
+                    <tr>
+                        <td> No Tasks</td>
+                    </tr>
+                    }
+                    @for((p,i) <- ps.zipWithIndex) {
+                    <tr>
+                        <td>
+                            <!--@{i+1}.  <a href=JWTToken("processadmin", userId.getOrElse(""), p.appId.toString) target="_blank">-->
+                            @{i+1}.  <a href="/process/@p.processInstanceId">
+                        @(p.appId+1000) - @(p.appRef) </a> </td>
+                        <td class="tdnormal">@p.status</td>
+                        <td>@p.technology</td>
+                        <td>
+                            @if(p.averageweightedscore.toString.equals("0")){
+                                Not set
+                            }else{
+                                @p.averageweightedscore
+                            }
+                        </td>
+                        <td>
+                            @if(p.averagetiebreakscore.toString.equals("0")){
+                                Not set
+                            }else{
+                                @p.averagetiebreakscore
+                            }
+                        </td>
+                    </tr>
+                    }
+                </table>
+
+            </div>
+        </div>
+        }
+
+
+    </div>
+
+</section>
+<script src="@routes.Assets.at("javascripts/vendor/jquery/jquery-1.11.3.min.js")"></script>
+
+}

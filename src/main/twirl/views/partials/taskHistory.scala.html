@@ -1,4 +1,4 @@
-@(t: LocalTask)
+@(th: Seq[TaskHistory])
 
 @import org.joda.time.format.DateTimeFormat
 
@@ -15,7 +15,7 @@
                 </th>
             </tr>
             </thead>
-            @for((o,i) <- t.taskHistories.zipWithIndex) {
+            @for((o,i) <- th.zipWithIndex) {
                 <tbody>
                 <tr>
                     <td>Task Name  </td><td>@o.name </td>

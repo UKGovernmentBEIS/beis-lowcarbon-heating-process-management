@@ -1,0 +1,34 @@
+@(p: LocalProcess,
+url: String)
+
+@import partials._
+@import org.apache.commons.lang3.StringUtils
+
+
+
+    <thead>
+    <tr> <th scope="col" > Process </th>
+         <th scope="col" > @p.piId</th> </tr>
+    </thead>
+
+    <tbody>
+
+    <tr>
+        <td>Program</td>
+        <td> @p.oppTitle </td>
+    </tr>
+    <tr>
+        <td>Status</td>
+        <td> @p.status </td>
+    </tr>
+
+    <tr>
+        <td>Application</td>
+        <td>
+        @if(StringUtils.isNotEmpty(url) && p.appId != null && !(p.appId == 0L) ){
+            <a href="@url" target="_blank"> @(p.appId+1000) - @p.appRef</a></td>
+        }else{
+            --
+        }
+    </tr>
+    </tbody>

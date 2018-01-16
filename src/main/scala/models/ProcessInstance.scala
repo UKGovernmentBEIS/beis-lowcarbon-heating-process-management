@@ -10,6 +10,8 @@ case class ProcessInstance (id: String, url:String, businessKey: BusinessKey, su
                             processDefinitionUrl:String, processDefinitionKey:String, activityId: String, variables: Seq[String], tenantId: String,
                             name: String, completed: Boolean)
 
+case class ProcessInstanceSummary(processInstanceId:String, name: String, applicant: String, status: String, appId: Long, appRef: String,
+                                   technology: String, averageweightedscore: Double, averagetiebreakscore: Double)
 case class BusinessKey(id: String)
 case class ProcessId(id: LongId)
 case class ProcessDefinitionId(id: String)
@@ -18,3 +20,4 @@ case class ProcessVariable(name: String,  scope: String, vartype: String, value:
 case class ProcessVariableMap(variableMap: Map[String, String] )
 case class ActionId(id: String)
 case class Comment(message: String)
+case class LocalProcess(piId:String, appId: Long, appRef: String, oppId: Long, oppTitle: String, status: String, taskHistories:Seq[TaskHistory])

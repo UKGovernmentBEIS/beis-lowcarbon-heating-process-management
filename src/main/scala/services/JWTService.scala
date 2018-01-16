@@ -51,5 +51,3 @@ class JWTService  @Inject()(implicit val ec: ExecutionContext)
       case _ => None
     }
 }
-
-//object JWTService extends JWTService

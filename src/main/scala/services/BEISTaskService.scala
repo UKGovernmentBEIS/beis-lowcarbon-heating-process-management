@@ -20,12 +20,12 @@ package services
 import java.text.SimpleDateFormat
 
 import com.google.inject.Inject
-import models.{ApplicationId, UserId, _}
+import models.{ApplicationId, ProcessInstanceSummary, UserId, _}
 import org.activiti.engine._
 import org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration
 import org.activiti.engine.task.{Comment, IdentityLink, Task, TaskQuery}
 import config.Config
-import org.activiti.engine.history.HistoricTaskInstance
+import org.activiti.engine.history.{HistoricProcessInstance, HistoricTaskInstance, HistoricVariableInstance, HistoricVariableInstanceQuery}
 import org.activiti.engine.identity.{GroupQuery, UserQuery}
 import org.activiti.engine.impl.persistence.entity.VariableInstance
 import org.activiti.engine.runtime.ProcessInstance
@@ -92,7 +92,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       else
         z:+ s"${l.getUserId}"
     }
-
     val taskInstanceHistoryList: Seq[HistoricTaskInstance] = historyService.createHistoricTaskInstanceQuery()
       .processInstanceId(t.getProcessInstanceId).orderByHistoricTaskInstanceStartTime().asc()
       .list()
@@ -145,11 +144,11 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
           )
     }
 
-    val appId: Long = getVariable[String](runtimeService, t, "ApplicationId", "0").toLong
-    val status: String = getVariable[String](runtimeService, t, "approvestatus", "-").capitalize
-    val applicant: String = getVariable[String](runtimeService, t, "Applicant", "-")
-    val appRef: String = getVariable[String](runtimeService, t, "ApplicationReference", "0")
-    val oppId: Long = getVariable[String](runtimeService, t, "OpportunityId", "0").toLong
+    val appId: Long = getVariable[String](runtimeService, t.getProcessInstanceId, "ApplicationId", "0").toLong
+    val status: String = getVariable[String](runtimeService, t.getProcessInstanceId, "approvestatus", "-").capitalize
+    val applicant: String = getVariable[String](runtimeService, t.getProcessInstanceId, "Applicant", "-")
+    val appRef: String = getVariable[String](runtimeService, t.getProcessInstanceId, "ApplicationReference", "0")
+    val oppId: Long = getVariable[String](runtimeService, t.getProcessInstanceId, "OpportunityId", "0").toLong
 
     val oppTitle = processEngine.getRuntimeService().getVariable(t.getProcessInstanceId, "OpportunityTitle").toString
 
@@ -181,9 +180,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val policyadmingroup = Config.config.bpm.policyadmingroup
     val userQuery: UserQuery = identityService.createUserQuery().memberOfGroup(policyadmingroup)
 
-    //import org.activiti.engine.identity.User
-
-    //identityService.saveUser()saveUser()
     val userNames = groupIds.foldLeft(Map[String,String]()) { (z,l) =>
       z ++
       identityService.createUserQuery().memberOfGroup(l).list().foldLeft(Map[String, String]()){ (a,b) =>
@@ -192,7 +188,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     }
     Option(userNames.toMap)
   }
-
 
   override def showTasks(userId: UserId): Future[Seq[LocalTaskSummary]] = {
     import collection.JavaConverters._
@@ -211,31 +206,133 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     }
 
     val tasksummaries = tasks.map(t => {
-      val aws = getVariable[Double](runtimeService, t, "averageweightedscore", 0)
-      val ams = getVariable[Double](runtimeService, t, "averagemoderatescore", 0)
+      val aws = getVariable[Double](runtimeService, t.getProcessInstanceId, "averageweightedscore", 0)
+      val ams = getVariable[Double](runtimeService, t.getProcessInstanceId, "averagemoderatescore", 0)
 
-       LocalTaskSummary(
+      LocalTaskSummary(
         LocalTaskId(t.getId),
         t.getName,
         t.getTaskDefinitionKey(),
-        UserId(getVariable[String](runtimeService, t, "Applicant", "")),
-        getVariable[String](runtimeService, t, "approvestatus", "Not set").capitalize,
-        getVariable[String](runtimeService, t, "ApplicationId", "0").toLong,
-        getVariable[String](runtimeService, t, "ApplicationReference", "Not set"),
-        getVariable[String](runtimeService, t, "OpportunityId", "0").toLong,
-        getVariable[String](runtimeService, t, "technology", "Not set"),
-        //(getVariable[Double](runtimeService, t, "averageweightedscore", 0) == 0) ? 0 : getVariable[Double](runtimeService, t, "averagemoderatescore", 0),
+        UserId(getVariable[String](runtimeService, t.getProcessInstanceId, "Applicant", "")),
+        getVariable[String](runtimeService, t.getProcessInstanceId, "approvestatus", "Not set").capitalize,
+        getVariable[String](runtimeService, t.getProcessInstanceId, "ApplicationId", "0").toLong,
+        getVariable[String](runtimeService, t.getProcessInstanceId, "ApplicationReference", "Not set"),
+        getVariable[String](runtimeService, t.getProcessInstanceId, "OpportunityId", "0").toLong,
+        getVariable[String](runtimeService, t.getProcessInstanceId, "technology", "Not set"),
+        //(getVariable[Double](runtimeService, t.getProcessInstanceId, "averageweightedscore", 0) == 0) ? 0 : getVariable[Double](runtimeService, t, "averagemoderatescore", 0),
         if( ams > 0) ams else if(aws > 0) aws else 0,
-        getVariable[Double](runtimeService, t, "averagetiebreakscore", 0))
+        getVariable[Double](runtimeService, t.getProcessInstanceId, "averagetiebreakscore", 0))
 
     }).toSeq
     Future.successful(tasksummaries)
   }
 
-  final def getVariable [T] (runtimeService: RuntimeService, task: Task, v: String, t: T ): T = {
+  def showProcesses(userId: UserId): Future[Seq[ProcessInstanceSummary]] = {
+    import collection.JavaConverters._
+
+    val processInstances = historyService.createHistoricProcessInstanceQuery().list()
+    val processInstanceSummaries_ = processInstances.map { p =>
+
+      val processInstanceId = p.getId
+      //val processDefinitionId = p.getProcessDefinitionId
+      val applicationId =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationId").list().size() > 0)
+        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationId").list().last.getValue
+      else "0"
+      val appRef =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationReference").list().size() > 0)
+        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationReference").list().last.getValue
+      else "notset"
+      val applicant =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("Applicant").list().size() > 0)
+        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("Applicant").list().last.getValue
+      else "notset"
+
+
+      val approvestatus =
+        if(!(getVariable[String](runtimeService, processInstanceId, "approvestatus", "-").equals("-")) )
+          getVariable[String](runtimeService, processInstanceId, "approvestatus", "-")
+        else if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().size() > 0)
+          historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().last.getValue
+        else "notset"
+
+      val averageweightedscore =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("averageweightedscore").list().size() > 0)
+        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("averageweightedscore").list().last.getValue
+      else "0"
+
+      val averagetiebreakscore =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("averagetiebreakscore").list().size() > 0)
+        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("averagetiebreakscore").list().last.getValue
+      else "0"
+      val technology =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("technology").list().size() > 0)
+        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("technology").list().last.getValue
+      else "notset"
+
+      ProcessInstanceSummary(processInstanceId, "name", applicant.toString, approvestatus.toString, applicationId.toString.toLong, appRef.toString,
+        technology.toString, averageweightedscore.toString.toDouble, averagetiebreakscore.toString.toDouble)
+
+    }.toSeq
+
+    val processInstanceSummaries = processInstanceSummaries_.foldLeft(Seq[ProcessInstanceSummary]()) {(k, l) =>
+      if(l.appId != null && l.appId > 0l )
+        k ++ Seq(l)
+      else
+        k
+    }
+
+    Future.successful(processInstanceSummaries)
+  }
+
+  override def showProcess(id: ProcessId): Future[Option[LocalProcess]] = {
+    import collection.JavaConverters._
+    println("===id.id.==="+ id.id.toString())
+
+    val historyVariableQuery = historyService.createHistoricVariableInstanceQuery()
+
+    val p: HistoricProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(id.id.toString()).singleResult()
+    val processInstanceId = id.id.toString()
+
+    val taskInstanceHistoryList: Seq[HistoricTaskInstance] = historyService.createHistoricTaskInstanceQuery()
+      .processInstanceId(id.id.toString()).orderByHistoricTaskInstanceStartTime().asc()
+      .list()
+
+    println("===id.id.==="+ id.id.toString())
+
+    /* Build Task history with TaskHistory API*/
+    val tskHistories: Seq[TaskHistory] = taskInstanceHistoryList.map{ tk =>
+
+      TaskHistory(tk.getName,
+        Try(java.lang.String.valueOf(historyVariableQuery.taskId(tk.getId).variableName("completedby").singleResult().getValue())).toOption match {
+          case Some(s) => s
+          case _ => "-"
+        },
+        new SimpleDateFormat("dd-MMMM-yyyy HH:mm").format(tk.getStartTime),
+        if(tk.getEndTime == null) Option("Not completed") else Option(new SimpleDateFormat("dd-MMMM-yyyy HH:mm").format(tk.getEndTime)),
+        Try(java.lang.String.valueOf(historyVariableQuery.taskId(tk.getId).variableName("approvestatus").singleResult().getValue())).toOption match {
+          case Some(s) => s.capitalize
+          case _ => "In Progress"
+        },
+        taskService.getTaskComments(tk.getId).map{ a=>LocalComment(new SimpleDateFormat("dd-MMMM-yyyy HH:mm").format(a.getTime), a.getFullMessage)
+        }
+      )
+    }
+
+    val appId = java.lang.Long.valueOf(getHistoryVariable[String](historyVariableQuery, processInstanceId, "ApplicationId", "0"))
+    val applicant = getHistoryVariable[String](historyVariableQuery, processInstanceId, "Applicant", "-")
+    val appRef = getHistoryVariable[String](historyVariableQuery, processInstanceId, "ApplicationReference", "-")
+    val oppId = java.lang.Long.valueOf(getHistoryVariable[String](historyVariableQuery, processInstanceId, "OpportunityId", "0"))
+    val oppTitle = getHistoryVariable[String](historyVariableQuery, processInstanceId, "OpportunityTitle", "-")
+
+    val status =
+      if(!(getVariable[String](runtimeService, processInstanceId, "approvestatus", "-").equals("-")) )
+        getVariable[String](runtimeService, processInstanceId, "approvestatus", "-")
+      else if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().size() > 0)
+        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().last.getValue
+      else "notset"
+
+    Future.successful(Option(LocalProcess(processInstanceId, appId, appRef, oppId, oppTitle, status.toString, tskHistories )))
+  }
+
+  final def getVariable [T] (runtimeService: RuntimeService, processInstanceId: String, v: String, t: T ): T = {
 
     import scala.util.Try
-    Try((runtimeService.getVariable(task.getProcessInstanceId, v).asInstanceOf[AnyRef]).asInstanceOf[T] ).toOption match {
+    Try((runtimeService.getVariable(processInstanceId, v).asInstanceOf[AnyRef]).asInstanceOf[T] ).toOption match {
 
       case Some(s) if s==null => t
       case Some(s) if !StringUtils.isEmpty(s.toString) =>
@@ -248,13 +345,20 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     }
   }
 
-  final def getVariable_ [T] (runtimeService: RuntimeService, task: Task, v: String, t: T ): T = {
+  final def getHistoryVariable [T] (historyVariableQuery: HistoricVariableInstanceQuery, processInstanceId: String, v: String, t: T ): T = {
 
-    Try((runtimeService.getVariable(task.getProcessInstanceId, v).asInstanceOf[AnyRef]).asInstanceOf[T] ) match {
-      case Failure(e) => println("Error in getVariable_==" + e)
-        t.asInstanceOf[T]
-      case Success(s) if s==null =>  t.asInstanceOf[T]
-      case Success(s) if s!=null =>  s.asInstanceOf[T]
+    import scala.util.Try
+
+    Try((historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId).variableName(v).list().last.getValue).asInstanceOf[T] ).toOption match {
+
+      case Some(s) if s==null => t
+      case Some(s) if !StringUtils.isEmpty(s.toString) =>
+        t match {
+          case c:java.lang.Double => s.toString().toDouble.asInstanceOf[T]
+          case c:String => s.asInstanceOf[T]
+        }
+      case _ => t
+
     }
   }
 
@@ -438,7 +542,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     Future.successful(Option(LocalTaskId(t.getId)))
   }
 
-  override def submitModerateScore(id: LocalTaskId, userId: UserId, averagemoderatescore: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
+  override def submitModerateScore(id: LocalTaskId, userId: UserId, averageweightedscore: String, averagemoderatescore: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
 
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
 
@@ -450,25 +554,28 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     //val st = s"WIP"
 
     val averagetiebreakscore = taskService.getVariable(t.getId(),"averagetiebreakscore")
-
     taskService.addComment(t.getId, t.getProcessInstanceId, comment)
+    taskService.setVariableLocal(t.getId(), "averageweightedscore", averageweightedscore )
     taskService.setVariableLocal(t.getId(), "averagemoderatescore", averagemoderatescore )
     taskService.setVariableLocal(t.getId(), "averagetiebreakscore", averagetiebreakscore )
     taskService.setVariableLocal(t.getId(), "moderatescorecomments", comment)
-    taskService.setVariableLocal(t.getId(), "approvestatus", Completed.status) //History purpose
-    taskService.setVariableLocal(t.getId(), "completedby", userId.userId)     //History purpose
-    taskService.setVariableLocal(t.getId(), "comment", comment)               //History purpose
 
+    taskService.setVariableLocal(t.getId(), "averageweightedscore", averageweightedscore) //History purpose
+    taskService.setVariableLocal(t.getId(), "approvestatus", Completed.status)            //History purpose
+    taskService.setVariableLocal(t.getId(), "completedby", userId.userId)                 //History purpose
+    taskService.setVariableLocal(t.getId(), "comment", comment)                           //History purpose
+
+    runtimeService.setVariable(t.getProcessInstanceId,"averageweightedscore",averageweightedscore) //Process variable for TaskSummary
     runtimeService.setVariable(t.getProcessInstanceId,"averagetiebreakscore",averagetiebreakscore) //Process variable for TaskSummary
     runtimeService.setVariable(t.getProcessInstanceId,"averagemoderatescore",averagemoderatescore) //Process variable for TaskSummary
-    runtimeService.setVariable(t.getProcessInstanceId,"approvestatus", s"${Moderated.status}" ) //Process variable for TaskSummary
+    runtimeService.setVariable(t.getProcessInstanceId,"approvestatus", s"${Moderated.status}" )    //Process variable for TaskSummary
 
     taskService.complete(t.getId(), Map("averagemoderatescore" -> averagemoderatescore), false)
 
     /** Update Application DB - Update Application Status **/
     //val stsc = "WIP"
     //val s = s"$stsc (by $user)"
-    updateAppStatus(ApplicationId(applicationId), AssessmentCompleted.status ) //TODO:- should we update Application status to show to user in BEIS forms
+    updateAppStatus(ApplicationId(applicationId), AssessmentCompleted.status )
 
     Future.successful(Option(LocalTaskId(t.getId)))
   }

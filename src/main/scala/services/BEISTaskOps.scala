@@ -25,7 +25,7 @@ trait BEISTaskOps {
                        processInstanceId: String, buttonAction: String): Future[Option[LocalTaskId]]
   def submitMakePanelDecision(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
 
-  def submitModerateScore(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
+  def submitModerateScore(id: LocalTaskId, userId: UserId, aws: String, ams: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
   def submitConfirmEmailSent(id: LocalTaskId, userId: UserId, emailsent: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
 
   def submitLogin(userId: String, password: String): Future[Option[String]]
@@ -33,5 +33,7 @@ trait BEISTaskOps {
   def saveUser(userId: String, firstName: String, lastName: String, password: String, email: String): Future[Int]
 
   def getMembers(groupIds: Seq[String]): Option[Map[String,String]]
+  def showProcess(id: ProcessId): Future[Option[LocalProcess]]
+  def showProcesses(userId: UserId): Future[Seq[ProcessInstanceSummary]]
 
 }
