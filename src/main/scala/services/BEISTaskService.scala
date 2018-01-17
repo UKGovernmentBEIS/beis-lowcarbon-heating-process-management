@@ -281,7 +281,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
   override def showProcess(id: ProcessId): Future[Option[LocalProcess]] = {
     import collection.JavaConverters._
-    println("===id.id.==="+ id.id.toString())
 
     val historyVariableQuery = historyService.createHistoricVariableInstanceQuery()
 
@@ -291,8 +290,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val taskInstanceHistoryList: Seq[HistoricTaskInstance] = historyService.createHistoricTaskInstanceQuery()
       .processInstanceId(id.id.toString()).orderByHistoricTaskInstanceStartTime().asc()
       .list()
-
-    println("===id.id.==="+ id.id.toString())
 
     /* Build Task history with TaskHistory API*/
     val tskHistories: Seq[TaskHistory] = taskInstanceHistoryList.map{ tk =>
