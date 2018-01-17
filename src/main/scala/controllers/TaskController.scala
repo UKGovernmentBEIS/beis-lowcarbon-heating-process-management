@@ -364,14 +364,14 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
               localtasks.submitEligibility(id, UserId(userId), status, comment, technology, processInstanceId).map {
                 case Some(t) => {
                   val ts = localtasks.showTasks(UserId(userId))
-                  Redirect(controllers.routes.TaskController.tasks())
+                  Redirect(controllers.routes.TaskController.tasks_processes())
                 }
                 case _ => NoContent
 
               }
             }
         case "No" =>
-            Future(Redirect(controllers.routes.TaskController.tasks()))
+            Future(Redirect(controllers.routes.TaskController.tasks_processes()))
     }
   }
 
@@ -425,7 +425,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             }
           }
       case "No" =>
-          Future(Redirect(controllers.routes.TaskController.tasks()))
+          Future(Redirect(controllers.routes.TaskController.tasks_processes()))
   }
   }
 
@@ -579,7 +579,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
             case Some(t) => {
               val ts = localtasks.showTasks(UserId(userId))
-              Redirect(controllers.routes.TaskController.tasks())
+              Redirect(controllers.routes.TaskController.tasks_processes())
             }
             case _ => NoContent
           }
@@ -623,14 +623,14 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
               case Some(t) => {
                 val ts = localtasks.showTasks(UserId(userId))
-                Redirect(controllers.routes.TaskController.tasks())
+                Redirect(controllers.routes.TaskController.tasks_processes())
               }
               case _ => NoContent
             }
           }
         }
       case "No" =>
-        Future(Redirect(controllers.routes.TaskController.tasks()))
+        Future(Redirect(controllers.routes.TaskController.tasks_processes()))
     }
   }
 
@@ -672,13 +672,13 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             localtasks.submitMakePanelDecision(id, UserId(userId), status, comment, processInstanceId).flatMap {
               case Some(t) => {
                 val ts = localtasks.showTasks(UserId(userId))
-                Future.successful(Redirect(controllers.routes.TaskController.tasks()))
+                Future.successful(Redirect(controllers.routes.TaskController.tasks_processes()))
               }
               case _ => Future.successful(NotFound)
             }
           }
       case "No" =>
-          Future(Redirect(controllers.routes.TaskController.tasks()))
+          Future(Redirect(controllers.routes.TaskController.tasks_processes()))
     }
   }
 
@@ -706,13 +706,13 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             localtasks.submitModerateScore(id, UserId(userId), averageweightedscore, averagemoderatescore, comment, processInstanceId).flatMap {
               case Some(t) => {
                 val ts = localtasks.showTasks(UserId(userId))
-                Future.successful(Redirect(controllers.routes.TaskController.tasks()))
+                Future.successful(Redirect(controllers.routes.TaskController.tasks_processes()))
               }
               case None => Future.successful(NotFound)
             }
           }
       case "No" =>
-          Future(Redirect(controllers.routes.TaskController.tasks()))
+          Future(Redirect(controllers.routes.TaskController.tasks_processes()))
   }
   }
 
@@ -760,14 +760,14 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             localtasks.submitConfirmEmailSent(id, UserId(userId), ems, comment, processInstanceId).map {
               case Some(t) => {
                 val ts = localtasks.showTasks(UserId(userId))
-                Redirect(controllers.routes.TaskController.tasks())
+                Redirect(controllers.routes.TaskController.tasks_processes())
               }
               case _ => NoContent
             }
-            //Future(Redirect(controllers.routes.TaskController.tasks()))
+            //Future(Redirect(controllers.routes.TaskController.tasks_processes()))
           }
       case "No" =>
-            Future(Redirect(controllers.routes.TaskController.tasks()))
+            Future(Redirect(controllers.routes.TaskController.tasks_processes()))
     }
   }
 
