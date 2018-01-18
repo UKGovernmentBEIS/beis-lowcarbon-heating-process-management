@@ -6,4 +6,4 @@ package models
 
 /* This is the payload sent in the JWT tokem as Claims - Payload
    to Access Applcation Information*/
-case class AppAuthPayload(role: String, user: String, appid: String)
+case class AppAuthPayload(role: String, user: String, appid: String, exp: Long)

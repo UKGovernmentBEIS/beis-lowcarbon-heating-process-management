@@ -38,7 +38,6 @@ class JWTService  @Inject()(implicit val ec: ExecutionContext)
   def createToken(payload: String): String = {
     val header = JwtHeader(jwtSecretAlgo)
     val claimsSet = JwtClaimsSet(payload)
-
     JsonWebToken(header, claimsSet, jwtSecretKey)
   }
 

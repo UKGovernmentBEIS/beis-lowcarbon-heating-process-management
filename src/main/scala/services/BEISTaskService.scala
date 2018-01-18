@@ -327,7 +327,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   }
 
   final def getVariable [T] (runtimeService: RuntimeService, processInstanceId: String, v: String, t: T ): T = {
-
+    //println("===vvv====="+ v +"==="+ runtimeService.getVariable(processInstanceId, v))
     import scala.util.Try
     Try((runtimeService.getVariable(processInstanceId, v).asInstanceOf[AnyRef]).asInstanceOf[T] ).toOption match {
 

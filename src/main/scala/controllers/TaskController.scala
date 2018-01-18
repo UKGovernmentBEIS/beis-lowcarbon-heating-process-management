@@ -36,6 +36,7 @@ import cats.data.ValidatedNel
 import cats.syntax.cartesian._
 import cats.syntax.validated._
 import org.apache.commons.lang3.StringUtils
+import org.joda.time.DateTime
 
 import scala.util.{Failure, Success, Try}
 import validations.FieldError
@@ -44,6 +45,8 @@ import play.api.i18n.Messages
 import play.api.i18n.Messages.Implicits._
 import play.api.libs.json
 import services.RestService.JsonParseException
+
+import org.joda.time.{DateTime, LocalDate}
 
 /**
   * -------------------------------------------------------------------
@@ -172,7 +175,12 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           3. Front-end server Decode the Token using SecretKey and decide it is from Authorised source
           4. Then Reads Payload and apply business logic to give a Resource access
           *****************************************************************/
-        val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, proc.appId.toString)).toString()
+
+        val dateTime = new DateTime()
+        val exp = Config.config.jwt.exp
+        val expiry = new DateTime((dateTime.getMillis + exp.toLong)).getMillis
+
+        val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, proc.appId.toString, expiry.toLong)).toString()
         val appAuthToken = jwt.createToken(appAuthpayload)
         val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${proc.appId}?token=$appAuthToken"
         /*****************JWT ends ***************************************/
@@ -217,9 +225,14 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
         *****************************************************************/
 
         val userId = request.session.get("username_process").getOrElse("Unauthorised User")
-        val grpId = request.session.get("role").getOrElse("")
+        //val grpId = request.session.get("role").getOrElse("")
+        val grpId = "" // JWT token validation based on Group is not required at the moment
 
-        val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, tsk.appId.toString)).toString()
+        val dateTime = new DateTime()
+        val exp = Config.config.jwt.exp
+        val expiry = new DateTime((dateTime.getMillis + exp.toLong)).getMillis
+
+        val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, tsk.appId.toString, expiry)).toString()
         val appAuthToken = jwt.createToken(appAuthpayload)
         val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${tsk.appId}?token=$appAuthToken"
 
