@@ -225,8 +225,8 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
         *****************************************************************/
 
         val userId = request.session.get("username_process").getOrElse("Unauthorised User")
-        //val grpId = request.session.get("role").getOrElse("")
-        val grpId = "" // JWT token validation based on Group is not required at the moment
+        val grpId = request.session.get("role").getOrElse("")
+        //val grpId = "" // JWT token validation based on Group is not required at the moment
 
         val dateTime = new DateTime()
         val exp = Config.config.jwt.exp
