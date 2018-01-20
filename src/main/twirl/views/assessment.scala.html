@@ -411,8 +411,11 @@ if(a.getOrElse("") == b) "selected" else ""
         </table>
 
         <input type="hidden" name="processInstanceId" value="@t.processInstanceId">
+            <input type="hidden" name="nextAction" value="submitAssessment">
+            <input type="hidden" name="taskKey" value="@assmtKey">
 
-        <p class="rifs-form-buttons">
+
+            <p class="rifs-form-buttons">
             <input type="submit" name="complete" class="button button--start" value="Submit Process">
             <input type="submit" name="save" class="buttom--link-style" value="Save Changes">
         </p>

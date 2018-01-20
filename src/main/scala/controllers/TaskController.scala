@@ -519,11 +519,15 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
         val button_action: String = if (!getValueFromRequest("save", mp).equals("")) "save"
         else if (!getValueFromRequest("complete", mp).equals("")) "complete" else "save"
 
-        val asmtKey = taskKey match {
-          case "firstAssessment" => 1
-          case "secondAssessment" => 2
-          case "thirdAssessment" => 3
-        }
+
+        println("===taskKey====="+ taskKey)
+//        val asmtKey = taskKey match {
+//          case "firstAssessment" => 1
+//          case "secondAssessment" => 2
+//          case "thirdAssessment" => 3
+//        }
+        //println("===asmtKey====="+ asmtKey)
+        val asmtKey = taskKey.toInt
 
         val performanceenhancementScore = performanceenhancement * performanceenhancementweight / 100.0
         val performancemanagementScore = performancemanagement * performancemanagementweight / 100.0
