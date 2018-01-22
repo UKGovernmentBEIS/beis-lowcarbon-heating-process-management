@@ -25,7 +25,7 @@ if(a.getOrElse("") == b) "selected" else ""
 }
 
 
-@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks_processes("").url)), displayUserName=userId) {
+@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks_processes("task-asc").url)), displayUserName=userId) {
 <div class="grid-row">
     <div class="column-two-thirds">
         <h1 class="heading-xlarge">

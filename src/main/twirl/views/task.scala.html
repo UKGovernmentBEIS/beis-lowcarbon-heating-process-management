@@ -7,7 +7,7 @@ error: Option[String] = None
 @import org.joda.time.format.DateTimeFormat
 @import partials._
 
-@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list",controllers.routes.TaskController.tasks().url)), displayUserName=Some(flash.get("name").getOrElse(""))) {
+@main(s"BEIS - Business Process Management", backLink=Some(BackLink("Return to Task list", "/tasks_processes/task-asc/#task-list")), displayUserName=Some(flash.get("name").getOrElse(""))) {
 
 <div class="grid-row">
     <div class="column-two-thirds">
