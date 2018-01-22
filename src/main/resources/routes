@@ -23,9 +23,9 @@ POST        /submitModerateScore                                 controllers.Tas
 POST        /submitConfirmEmailSent                              controllers.TaskController.submitConfirmEmailSent(taskid:LocalTaskId)
 POST        /updatePassword                                      controllers.UserController.updatePassword
 GET         /task/:taskid/assessor/:assessorid/assessor-report   controllers.TaskController.assessorReport(taskid:LocalTaskId, assessorid:Int)
-#GET        /confirm                                            controllers.TaskController.confirm
+#GET        /confirm                                             controllers.TaskController.confirm
 POST        /confirm/task/:taskid                                controllers.TaskController.submitConfirm(taskid:LocalTaskId)
-GET         /tasks_processes                                     controllers.TaskController.tasks_processes
+GET         /tasks_processes/:sorton                             controllers.TaskController.tasks_processes(sorton:String)
 GET         /process/:pid                                        controllers.TaskController.process(pid:ProcessId)
 
 

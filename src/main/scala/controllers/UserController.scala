@@ -130,7 +130,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
         grp.flatMap{
           case Some(g) => {
             val appFrontEndUrl = Config.config.business.appFrontEndUrl
-            Future.successful(Redirect(controllers.routes.TaskController.tasks_processes()).withSession(
+            Future.successful(Redirect(controllers.routes.TaskController.tasks_processes("task-asc")).withSession(
               ("username_process" -> user.name), ("role" -> g)))
           }
           case None => Future.successful(NotFound)
