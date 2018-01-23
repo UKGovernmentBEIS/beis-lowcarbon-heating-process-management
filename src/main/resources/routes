@@ -21,6 +21,7 @@ POST        /submitAssessment                                    controllers.Tas
 POST        /submitMakePanelDecision                             controllers.TaskController.submitMakePanelDecision(taskid:LocalTaskId)
 POST        /submitModerateScore                                 controllers.TaskController.submitModerateScore(taskid:LocalTaskId)
 POST        /submitConfirmEmailSent                              controllers.TaskController.submitConfirmEmailSent(taskid:LocalTaskId)
+POST        /submitAdditionalInfo                                controllers.TaskController.submitAdditionalInfo(pid:ProcessId)
 POST        /updatePassword                                      controllers.UserController.updatePassword
 GET         /task/:taskid/assessor/:assessorid/assessor-report   controllers.TaskController.assessorReport(taskid:LocalTaskId, assessorid:Int)
 #GET        /confirm                                             controllers.TaskController.confirm

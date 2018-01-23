@@ -784,6 +784,12 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     }
   }
 
+  def submitAdditionalInfo (pid : ProcessId) = Action.async { implicit request =>
+    val additionalInfo = request.body.asFormUrlEncoded.getOrElse(Map()).get("additionalInfo").headOption.map( _.head).getOrElse("nodata")
+    localtasks.updateProcessVariable(pid, additionalInfo)
+    Future(Redirect(controllers.routes.TaskController.tasks_processes("proc-app-asc") + "#process-list"))
+  }
+
   def duplicateSelectionCheck(s1: String, s2: String, s3: String): ValidatedNel[FieldError, String] = {
 
     !s1.equals(s2) && !s1.equals(s3) && !s2.equals(s3) match {

@@ -35,5 +35,5 @@ trait BEISTaskOps {
   def getMembers(groupIds: Seq[String]): Option[Map[String,String]]
   def showProcess(id: ProcessId): Future[Option[LocalProcess]]
   def showProcesses(userId: UserId): Future[Seq[ProcessInstanceSummary]]
-
+  def updateProcessVariable(pid: ProcessId, additionalInfo: String)
 }

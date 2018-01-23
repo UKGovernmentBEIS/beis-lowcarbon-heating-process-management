@@ -32,15 +32,57 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
         </div>
         }
 
+        <form method="POST"
+              action="@controllers.routes.TaskController.submitAdditionalInfo(p.piId)"
+              novalidate="novalidate" >
 
             <table class="thwithborder">
                 @processInfo(p, url)
+
+
+                @if(p.status.equals("Completed")){
+                <tr>
+                    <td>Additional Information</td>
+                    <td> @p.additionalInfo </td>
+                </tr>
+                }else{
+                <tr>
+                    <td colspan="2">
+
+                        <div class="rifs-form-buttons">
+
+                            Add additional Information
+                            <details>
+                                <summary role="button"><span class="summary">Help with this section</span></summary>
+                                <div class="panel panel-border-narrow">Please add text which is relavant to this process and is
+                                    needed to be communicated with other members of the processing team.</div>
+                            </details>
+
+                            <div class="form-group @errorClass">
+
+                                <div class="form-group  @errorClass'">
+                                    <label for="additionalInfo"></label>
+                                    <textarea id="additionalInfo" class="form-control textarea-resize" title="comment" name="additionalInfo">@p.additionalInfo</textarea>
+                                    <div class="inline right-align hint-text" id="fundsReceived_hint_text">
+                                        <span class="js__hint" data-for="additionalInfo" data-rule="WordCount" data-ruleconfig="{&quot;maxWords&quot;: 1000}"></span>
+                                    </div>
+                                </div>
+
+                                <input type="hidden" name="processInstanceId" value="@p.piId">
+                                <input type="hidden" name="nextAction" value="submitConfirmEmailSent">
+                                <input type="submit" name="complete" class="button button--start" value="Add">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                }
 
             </table>
     </div>
 
     @taskHistory(p.taskHistories)
 
+    </form>
 
 </div>
 

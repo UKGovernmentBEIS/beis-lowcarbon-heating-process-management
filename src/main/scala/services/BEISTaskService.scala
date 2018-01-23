@@ -86,7 +86,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
 
     val v = taskService.getIdentityLinksForTask(t.getId)
-    val groups = v.foldLeft(List[String]()) { (z,l) =>
+    val  groups = v.foldLeft(List[String]()) { (z,l) =>
       if(l.getGroupId != null)
         z:+ s"${l.getGroupId}"
       else
@@ -245,7 +245,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
         historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("Applicant").list().last.getValue
       else "notset"
 
-
       val approvestatus =
         if(!(getVariable[String](runtimeService, processInstanceId, "approvestatus", "-").equals("-")) )
           getVariable[String](runtimeService, processInstanceId, "approvestatus", "-")
@@ -323,7 +322,14 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
         historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().last.getValue
       else "notset"
 
-    Future.successful(Option(LocalProcess(processInstanceId, appId, appRef, oppId, oppTitle, status.toString, tskHistories )))
+    val additionalInfo =
+      if(!(getVariable[String](runtimeService, processInstanceId, "additionalInfo", "-").equals("-")) )
+        getVariable[String](runtimeService, processInstanceId, "additionalInfo", "-")
+      else if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("additionalInfo").list().size() > 0)
+        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("additionalInfo").list().last.getValue
+      else ""
+
+    Future.successful(Option(LocalProcess(id, appId, appRef, oppId, oppTitle, status.toString, tskHistories, Some(additionalInfo.toString) )))
   }
 
   final def getVariable [T] (runtimeService: RuntimeService, processInstanceId: String, v: String, t: T ): T = {
@@ -752,6 +758,11 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     }
     Future.successful(Option(LocalTaskId(t.getId)))
   }
+
+  override def updateProcessVariable(pid: ProcessId, additionalInfo: String) = {
+    runtimeService.setVariable(pid.id.toString(),"additionalInfo", additionalInfo )
+  }
+
 
   override def updateAppStatus(id: ApplicationId, appStatus: String): Future[Option[ApplicationId]] ={
     postWithResult[ApplicationId, String](urls.appStatus(id), appStatus)
