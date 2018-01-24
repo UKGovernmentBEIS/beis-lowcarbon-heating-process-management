@@ -19,17 +19,6 @@ error: Option[String] = None
         <table  border="0">
             @taskInfo(t, url)
 
-            <!--Process variable -->
-            <tr>
-                <td>Process</td>
-                <td><a href="/process/@t.processInstanceId.id"> @t.processInstanceId.id</a></td>
-            </tr>
-            <tr>
-                <td>Additional Information</td>
-                <td>@t.variables.getOrElse("additionalInfo", "") </td>
-            </tr>
-            <!--Process variable -->
-
             <tr>
             <td>Comments</td>
             <td>

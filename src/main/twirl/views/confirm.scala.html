@@ -2,6 +2,9 @@
 )(implicit flash: Flash)
 
 
+@import partials._
+@import org.apache.commons.lang3.StringUtils
+
 @import helper._
 @import play.api.Play.current
 @import play.api.i18n.Messages.Implicits._
@@ -17,7 +20,31 @@
         </h1>
 
         <table class="thwithborder">
-            @taskInfo(t, "")
+
+            <thead>
+            <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
+            </thead>
+
+            <tbody>
+
+            <tr>
+                <td>Assigned to</td>
+                <td>@t.groups</td>
+            </tr>
+            <tr>
+                <td>Program</td>
+                <td> @t.oppTitle </td>
+                <input type="hidden" name="opportunityId" value="@t.oppId">
+            </tr>
+            <tr>
+                <td>Application</td>
+                <td>
+                @(t.appId+1000) - @t.appRef
+                </td>
+            </tr>
+
+            </tbody>
+
         </table>
         <form method="POST"
               action="/@nextAction?taskid=@t.id.id"

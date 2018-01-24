@@ -629,8 +629,8 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     taskService.setVariableLocal(t.getId(), "submitconfirmemailsentcomment", comment)
 
     taskService.setVariableLocal(t.getId(), "approvestatus", Completed.status) //History purpose
-    taskService.setVariableLocal(t.getId(), "completedby", userId.userId)     //History purpose
-    taskService.setVariableLocal(t.getId(), "comment", comment)               //History purpose
+    taskService.setVariableLocal(t.getId(), "completedby", userId.userId)      //History purpose
+    taskService.setVariableLocal(t.getId(), "comment", comment)                //History purpose
 
     taskService.complete(t.getId(), Map("emailsent" -> emailsent, "submiteligibilitycomment" -> comment), false)
 
@@ -648,12 +648,13 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     val isUserAuthonticated = identityService.checkPassword(userId, password)
     val grp = identityService.createGroupQuery().groupMember(userId).list().headOption
-    grp.isEmpty match{
+
+    (isUserAuthonticated && !grp.isEmpty) match{
       case false =>
+        Future.successful(None)
+      case true =>
         val grpId = grp.get.getId
         Future.successful(Option(grpId))
-      case true =>
-        Future.successful(None)
     }
   }
 
