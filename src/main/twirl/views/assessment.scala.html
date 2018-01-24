@@ -8,9 +8,6 @@ errorCommentsListMaxLength: Option[List[String]]= None,
 userId: Option[String] = None
 )(implicit flash: Flash)
 
-@import partials._
-@import org.apache.commons.lang3.StringUtils
-
 @errorClass = @{
 if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 }
@@ -65,36 +62,7 @@ if(a.getOrElse("") == b) "selected" else ""
               novalidate="novalidate" >
 
        <table  border="0">
-
-           <thead>
-           <tr> <th scope="col" colspan="2"> Task Details</th> </tr>
-           </thead>
-
-           <tbody>
-           <tr>
-               <td>Assigned to</td>
-               <td>@t.groups</td>
-           </tr>
-           <tr>
-               <td>Program</td>
-               <td> @t.oppTitle </td>
-               <input type="hidden" name="opportunityId" value="@t.oppId">
-           </tr>
-           <tr>
-               <td>Application</td>
-               <td>
-                   @if(StringUtils.isNotEmpty(url)){
-                   <a href="@url" target="_blank"> @(t.appId+1000) - @t.appRef</a></td>
-               }else{
-               @(t.appId+1000) - @t.appRef
-               }
-               <input type="hidden" name="applicationId" value="@t.appId">
-           </tr>
-           <tr>
-               <td>Additional Information</td>
-               <td>@t.variables.getOrElse("additionalInfo", "") </td>
-           </tr>
-           </tbody>
+           @taskInfo(t, url)
 
                <tr>
                    <th class="tdtopalign tdnobottomborder">Project description  </th>  <input type="hidden" name="projectdescweight" value="0">

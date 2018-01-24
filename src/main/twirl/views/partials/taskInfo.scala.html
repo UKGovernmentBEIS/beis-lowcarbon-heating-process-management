@@ -35,12 +35,4 @@ url: String)
 
         <input type="hidden" name="applicationId" value="@t.appId">
     </tr>
-    <tr>
-        <td>Process</td>
-        <td><a href="/process/@t.processInstanceId.id"> @t.processInstanceId.id</a></td>
-    </tr>
-    <tr>
-        <td>Additional Information</td>
-        <td>@t.variables.getOrElse("additionalInfo", "") </td>
-    </tr>
     </tbody>
