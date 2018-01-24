@@ -64,13 +64,15 @@ hr {
 
 
 linkdown  {
-    margin-top: 2.5em;
+       margin-top: 2.5em;
   }
 
 
 .boldtext  {
-     font-weight: bold;
+      font-weight: bold;
 }
-.padding{
-padding-top: 55;
+
+.border-disable {
+      background: #f2f2f2;
+      border: 2px solid #888;
 }
