@@ -54,8 +54,12 @@
                 <fieldset class="inline">
                     <legend>
                         <h1 class="heading-medium">
+                            @if(buttonAction.equals("submit")){
                             If you @buttonAction the data from this section you will not be able to change it later.
-                           <br> Do you want to @buttonAction it?
+                            <br> Do you want to submit it?
+                            }else{
+                            <br> Do you want to save?
+                            }
                         </h1>
                     </legend>
 
@@ -71,7 +75,7 @@
                 <input type="hidden" name="formdata" value="@flash.get("formdata").getOrElse("")">
 
                 <div class="rifs-form-buttons">
-                    <input type="submit" name="Save" class="button button--start" value="Submit">
+                    <input type="submit" name="Save" class="button button--start" value="Continue">
                 </div>
             </div>
         </form>
