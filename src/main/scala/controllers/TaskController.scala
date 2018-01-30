@@ -91,10 +91,17 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     val grpId = request.session.get("role").getOrElse("").toString
     val adminRole = Config.config.jwt.adminRole
+      val viewRole = Config.config.jwt.viewRole
 
     for(
-      ts <- localtasks.showTasks(UserId(userId));
-      ps <- grpId.equalsIgnoreCase(adminRole) match {
+      //ts <- localtasks.showTasks(UserId(userId));
+
+      ts <- grpId.equalsIgnoreCase(viewRole) match {
+        case false => localtasks.showTasks(UserId(userId))
+        case true => Future(Seq())
+      };
+
+      ps <- (grpId.equalsIgnoreCase(viewRole) || grpId.equalsIgnoreCase(viewRole)) match {
         case true => localtasks.showProcesses(UserId(userId))
         case false => Future(Seq())
       }
