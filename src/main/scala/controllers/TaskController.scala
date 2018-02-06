@@ -91,9 +91,16 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     val grpId = request.session.get("role").getOrElse("").toString
     val adminRole = Config.config.jwt.adminRole
+    val assessmentTask = Config.config.bpm.assessmentTask
 
     for(
-      ts <- localtasks.showTasks(UserId(userId));
+      ts <- localtasks.showTasks(Option(UserId(userId)));
+      assessorTs <- grpId.equalsIgnoreCase(adminRole) match {
+        case true =>
+          localtasks.showTasks(None).map(_.filter(_.key.equalsIgnoreCase(assessmentTask)).toSeq)
+        case false =>
+           Future(Seq())
+      };
       ps <- grpId.equalsIgnoreCase(adminRole) match {
         case true => localtasks.showProcesses(UserId(userId))
         case false => Future(Seq())
@@ -103,54 +110,54 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
       sortstr match {
         /* Tasks sorting*/
         case "task-asc" =>
-            Ok(views.html.tasks_processes(ts.sortBy(_.key), ps, Some(userId)))
+            Ok(views.html.tasks_processes(ts.sortBy(_.key), assessorTs, ps, Some(userId)))
         case "task-desc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.key).reverse, ps, Some(userId)))
+          Ok(views.html.tasks_processes(ts.sortBy(_.key).reverse, assessorTs, ps, Some(userId)))
         case "app-asc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.appRef), ps, Some(userId)))
+          Ok(views.html.tasks_processes(ts.sortBy(_.appRef), assessorTs, ps, Some(userId)))
         case "app-desc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.appRef).reverse, ps, Some(userId) ))
+          Ok(views.html.tasks_processes(ts.sortBy(_.appRef).reverse, assessorTs, ps, Some(userId) ))
         case "technology-asc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.technology), ps, Some(userId)))
+          Ok(views.html.tasks_processes(ts.sortBy(_.technology), assessorTs, ps, Some(userId)))
         case "technology-desc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.technology).reverse, ps, Some(userId)))
+          Ok(views.html.tasks_processes(ts.sortBy(_.technology).reverse, assessorTs, ps, Some(userId)))
         case "aws-asc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.averageweightedscore), ps, Some(userId)))
+          Ok(views.html.tasks_processes(ts.sortBy(_.averageweightedscore), assessorTs, ps, Some(userId)))
         case "aws-desc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.averageweightedscore).reverse, ps, Some(userId) ))
+          Ok(views.html.tasks_processes(ts.sortBy(_.averageweightedscore).reverse, assessorTs, ps, Some(userId) ))
         case "atbs-asc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.averagetiebreakscore), ps, Some(userId)))
+          Ok(views.html.tasks_processes(ts.sortBy(_.averagetiebreakscore), assessorTs, ps, Some(userId)))
         case "atbs-desc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.averagetiebreakscore).reverse, ps, Some(userId) ))
+          Ok(views.html.tasks_processes(ts.sortBy(_.averagetiebreakscore).reverse, assessorTs, ps, Some(userId) ))
         case "status-asc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.status), ps, Some(userId)))
+          Ok(views.html.tasks_processes(ts.sortBy(_.status), assessorTs, ps, Some(userId)))
         case "status-desc" =>
-          Ok(views.html.tasks_processes(ts.sortBy(_.status).reverse, ps, Some(userId) ))
+          Ok(views.html.tasks_processes(ts.sortBy(_.status).reverse, assessorTs, ps, Some(userId) ))
 
         /* Processes sorting*/
         case "proc-app-asc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.appRef), Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.appRef), Some(userId)))
         case "proc-app-desc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.appRef).reverse, Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.appRef).reverse, Some(userId)))
         case "proc-status-asc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.status), Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.status), Some(userId)))
         case "proc-status-desc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.status).reverse, Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.status).reverse, Some(userId)))
         case "proc-technology-asc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.technology), Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.technology), Some(userId)))
         case "proc-technology-desc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.technology).reverse, Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.technology).reverse, Some(userId)))
         case "proc-aws-asc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.averageweightedscore), Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.averageweightedscore), Some(userId)))
         case "proc-aws-desc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.averageweightedscore).reverse, Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.averageweightedscore).reverse, Some(userId)))
         case "proc-atbs-asc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.averagetiebreakscore), Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.averagetiebreakscore), Some(userId)))
         case "proc-atbs-desc" =>
-          Ok(views.html.tasks_processes(ts, ps.sortBy(_.averagetiebreakscore).reverse, Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps.sortBy(_.averagetiebreakscore).reverse, Some(userId)))
 
         case _ =>
-          Ok(views.html.tasks_processes(ts, ps, Some(userId)))
+          Ok(views.html.tasks_processes(ts, assessorTs, ps, Some(userId)))
       })
   }
 
@@ -232,8 +239,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
         val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, tsk.appId.toString, expiry)).toString()
         val appAuthToken = jwt.createToken(appAuthpayload)
-        val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${tsk.appId}?token=$appAuthToken"
-
+        val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/application/${tsk.appId}/content/html?token=$appAuthToken"
         /*****************JWT ends ***************************************/
 
         tsk.key match {
@@ -298,7 +304,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     val sortstr = request.queryString.getOrElse("sort", List()).headOption.getOrElse("")
 
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
-    val ts = localtasks.showTasks(UserId(userId))
+    val ts = localtasks.showTasks(Option(UserId(userId)))
 
     ts.flatMap{
       case ts =>
@@ -334,6 +340,24 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     }
   }
 
+  def reAssign (id : LocalTaskId) = Action.async { implicit request =>
+    val t = localtasks.showTask(id)
+    val assessorgroup = Config.config.bpm.assessorgroup
+    val grp = List(assessorgroup)
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
+    t.flatMap {
+      case Some(tsk) => {
+        val appFrontEndUrl = Config.config.business.appFrontEndUrl
+        val submitStatusMap = Map("eligible" -> "Eligible", "noteligible" -> "Not Eligible")
+        Future(Ok(views.html.reAssignTask(tsk,
+          getMembers(grp).isDefinedAt(tsk.groups.head) match {
+          case true => getMembers(grp) - tsk.groups.head
+          case false => getMembers(grp)
+        }, Some(userId))))
+      }
+    }
+  }
+
   def submit (id : LocalTaskId) = Action.async { implicit request =>
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
 
@@ -343,7 +367,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
     localtasks.submitProcess(id, UserId(userId), status, comment, processInstanceId).map {
       case Some(t) => {
-        val ts = localtasks.showTasks(UserId(userId))
+        val ts = localtasks.showTasks(Option(UserId(userId)))
         Redirect(controllers.routes.TaskController.tasks())
       }
       case _ => NoContent
@@ -374,7 +398,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             else {
               localtasks.submitEligibility(id, UserId(userId), status, comment, technology, processInstanceId).map {
                 case Some(t) => {
-                  val ts = localtasks.showTasks(UserId(userId))
+                  val ts = localtasks.showTasks(Option(UserId(userId)))
                   Redirect(controllers.routes.TaskController.tasks_processes("task-asc"))
                 }
                 case _ => NoContent
@@ -385,6 +409,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             Future(Redirect(controllers.routes.TaskController.tasks_processes("task-asc")))
     }
   }
+
 
   def submitAssignAssessors (id : LocalTaskId) = Action.async { implicit request =>
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
@@ -416,12 +441,12 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
                 localtasks.submitAssignAssessors (id, UserId (userId), assignassessor1, assignassessor2, assignassessor3, comment,
                   processInstanceId).map {
                   case Some (t) => {
-                    val ts = localtasks.showTasks (UserId (userId) )
+                    val ts = localtasks.showTasks (Option(UserId (userId)) )
                     Redirect (controllers.routes.TaskController.tasks_processes("task-asc") )
                   }
                   case _ => NoContent
 
-                }
+                  }
               case false =>
                 val t = localtasks.showTask(id)
                 val grp = List("assessor")
@@ -590,7 +615,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
         if (button_action.equalsIgnoreCase("save")) {
           localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
             case Some(t) => {
-              val ts = localtasks.showTasks(UserId(userId))
+              val ts = localtasks.showTasks(Option(UserId(userId)))
               Redirect(controllers.routes.TaskController.tasks_processes("task-asc"))
             }
             case _ => NoContent
@@ -634,7 +659,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           else {
             localtasks.submitAssessment(id, UserId(userId), asmtKey, score, processInstanceId, button_action).map {
               case Some(t) => {
-                val ts = localtasks.showTasks(UserId(userId))
+                val ts = localtasks.showTasks(Option(UserId(userId)))
                 Redirect(controllers.routes.TaskController.tasks_processes("task-asc"))
               }
               case _ => NoContent
@@ -683,7 +708,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           else {
             localtasks.submitMakePanelDecision(id, UserId(userId), status, comment, processInstanceId).flatMap {
               case Some(t) => {
-                val ts = localtasks.showTasks(UserId(userId))
+                val ts = localtasks.showTasks(Option(UserId(userId)))
                 Future.successful(Redirect(controllers.routes.TaskController.tasks_processes("task-asc")))
               }
               case _ => Future.successful(NotFound)
@@ -717,7 +742,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           else {
             localtasks.submitModerateScore(id, UserId(userId), averageweightedscore, averagemoderatescore, comment, processInstanceId).flatMap {
               case Some(t) => {
-                val ts = localtasks.showTasks(UserId(userId))
+                val ts = localtasks.showTasks(Option(UserId(userId)))
                 Future.successful(Redirect(controllers.routes.TaskController.tasks_processes("task-asc")))
               }
               case None => Future.successful(NotFound)
@@ -771,7 +796,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
             localtasks.submitConfirmEmailSent(id, UserId(userId), ems, comment, processInstanceId).map {
               case Some(t) => {
-                val ts = localtasks.showTasks(UserId(userId))
+                val ts = localtasks.showTasks(Option(UserId(userId)))
                 Redirect(controllers.routes.TaskController.tasks_processes("task-asc"))
               }
               case _ => NoContent
@@ -815,6 +840,57 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
         (Flash(Map("formdata" -> Json.toJson(mpRefined).toString() ))) ))
       }
       case None => Future.successful(NotFound)
+    }
+  }
+
+  def submitReAssignment (id : LocalTaskId) = Action.async { implicit request =>
+    val userId = request.session.get("username_process").getOrElse("Unauthorised User")
+    val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
+    val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
+    val mp = Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
+    println("====confirmsubmit======="+ confirmsubmit)
+
+    confirmsubmit match {
+      case "Yes" =>
+          val reassignto = getValueFromRequest("reassignto", mp )
+
+        localtasks.submitReAssignAssessor (id,  reassignto)
+
+        Future(Redirect(controllers.routes.TaskController.tasks_processes("task-asc") + "#assessor-task-list"))
+
+//        val processInstanceId = getValueFromRequest("processInstanceId", mp )
+//
+//        val errors = duplicateSelectionCheck(assignassessor1, assignassessor2, assignassessor3).fold(_.toList, _ => List())
+//
+//        if(commentMaxLengthCheck(comment, 1000))
+//          Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+//            .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+//        else {
+//          errors.isEmpty match{
+//            case true =>
+//              localtasks.submitAssignAssessors (id, UserId (userId), assignassessor1, assignassessor2, assignassessor3, comment,
+//                processInstanceId).map {
+//                case Some (t) => {
+//                  val ts = localtasks.showTasks (Option(UserId (userId)) )
+//                  Redirect (controllers.routes.TaskController.tasks_processes("task-asc") )
+//                }
+//                case _ => NoContent
+//
+//              }
+//            case false =>
+//              val t = localtasks.showTask(id)
+//              val grp = List("assessor")
+//
+//              t.flatMap {
+//                case Some(lt) =>
+//                  Future.successful(Ok(views.html.assignAssessors(lt, appFrontEndUrl, getMembers(grp), errors)
+//                  (Flash(Map("comment" -> comment))) ))
+//                case None =>
+//              }
+//          }
+//        }
+      case "No" =>
+        Future(Redirect(controllers.routes.TaskController.tasks_processes("task-asc") + "#assessor-task-list"))
     }
   }
 

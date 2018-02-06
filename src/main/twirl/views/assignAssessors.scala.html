@@ -1,6 +1,6 @@
 @(t: LocalTask,
   url:String,
-  statusmap: Map[String, String],
+  usermap: Map[String, String],
   errors: List[validations.FieldError],
   userId: Option[String] = None
 )(implicit flash: Flash)
@@ -54,7 +54,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 
                     <select class="form-control" id="select-box" name="assignassessor1">
 
-                        @for((key, value) <- statusmap) {
+                        @for((key, value) <- usermap) {
                         <option value=@key>@value</option>
                         }
                     </select>
@@ -69,7 +69,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 
                     <select class="form-control" id="select-box" name="assignassessor2">
 
-                        @for((key, value) <- statusmap) {
+                        @for((key, value) <- usermap) {
                         <option value=@key>@value</option>
                         }
                     </select>
@@ -84,7 +84,7 @@ if(flash.get("error").getOrElse("").nonEmpty) "error" else ""
 
                     <select class="form-control" id="select-box" name="assignassessor3">
 
-                        @for((key, value) <- statusmap) {
+                        @for((key, value) <- usermap) {
                         <option value=@key>@value</option>
                         }
                     </select>

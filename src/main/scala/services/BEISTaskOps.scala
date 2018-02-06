@@ -13,7 +13,8 @@ import scala.concurrent.Future
 trait BEISTaskOps {
 
   def showTask(id: LocalTaskId): Future[Option[LocalTask]]
-  def showTasks(userId: UserId): Future[Seq[LocalTaskSummary]]
+  //def showTasks(userId: UserId): Future[Seq[LocalTaskSummary]]
+  def showTasks(userId: Option[UserId]): Future[Seq[LocalTaskSummary]]
   def submitProcess(id: LocalTaskId, userId: UserId, status: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
   def updateAppStatus(id: ApplicationId, status: String): Future[Option[ApplicationId]]
   def saveMessageBoard(message: Message): Future[Option[MessageId]]
@@ -27,6 +28,7 @@ trait BEISTaskOps {
 
   def submitModerateScore(id: LocalTaskId, userId: UserId, aws: String, ams: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
   def submitConfirmEmailSent(id: LocalTaskId, userId: UserId, emailsent: String, comment: String, processInstanceId: String): Future[Option[LocalTaskId]]
+  def submitReAssignAssessor(id: LocalTaskId, assignassessor: String): Future[Option[LocalTaskId]]
 
   def submitLogin(userId: String, password: String): Future[Option[String]]
   def updatePassword(userId: String, password: String, newpassword: String): Future[Int]

@@ -1,4 +1,6 @@
-@(ts: Seq[LocalTaskSummary],
+@(
+ts: Seq[LocalTaskSummary],
+assessorTs: Seq[LocalTaskSummary],
 ps: Seq[ProcessInstanceSummary],
 userId: Option[String] = None)
 
@@ -13,6 +15,9 @@ userId: Option[String] = None)
             <li><a href="#task-list">Tasks</a></li>
             @if(!ps.isEmpty){
             <li><a href="#process-list">Processes</a></li>
+            }
+            @if(!assessorTs.isEmpty){
+            <li><a href="#assessor-task-list">Task actions</a></li>
             }
         </ul>
     </div>
@@ -166,7 +171,7 @@ userId: Option[String] = None)
                     @for((p,i) <- ps.zipWithIndex) {
                     <tr>
                         <td>
-                            <!--@{i+1}.  <a href=JWTToken("processadmin", userId.getOrElse(""), p.appId.toString) target="_blank">-->
+                            <!--{i+1}.  <a href=JWTToken("processadmin", userId.getOrElse(""), p.appId.toString) target="_blank">-->
                             @{i+1}.  <a href="/process/@p.processInstanceId">
                         @(p.appId+1000) - @(p.appRef) </a> </td>
                         <td class="tdnormal">@p.status</td>
@@ -192,7 +197,101 @@ userId: Option[String] = None)
             </div>
         </div>
         }
+        @if(!assessorTs.isEmpty){
+        <!-- 3rd Tab --------------------------------------------------->
+        <div id="assessor-task-list" class="js-tab-pane tab-pane">
 
+            <div>
+                <p class="lede">List of Assessment tasks</p>
+
+                <table class="spacious">
+                    <tr>
+                        <th role="presentation" class="tdtopalign">
+                            Task name
+                            <a href="/tasks_processes/task-asc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes/task-desc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+                        <th role="presentation" class="tdtopalign">
+                            Application
+                            <a href="/tasks_processes/app-asc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes/app-desc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+                        <th role="presentation" class="tdtopalign">
+                            Status
+                            <a href="/tasks_processes/status-asc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes/status-desc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+                        <th role="presentation" class="tdtopalign">
+                            Technology
+                            <a href="/tasks_processes/status-asc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes/status-desc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+                        <th role="presentation" class="tdtopalign">
+                            Assigned to
+                            <a href="/tasks_processes/status-asc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes/status-desc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+
+                        <th role="presentation" class="tdtopalign">
+                            Action
+                            <a href="/tasks_processes/technology-asc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                            <a href="/tasks_processes/technology-desc#task-list">
+                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                style="visibility: visible"></a>
+                        </th>
+
+                    </tr>
+
+                    @if(assessorTs.isEmpty){
+                    <tr>
+                        <td> No Tasks</td>
+                    </tr>
+                    }
+                    @for((t,i) <- assessorTs.zipWithIndex) {
+                    <tr>
+                        <td class="tdnormal">
+                            @{i+1}. <a href="/task/@t.id.id/re-assign">
+                            @t.key</a>
+                        </td>
+                        <td>@(t.appId+1000) - @if(t.appRef.length >7){
+                            @t.appRef.substring(0, 6) ...
+                            }else{
+                            @t.appRef
+                            }</td>
+                        <td class="tdnormal">@t.status</td>
+                        <td class="tdnormal">@t.technology</td>
+                        <td class="tdnormal">@t.assignedTo</td>
+                        <td nowrap="true"><a href="/task/@t.id.id/re-assign"> re-assign</a></td>
+
+                    </tr>
+                    }
+                </table>
+
+            </div>
+        </div>
+        }
 
     </div>
 

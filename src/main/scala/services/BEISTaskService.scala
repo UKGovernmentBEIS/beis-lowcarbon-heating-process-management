@@ -86,7 +86,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
 
     val v = taskService.getIdentityLinksForTask(t.getId)
-    val  groups = v.foldLeft(List[String]()) { (z,l) =>
+    val  groupOrUser = v.foldLeft(List[String]()) { (z,l) =>
       if(l.getGroupId != null)
         z:+ s"${l.getGroupId}"
       else
@@ -152,7 +152,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     val oppTitle = processEngine.getRuntimeService().getVariable(t.getProcessInstanceId, "OpportunityTitle").toString
 
-    Future.successful(Option(LocalTask(LocalTaskId(t.getId), key, t.getName, groups, UserId(applicant), status, appId, appRef, oppId, oppTitle, t.getDescription,
+    Future.successful(Option(LocalTask(LocalTaskId(t.getId), key, t.getName, groupOrUser, UserId(applicant), status, appId, appRef, oppId, oppTitle, t.getDescription,
       ProcessDefinitionId(t.getProcessDefinitionId), ProcessInstanceId(t.getProcessInstanceId), tskHistories, formData.toMap
     )))
   }
@@ -189,30 +189,58 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     Option(userNames.toMap)
   }
 
-  override def showTasks(userId: UserId): Future[Seq[LocalTaskSummary]] = {
+  override def showTasks(userId: Option[UserId]): Future[Seq[LocalTaskSummary]] = {
     import collection.JavaConverters._
-    val tasks = userId   match {
-      case UserId("admin") =>
-        taskService.createTaskQuery().list().map{ts=>
+    val tasks = userId match {
+      case None =>
+        /*taskService.createTaskQuery().list().map{ts=>
           val v = taskService.getIdentityLinksForTask(ts.getId)
           val groups = v.foldLeft(List[String]()) { (z,l) =>
             z:+ s"${l.getGroupId}"
           }
-        }
+        }*/
         taskService.createTaskQuery().list()
 
       case _ =>
-        taskService.createTaskQuery().taskCandidateUser(userId.userId).list()
+        taskService.createTaskQuery().taskCandidateOrAssigned(userId.get.userId).list()
     }
+
+
+
+    /*override def showTasks(userId: UserId): Future[Seq[LocalTaskSummary]] = {
+      import collection.JavaConverters._
+      val tasks = userId   match {
+        case UserId("admin") =>
+          taskService.createTaskQuery().list().map{ts=>
+            val v = taskService.getIdentityLinksForTask(ts.getId)
+            val groups = v.foldLeft(List[String]()) { (z,l) =>
+              z:+ s"${l.getGroupId}"
+            }
+          }
+          taskService.createTaskQuery().list()
+
+        case _ =>
+          taskService.createTaskQuery().taskCandidateUser(userId.userId).list()
+      }*/
+
 
     val tasksummaries = tasks.map(t => {
       val aws = getVariable[Double](runtimeService, t.getProcessInstanceId, "averageweightedscore", 0)
       val ams = getVariable[Double](runtimeService, t.getProcessInstanceId, "averagemoderatescore", 0)
+      val v = taskService.getIdentityLinksForTask(t.getId)
+
+      val  groupOrUser:List[String] = v.foldLeft(List[String]()) { (z,l) =>
+        if(l.getGroupId != null)
+          z:+ s"${l.getGroupId}"
+        else
+          z:+ s"${l.getUserId}"
+      }
 
       LocalTaskSummary(
         LocalTaskId(t.getId),
         t.getName,
         t.getTaskDefinitionKey(),
+        if(StringUtils.isEmpty(t.getAssignee)) groupOrUser.headOption.getOrElse("") else t.getAssignee,
         UserId(getVariable[String](runtimeService, t.getProcessInstanceId, "Applicant", "")),
         getVariable[String](runtimeService, t.getProcessInstanceId, "approvestatus", "Not set").capitalize,
         getVariable[String](runtimeService, t.getProcessInstanceId, "ApplicationId", "0").toLong,
@@ -759,6 +787,40 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     }
     Future.successful(Option(LocalTaskId(t.getId)))
   }
+
+
+  override def submitReAssignAssessor(id: LocalTaskId, assignTo: String): Future[Option[LocalTaskId]] = {
+
+    val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
+    val v = taskService.getIdentityLinksForTask(t.getId)
+
+    val  groupOrUser:List[String] = v.foldLeft(List[String]()) { (z,l) =>
+      if(l.getGroupId != null)
+        z:+ s"${l.getGroupId}"
+      else
+        z:+ s"${l.getUserId}"
+    }
+
+    /*** Todo:- need to change the Proces diagram to assign User to assignee instead of CandidateUser in the task details ***/
+
+    /* Delete existing User/s as CandidateUser (as we assigned when the Task is progressing from Assign Assessors*/
+    groupOrUser.map{ usr =>
+      taskService.deleteCandidateUser(id.id, usr)
+    }
+
+    /* History purpose */
+    t.getTaskDefinitionKey match{
+      case "firstAssessment" => taskService.setVariableLocal(t.getId(), "assignee1", assignTo)
+      case "secondAssessment" => taskService.setVariableLocal(t.getId(), "assignee2", assignTo)
+      case "thirdAssessment" => taskService.setVariableLocal(t.getId(), "assignee3", assignTo)
+    }
+
+    /* Set User in Candidate User */
+    taskService.setAssignee(id.id, assignTo)
+    Future.successful(Option(LocalTaskId(t.getId)))
+
+  }
+
 
   override def updateProcessVariable(pid: ProcessId, additionalInfo: String) = {
     runtimeService.setVariable(pid.id.toString(),"additionalInfo", additionalInfo )

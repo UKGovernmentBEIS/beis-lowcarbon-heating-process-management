@@ -19,7 +19,7 @@ package config
 
 case class BusinessConfig(appFrontEndUrl: String, appBackEndUrl: String, bpmServerUrl: String, emailto: String, addressSearch: String)
 case class BPMConfig(url: String, driver: String, user: String, pwd: String, procdefId: String, procReview: String, procApprove: String,
-                      policyadmingroup: String, assessorgroup: String, technology: String)
+                      policyadmingroup: String, assessorgroup: String, technology: String, assessmentTask: String)
 case class BPMRestConfig(procuser: String, procpwd: String)
 case class JWTConfig(jwtSecretKey: String, jwtSecretAlgo: String, appAccessRole: String, adminRole: String, exp: String)
 
