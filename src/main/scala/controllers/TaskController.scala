@@ -187,7 +187,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
         val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, proc.appId.toString, expiry.toLong)).toString()
         val appAuthToken = jwt.createToken(appAuthpayload)
-        val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${proc.appId}?token=$appAuthToken"
+        val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/application/${proc.appId}/content/html?token=$appAuthToken"
+
+        //val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${proc.appId}?token=$appAuthToken"
         /*****************JWT ends ***************************************/
 
         Future(Ok(views.html.process(proc, appFrontEndUrlWithJWTToken, Option(userId))))
