@@ -397,6 +397,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             if (commentMaxLengthCheck(comment, 1000))
               Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
                 .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+            else if(!mandatoryCheck(comment))
+              Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+                .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
             else {
               localtasks.submitEligibility(id, UserId(userId), status, comment, technology, processInstanceId).map {
                 case Some(t) => {
@@ -437,6 +440,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           if(commentMaxLengthCheck(comment, 1000))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
               .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+          else if(!mandatoryCheck(comment))
+            Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+              .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
           else {
             errors.isEmpty match{
               case true =>
@@ -684,6 +690,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   def confirmBoxCheck(comment:String, maxAllowed: Int): Boolean =
     (StringUtils.isNotEmpty(comment) && comment.split(" ").toList.size > maxAllowed)
 
+  def mandatoryCheck(comment:String): Boolean =
+    StringUtils.isNotEmpty(comment)
+
   def getValueFromRequest(key: String, keyValueMap: Map[String, Seq[String]]): String =
 
     keyValueMap.get(key).headOption.map(_.head).getOrElse("").toString
@@ -707,6 +716,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           if(commentMaxLengthCheck(comment, 1000))
           Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
             .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+          else if(!mandatoryCheck(comment))
+            Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+              .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
           else {
             localtasks.submitMakePanelDecision(id, UserId(userId), status, comment, processInstanceId).flatMap {
               case Some(t) => {
@@ -741,6 +753,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           if(commentMaxLengthCheck(comment, 1000))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
               .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+          else if(!mandatoryCheck(comment))
+            Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+              .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
           else {
             localtasks.submitModerateScore(id, UserId(userId), averageweightedscore, averagemoderatescore, comment, processInstanceId).flatMap {
               case Some(t) => {
@@ -786,6 +801,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           if(commentMaxLengthCheck(comment, 1000))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
               .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+          else if(!mandatoryCheck(comment))
+            Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
+              .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
           else if(!mp.isDefinedAt("emailsent"))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
               .flashing("ERROR" -> Messages("error.BF009"), "commentText" -> comment))
