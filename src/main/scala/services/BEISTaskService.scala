@@ -45,7 +45,6 @@ import scala.util.{Failure, Success, Try}
 import validations.FieldError
 
 
-
 class ApplicationURLs(appBaseUrl: String) {
 
   /** Application DB URL **/
@@ -157,24 +156,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     )))
   }
 
-/*
-  override def getMembers(groupIds: Seq[String]): Option[Set[String]] = {
-
-    val policyadmingroup = Config.config.bpm.policyadmingroup
-    val userQuery: UserQuery = identityService.createUserQuery().memberOfGroup(policyadmingroup)
-
-    //import org.activiti.engine.identity.User
-
-    //identityService.saveUser()saveUser()
-    val userNames = groupIds.foldLeft(List[String]()) { (z,l) =>
-      z:::identityService.createUserQuery().memberOfGroup(l).list().foldLeft(List[String]()){ (a,b) =>
-        a :+ b.getId
-      }
-    }
-    Option(userNames.toSet)
-  }
-  */
-
   override def getMembers(groupIds: Seq[String]): Option[Map[String,String]] = {
 
     val policyadmingroup = Config.config.bpm.policyadmingroup
@@ -204,25 +185,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       case _ =>
         taskService.createTaskQuery().taskCandidateOrAssigned(userId.get.userId).list()
     }
-
-
-
-    /*override def showTasks(userId: UserId): Future[Seq[LocalTaskSummary]] = {
-      import collection.JavaConverters._
-      val tasks = userId   match {
-        case UserId("admin") =>
-          taskService.createTaskQuery().list().map{ts=>
-            val v = taskService.getIdentityLinksForTask(ts.getId)
-            val groups = v.foldLeft(List[String]()) { (z,l) =>
-              z:+ s"${l.getGroupId}"
-            }
-          }
-          taskService.createTaskQuery().list()
-
-        case _ =>
-          taskService.createTaskQuery().taskCandidateUser(userId.userId).list()
-      }*/
-
 
     val tasksummaries = tasks.map(t => {
       val aws = getVariable[Double](runtimeService, t.getProcessInstanceId, "averageweightedscore", 0)
@@ -361,17 +323,11 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   }
 
   final def getVariable [T] (runtimeService: RuntimeService, processInstanceId: String, v: String, t: T ): T = {
+
     import scala.util.Try
-    Try((runtimeService.getVariable(processInstanceId, v).asInstanceOf[AnyRef]).asInstanceOf[T] ).toOption match {
-
-      case Some(s) if s==null => t
-      case Some(s) if !StringUtils.isEmpty(s.toString) =>
-              t match {
-                case c:java.lang.Double => s.toString().toDouble.asInstanceOf[T]
-                case c:String => s.asInstanceOf[T]
-              }
-      case _ => t
-
+    Try(runtimeService.getVariable(processInstanceId, v))  match {
+      case Success(s) =>   s.asInstanceOf[AnyRef].asInstanceOf[T]
+      case Failure(e) =>   t
     }
   }
 
@@ -391,6 +347,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     }
   }
+
 
   override def submitEligibility(id: LocalTaskId, userId: UserId, status: String, comment: String, technology: String, processInstanceId: String): Future[Option[LocalTaskId]] = {
 

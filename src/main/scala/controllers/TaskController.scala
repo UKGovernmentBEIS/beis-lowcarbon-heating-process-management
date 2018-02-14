@@ -86,7 +86,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     Ok(views.html.startPage())
   }
 
-    def tasks_processes(sorton: String ) = Action.async { implicit request =>
+  def tasks_processes(sorton: String ) = Action.async { implicit request =>
     val sortstr = if(StringUtils.isEmpty(sorton)) "task-asc" else sorton
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     val grpId = request.session.get("role").getOrElse("").toString

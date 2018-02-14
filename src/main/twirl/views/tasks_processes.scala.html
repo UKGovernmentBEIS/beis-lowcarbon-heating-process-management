@@ -107,8 +107,13 @@ userId: Option[String] = None)
         <div id="process-list" class="js-tab-pane tab-pane">
 
             <div>
-                <p class="lede">List of Processes</p>
-
+                <div class="ledeextend">List of Processes </div>
+                <div class="right-position">
+                    <a href="/exportDataToExcel">
+                        export <img src="@routes.Assets.at("images/export-excel.png")" valign= "middle" width="40" height="30" alt="export to Excel"
+                        style="visibility: visible">
+                    </a>
+                </div>
                 <table class="spacious">
                     <tr>
 
@@ -209,56 +214,56 @@ userId: Option[String] = None)
                         <th role="presentation" class="tdtopalign">
                             Task name
                             <a href="/tasks_processes/task-asc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                             <a href="/tasks_processes/task-desc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                         </th>
                         <th role="presentation" class="tdtopalign">
                             Application
                             <a href="/tasks_processes/app-asc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                             <a href="/tasks_processes/app-desc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                         </th>
                         <th role="presentation" class="tdtopalign">
                             Status
                             <a href="/tasks_processes/status-asc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                             <a href="/tasks_processes/status-desc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                         </th>
                         <th role="presentation" class="tdtopalign">
                             Technology
                             <a href="/tasks_processes/status-asc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                             <a href="/tasks_processes/status-desc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                         </th>
                         <th role="presentation" class="tdtopalign">
                             Assigned to
                             <a href="/tasks_processes/status-asc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                             <a href="/tasks_processes/status-desc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                         </th>
 
                         <th role="presentation" class="tdtopalign">
                             Action
                             <a href="/tasks_processes/technology-asc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-up.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-up.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                             <a href="/tasks_processes/technology-desc#task-list">
-                                <img src="@routes.Assets.at(" images/sort-down.png")" width="12" height="14" alt=""
+                                <img src="@routes.Assets.at("images/sort-down.png")" width="12" height="14" alt=""
                                 style="visibility: visible"></a>
                         </th>
 

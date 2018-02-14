@@ -76,3 +76,14 @@ linkdown  {
       background: #f2f2f2;
       border: 2px solid #888;
 }
+
+.ledeextend {
+       @extend .lede;
+       float: left;
+}
+
+.right-position {
+      float: right;
+      margin-bottom: 1.05263em;
+      display: inline;
+}

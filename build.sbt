@@ -59,6 +59,7 @@ libraryDependencies ++= Seq(
   "org.activiti" % "activiti-engine" % "6.0.0",
   "org.postgresql" % "postgresql" % "9.4.1211",
 
+  "net.sf.jtidy" % "jtidy" % "r938",
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
   "org.jsoup" % "jsoup" % "1.9.2" % Test,
   "io.findify" %% "s3mock" % "0.2.0" % "test",

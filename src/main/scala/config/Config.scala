@@ -22,9 +22,10 @@ case class BPMConfig(url: String, driver: String, user: String, pwd: String, pro
                       policyadmingroup: String, assessorgroup: String, technology: String, assessmentTask: String)
 case class BPMRestConfig(procuser: String, procpwd: String)
 case class JWTConfig(jwtSecretKey: String, jwtSecretAlgo: String, appAccessRole: String, adminRole: String, exp: String)
+case class LoginConfig(sessionTimeout: Int, excludeSession: String)
 
 case class Config(logAssets: Option[Boolean], logRequests: Boolean, business: BusinessConfig, bpm: BPMConfig, bpmrest: BPMRestConfig,
-                  jwt: JWTConfig)
+                  jwt: JWTConfig, login: LoginConfig)
 
 
 object Config {

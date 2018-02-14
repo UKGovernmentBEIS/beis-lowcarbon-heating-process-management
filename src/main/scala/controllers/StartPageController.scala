@@ -19,10 +19,13 @@ package controllers
 
 import play.api.mvc.{Action, Controller}
 
+import scala.concurrent.Future
+
 class StartPageController extends Controller {
 
   def startPage = Action {
-    Ok(views.html.startPage())
+    //Ok(views.html.loginForm("", None)).withNewSession
+    Redirect(controllers.routes.TaskController.tasks_processes("task-asc"))
   }
 
 }

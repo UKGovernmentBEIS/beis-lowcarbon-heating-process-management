@@ -105,7 +105,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
   }
 
   def loginForm = Action{
-    Ok(views.html.loginForm("", loginform)).withNewSession
+    Ok(views.html.loginForm("", Some(loginform))).withNewSession
   }
 
   def registrationForm = Action{ implicit request =>
@@ -121,7 +121,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     loginform.bindFromRequest.fold(
       errors => {
-        Future.successful(Ok(views.html.loginForm(errors.errors.head.message, loginform)))
+        Future.successful(Ok(views.html.loginForm(errors.errors.head.message, Some(loginform))))
       },
       user=> {
         implicit val userIdInSession = user.name
@@ -131,11 +131,11 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
           case Some(g) => {
             val appFrontEndUrl = Config.config.business.appFrontEndUrl
             Future.successful(Redirect(controllers.routes.TaskController.tasks_processes("task-asc")).withSession(
-              ("username_process" -> user.name), ("role" -> g)))
+              ("username_process" -> user.name), ("role" -> g), ("sessionTime" -> System.currentTimeMillis.toString)))
           }
           case None => Future.successful(NotFound)
             val errMsg = Messages("error.BF002")
-            Future.successful(Ok(views.html.loginForm(errMsg, loginform)))
+            Future.successful(Ok(views.html.loginForm(errMsg, Some(loginform))))
         }
        }
     )
@@ -172,7 +172,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
             userSaved.flatMap{
               case 1 => {
                 val appFrontEndUrl = Config.config.business.appFrontEndUrl
-                Future.successful(Ok(views.html.loginForm("", loginform, Some(true))))
+                Future.successful(Ok(views.html.loginForm("", Some(loginform), Some(true))))
               }
               case 0 => {
                 //Future.successful(NotFound)
@@ -207,7 +207,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     registrationform.bindFromRequest.fold(
       errors => {
-        Future.successful(Ok(views.html.loginForm("error", loginform)))
+        Future.successful(Ok(views.html.loginForm("error", Some(loginform))))
       },
       user=> {
         //implicit val userIdInSession = user.name
@@ -216,18 +216,18 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
         userSaved.flatMap{
           case 1 => {
             val appFrontEndUrl = Config.config.business.appFrontEndUrl
-            Future.successful(Ok(views.html.loginForm("", loginform)))
+            Future.successful(Ok(views.html.loginForm("", Some(loginform))))
           }
           case 0 => Future.successful(NotFound)
             val errMsg = Messages("error.BF002")
-            Future.successful(Ok(views.html.loginForm(errMsg, loginform)))
+            Future.successful(Ok(views.html.loginForm(errMsg, Some(loginform))))
         }
       }
     )
   }
 
   def logOut = Action{
-    Ok(views.html.loginForm("", loginform)).withNewSession
+    Ok(views.html.loginForm("", Some(loginform))).withNewSession
   }
 
 }

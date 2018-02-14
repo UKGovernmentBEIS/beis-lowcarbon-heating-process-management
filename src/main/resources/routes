@@ -25,6 +25,7 @@ POST        /submitConfirmEmailSent                              controllers.Tas
 POST        /submitAdditionalInfo                                controllers.TaskController.submitAdditionalInfo(pid:ProcessId)
 POST        /submitReAssignment                                  controllers.TaskController.submitReAssignment(taskid:LocalTaskId)
 
+GET         /exportDataToExcel                                   controllers.ExportDataController.exportDataToExcel
 
 POST        /updatePassword                                      controllers.UserController.updatePassword
 GET         /task/:taskid/assessor/:assessorid/assessor-report   controllers.TaskController.assessorReport(taskid:LocalTaskId, assessorid:Int)
