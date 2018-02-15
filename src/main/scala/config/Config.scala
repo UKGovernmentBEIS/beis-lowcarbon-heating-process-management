@@ -21,7 +21,7 @@ case class BusinessConfig(appFrontEndUrl: String, appBackEndUrl: String, bpmServ
 case class BPMConfig(url: String, driver: String, user: String, pwd: String, procdefId: String, procReview: String, procApprove: String,
                       policyadmingroup: String, assessorgroup: String, technology: String, assessmentTask: String)
 case class BPMRestConfig(procuser: String, procpwd: String)
-case class JWTConfig(jwtSecretKey: String, jwtSecretAlgo: String, appAccessRole: String, adminRole: String, exp: String)
+case class JWTConfig(jwtSecretKey: String, jwtSecretAlgo: String, appAccessRole: String, adminRole: String, policyViewRole: String, exp: String)
 case class LoginConfig(sessionTimeout: Int, excludeSession: String)
 
 case class Config(logAssets: Option[Boolean], logRequests: Boolean, business: BusinessConfig, bpm: BPMConfig, bpmrest: BPMRestConfig,

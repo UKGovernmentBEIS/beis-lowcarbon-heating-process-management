@@ -21,16 +21,11 @@ class GlobalErrorHandler extends HttpErrorHandler {
 
   def onClientError(request: RequestHeader, statusCode: Int, message: String) = {
 
-    println("11======="+request.toString())
-
-      println("======="+ statusCode +"====="+ message)
     val errMsg = Messages("error.BF010")
     Future.successful(Ok(views.html.loginForm(errMsg, None)).withNewSession)
   }
 
   def onServerError(request: RequestHeader, exception: Throwable) = {
-    println("22======="+request.toString())
-    println("==exception====="+ exception )
 
     val errMsg = Messages("error.BF010")
     Future.successful(Ok(views.html.loginForm(errMsg, None)).withNewSession)

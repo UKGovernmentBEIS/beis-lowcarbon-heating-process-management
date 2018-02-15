@@ -60,7 +60,7 @@ userId: Option[String] = None)
 
         @if(ts.isEmpty){
         <tr>
-            <td> No Tasks</td>
+            <td class="tdnormal" colpsan="6"> No tasks assigned to you</td>
         </tr>
         }
         @for((t,i) <- ts.zipWithIndex) {

@@ -82,7 +82,7 @@ userId: Option[String] = None)
 
                     @if(ts.isEmpty){
                     <tr>
-                        <td> No Tasks</td>
+                        <td class="tdnormal" colpsan="6"> No tasks assigned to you</td>
                     </tr>
                     }
                     @for((t,i) <- ts.zipWithIndex) {
@@ -107,10 +107,10 @@ userId: Option[String] = None)
         <div id="process-list" class="js-tab-pane tab-pane">
 
             <div>
-                <div class="ledeextend">List of Processes </div>
+                <div class="ledeextend">Application processes </div>
                 <div class="right-position">
                     <a href="/exportDataToExcel">
-                        export <img src="@routes.Assets.at("images/export-excel.png")" valign= "middle" width="40" height="30" alt="export to Excel"
+                        export <img src="@routes.Assets.at("images/export-excel.png")" valign= "middle" width="45" height="25" alt="export to Excel"
                         style="visibility: visible">
                     </a>
                 </div>
@@ -170,7 +170,7 @@ userId: Option[String] = None)
 
                     @if(ps.isEmpty){
                     <tr>
-                        <td> No Tasks</td>
+                        <td class="tdnormal" colpsan="6"> No application process found</td>
                     </tr>
                     }
                     @for((p,i) <- ps.zipWithIndex) {
@@ -271,7 +271,7 @@ userId: Option[String] = None)
 
                     @if(assessorTs.isEmpty){
                     <tr>
-                        <td> No Tasks</td>
+                        <td class="tdnormal" colpsan="6"> No application process found</td>
                     </tr>
                     }
                     @for((t,i) <- assessorTs.zipWithIndex) {

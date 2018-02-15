@@ -143,11 +143,11 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
           )
     }
 
-    val appId: Long = getVariable[String](runtimeService, t.getProcessInstanceId, "ApplicationId", "0").toLong
+    val appId: Long = getVariable[Long](runtimeService, t.getProcessInstanceId, "ApplicationId", 0)
     val status: String = getVariable[String](runtimeService, t.getProcessInstanceId, "approvestatus", "-").capitalize
     val applicant: String = getVariable[String](runtimeService, t.getProcessInstanceId, "Applicant", "-")
     val appRef: String = getVariable[String](runtimeService, t.getProcessInstanceId, "ApplicationReference", "0")
-    val oppId: Long = getVariable[String](runtimeService, t.getProcessInstanceId, "OpportunityId", "0").toLong
+    val oppId: Long = getVariable[Long](runtimeService, t.getProcessInstanceId, "OpportunityId", 0)
 
     val oppTitle = processEngine.getRuntimeService().getVariable(t.getProcessInstanceId, "OpportunityTitle").toString
 
@@ -205,9 +205,9 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
         if(StringUtils.isEmpty(t.getAssignee)) groupOrUser.headOption.getOrElse("") else t.getAssignee,
         UserId(getVariable[String](runtimeService, t.getProcessInstanceId, "Applicant", "")),
         getVariable[String](runtimeService, t.getProcessInstanceId, "approvestatus", "Not set").capitalize,
-        getVariable[String](runtimeService, t.getProcessInstanceId, "ApplicationId", "0").toLong,
+        getVariable[Long](runtimeService, t.getProcessInstanceId, "ApplicationId", 0),
         getVariable[String](runtimeService, t.getProcessInstanceId, "ApplicationReference", "Not set"),
-        getVariable[String](runtimeService, t.getProcessInstanceId, "OpportunityId", "0").toLong,
+        getVariable[Long](runtimeService, t.getProcessInstanceId, "OpportunityId", 0),
         getVariable[String](runtimeService, t.getProcessInstanceId, "technology", "Not set"),
         //(getVariable[Double](runtimeService, t.getProcessInstanceId, "averageweightedscore", 0) == 0) ? 0 : getVariable[Double](runtimeService, t, "averagemoderatescore", 0),
         if( ams > 0) ams else if(aws > 0) aws else 0,
@@ -322,12 +322,42 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     Future.successful(Option(LocalProcess(id, appId, appRef, oppId, oppTitle, status.toString, tskHistories, Some(additionalInfo.toString) )))
   }
 
+
   final def getVariable [T] (runtimeService: RuntimeService, processInstanceId: String, v: String, t: T ): T = {
 
     import scala.util.Try
+
+    Try( Option(runtimeService.getVariable(processInstanceId, v))) match {
+
+      case Success(s) =>
+
+        (try{ getType(s.getOrElse(t).asInstanceOf[AnyRef], t).asInstanceOf[T]
+        } catch {
+          case e: Exception => t
+        })
+
+      case Failure(er) => t
+      case _ => t
+    }
+  }
+
+  def getType [T] (s: AnyRef, t: T) = {
+
+    t match {
+      case a if(a.isInstanceOf[String]) => s.asInstanceOf[String]
+      case a if(a.isInstanceOf[Double]) => s.asInstanceOf[Double]
+      case a if(a.isInstanceOf[Long]) => s.asInstanceOf[Long]
+      case a if(a.isInstanceOf[Int]) => s.asInstanceOf[Int]
+    }
+  }
+
+  final def getVariable__ [T] (runtimeService: RuntimeService, processInstanceId: String, v: String, t: T ): Option[T]= {
+
+    import scala.util.Try
     Try(runtimeService.getVariable(processInstanceId, v))  match {
-      case Success(s) =>   s.asInstanceOf[AnyRef].asInstanceOf[T]
-      case Failure(e) =>   t
+      case Success(s) =>
+        Some(s.asInstanceOf[T])
+      case Failure(e) =>   Some(t)
     }
   }
 
