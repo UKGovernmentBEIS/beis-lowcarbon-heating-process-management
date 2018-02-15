@@ -95,7 +95,14 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     val assessmentTask = Config.config.bpm.assessmentTask
 
     for(
-      ts <- localtasks.showTasks(Option(UserId(userId)));
+
+      ts <- !grpId.equalsIgnoreCase(policyViewRole) match {
+        case true =>
+          localtasks.showTasks(Option(UserId(userId)))
+        case false =>
+          Future(Seq())
+      };
+
 
       assessorTs <- grpId.equalsIgnoreCase(adminRole) match {
         case true =>
