@@ -43,14 +43,19 @@ class ExportDataController  @Inject()(localtasks: BEISTaskOps )(implicit ec: Exe
     val linebreaker = "\n"
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     var baos = new ByteArrayOutputStream()
-    baos.write(s"Application, Status, Technology, Weighted score, Tie-break score".getBytes)
+    val str = s"Application, Status, Organisation, Project Title , Technology, Project Value , Grant Value , Assessor1, Assessor2, Assessor3, " +
+      s"Assessor1 Score, Assessor2 Score, Assessor3 Score, Max Score Range, Weighted score, Tie-break score, Moderated Score"
+    baos.write(str.getBytes)
     baos.write(linebreaker.getBytes)
 
     for(
       ps <- localtasks.showProcesses(UserId(userId))
     )yield {
       ps.map { p =>
-        baos.write(s"${p.appId + 1000} - ${p.appRef}, ${p.status}, ${p.technology}, ${p.averageweightedscore}, ${p.averagetiebreakscore}".getBytes)
+        val vl = s"${p.appId + 1000} - ${p.appRef}, ${p.status}, ${p.organisation}, ${p.projectTitle}, ${p.technology}, ${p.projectValue}, ${p.grantValue}, " +
+          s"${p.assessor1},  ${p.assessor2}, ${p.assessor3}, ${p.assessor1score},  ${p.assessor2score}, ${p.assessor3score},  ${p.maxDeviation}, " +
+          s"${p.averageweightedscore}, ${p.averagetiebreakscore}, ${p.averagemoderatescore} "
+        baos.write(vl.getBytes)
         baos.write(linebreaker.getBytes)
       }
 

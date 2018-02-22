@@ -342,9 +342,8 @@ if(a.getOrElse("") == b) "selected" else ""
                     <td class="tdnobottomborder">
                         <div class="rifs-form-buttons">
                             <select class="form-control" id="select-box" name="widerobjectiveoption">
-
                                 @for((key, value) <- scoremap) {
-                                <option value=@key  t.variables.get(s"widerobjective$assmtKey").getOrElse("").toString(), key)>@value</option>
+                                <option value=@key @dropdowncheck( t.variables.get(s"widerobjective$assmtKey"), key)>@value</option>
                                 }
                             </select>
                         </div>

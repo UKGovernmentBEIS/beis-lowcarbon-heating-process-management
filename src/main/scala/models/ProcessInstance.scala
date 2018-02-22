@@ -6,12 +6,20 @@ package models
 
 case class ProcessDefinition (processDefinitionId: ProcessDefinitionId, businessKey: BusinessKey, returnVariables: Boolean,
                               variables: Seq[ProcessVariable])
-case class ProcessInstance (id: String, url:String, businessKey: BusinessKey, suspended: Boolean, ended: Boolean, processDefinitionId:String,
+
+/*case class ProcessInstance (id: String, url:String, businessKey: BusinessKey, suspended: Boolean, ended: Boolean, processDefinitionId:String,
                             processDefinitionUrl:String, processDefinitionKey:String, activityId: String, variables: Seq[String], tenantId: String,
-                            name: String, completed: Boolean)
+                            name: String, completed: Boolean)*/
+
+case class LocalProcessInstance(processInstanceId:String, name: String, applicant: String, status: String, appId: Long, appRef: String,
+                                  organisation: String, projectTitle: String, projectValue: Long, grantValue: Long,
+                                  technology: String, maxDeviation: Double, averageweightedscore: Double, averagetiebreakscore: Double, averagemoderatescore: Double,
+                                assessor1: String, assessor2: String, assessor3: String,
+                                assessor1score: String, assessor2score: String, assessor3score: String
+                               )
 
 case class ProcessInstanceSummary(processInstanceId:String, name: String, applicant: String, status: String, appId: Long, appRef: String,
-                                   technology: String, averageweightedscore: Double, averagetiebreakscore: Double)
+                                  technology: String, averageweightedscore: Double, averagetiebreakscore: Double)
 case class BusinessKey(id: String)
 case class ProcessId(id: Long)
 case class ProcessDefinitionId(id: String)

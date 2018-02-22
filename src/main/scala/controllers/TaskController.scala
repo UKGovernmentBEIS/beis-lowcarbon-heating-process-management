@@ -112,7 +112,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
       };
 
       ps <- grpId.equalsIgnoreCase(adminRole) || grpId.equalsIgnoreCase(policyViewRole) match {
-        case true => localtasks.showProcesses(UserId(userId))
+        case true => localtasks.showProcessSummaries(UserId(userId))
         case false => Future(Seq())
       }
     )yield(
@@ -506,6 +506,8 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
     val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
 
+
+    println("========jsonFormdata======" + jsonFormdata)
     val mp = jsonFormdata match {
       case "nodata" => request.body.asFormUrlEncoded.getOrElse(Map())
       case _ =>  Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
@@ -878,7 +880,6 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
     val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
     val mp = Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
-    println("====confirmsubmit======="+ confirmsubmit)
 
     confirmsubmit match {
       case "Yes" =>
