@@ -55,6 +55,7 @@ class ExportDataController  @Inject()(localtasks: BEISTaskOps )(implicit ec: Exe
         val vl = s"${p.appId + 1000} - ${p.appRef}, ${p.status}, ${p.organisation}, ${p.projectTitle}, ${p.technology}, ${p.projectValue}, ${p.grantValue}, " +
           s"${p.assessor1},  ${p.assessor2}, ${p.assessor3}, ${p.assessor1score},  ${p.assessor2score}, ${p.assessor3score},  ${p.maxDeviation}, " +
           s"${p.averageweightedscore}, ${p.averagetiebreakscore}, ${p.averagemoderatescore} "
+
         baos.write(vl.getBytes)
         baos.write(linebreaker.getBytes)
       }
