@@ -12,7 +12,7 @@ case class ProcessDefinition (processDefinitionId: ProcessDefinitionId, business
                             name: String, completed: Boolean)*/
 
 case class LocalProcessInstance(processInstanceId:String, name: String, applicant: String, status: String, appId: Long, appRef: String,
-                                  organisation: String, projectTitle: String, projectValue: Long, grantValue: Long,
+                                  organisation: String, projectTitle: String, projectValue: String, grantValue: String,
                                   technology: String, maxDeviation: Double, averageweightedscore: Double, averagetiebreakscore: Double, averagemoderatescore: Double,
                                 assessor1: String, assessor2: String, assessor3: String,
                                 assessor1score: String, assessor2score: String, assessor3score: String

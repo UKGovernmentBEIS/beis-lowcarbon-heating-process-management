@@ -366,8 +366,8 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
       val organisation =  Await.result(appdata.map(j=>j._1.toString), 10.seconds)
       val projectTitle =  Await.result(appdata.map(j=>j._2.toString), 10.seconds)
-      val projectValue =  Await.result(appdata.map(j=>j._3.toString.toLong), 10.seconds)
-      val grantValue =    Await.result(appdata.map(j=>j._4.toString.toLong), 10.seconds)
+      val projectValue =  Await.result(appdata.map(j=>j._3.toString), 10.seconds)
+      val grantValue =    Await.result(appdata.map(j=>j._4.toString), 10.seconds)
 
 
       println("===organisation===="+ organisation)

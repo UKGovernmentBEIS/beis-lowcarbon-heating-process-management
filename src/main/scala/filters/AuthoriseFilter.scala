@@ -51,6 +51,7 @@ class AuthoriseFilter @Inject()(implicit val mat: Materializer, ec: ExecutionCon
         isSessionTimedOut(rh.session.get("sessionTime").getOrElse(System.currentTimeMillis.toString).toLong) match {
           case true =>
             val errMsg = Messages("error.BF002")
+            println("Error 3333")
             Future.successful(Ok(views.html.loginForm(errMsg, None)))
 
           case false => {
@@ -68,6 +69,7 @@ class AuthoriseFilter @Inject()(implicit val mat: Materializer, ec: ExecutionCon
               if(StringUtils.isNotEmpty(rh.getQueryString("token").getOrElse(""))) {
                 nextCall (rh)
               }else
+              println("Error 4444")
               Future.successful (Ok (views.html.loginForm (Messages("error.BF002")) ) )
             }
           }
