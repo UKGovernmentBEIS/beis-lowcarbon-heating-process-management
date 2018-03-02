@@ -17,15 +17,23 @@
 
 package validations
 
+import javax.inject.Inject
+
 import cats.data.ValidatedNel
 import cats.syntax.validated._
+import play.api.Play
 import validations.FieldValidator.Normalised
 import play.api.data.validation.{Constraints, Invalid, Valid}
-import play.api.i18n.Messages
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
+import play.api.inject.Injector
 
 case class PasswordValidator(label: Option[String] = None) extends FieldValidator[Option[String], String] {
+
+//  @Inject
+//  val msg: MessagesApi
+  //Play.application(Play.current).injector.instanceOf[MessagesApi]
 
   override def normalise(os: Option[String]): Option[String] = os.map(_.trim())
 

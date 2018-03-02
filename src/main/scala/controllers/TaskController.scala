@@ -27,9 +27,8 @@ import play.api.mvc.Results.{NotFound, Redirect}
 import play.api.mvc.{Action, Controller, Flash}
 import services.{BEISTaskOps, JWTOps}
 import config.Config
-import play.api.i18n.Messages
+import play.api.i18n.MessagesApi
 
-import scala.collection.immutable.ListMap
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.runtime.{universe => ru}
 import cats.data.ValidatedNel
@@ -40,13 +39,11 @@ import org.joda.time.DateTime
 
 import scala.util.{Failure, Success, Try}
 import validations.FieldError
-import play.api.Play.current
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
 import play.api.libs.json
 import services.RestService.JsonParseException
-
 import org.joda.time.{DateTime, LocalDate}
+
+import scala.collection.immutable.ListMap
 
 /**
   * -------------------------------------------------------------------
@@ -77,9 +74,8 @@ import org.joda.time.{DateTime, LocalDate}
   * -------------------------------------------------------------------
   **/
 
-class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit ec: ExecutionContext) extends Controller {
+class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps, msg: MessagesApi )(implicit ec: ExecutionContext) extends Controller {
 
-  implicit val messages = Messages
   implicit val appAuthPayloadWrites = Json.writes[AppAuthPayload]
 
   def startPage = Action {
@@ -198,8 +194,6 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
         val appAuthpayload =  Json.toJson(AppAuthPayload(grpId, userId, proc.appId.toString, expiry.toLong)).toString()
         val appAuthToken = jwt.createToken(appAuthpayload)
         val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/application/${proc.appId}/content/html?token=$appAuthToken"
-
-        //val appFrontEndUrlWithJWTToken = s"$appFrontEndUrl/simplepreview/${proc.appId}?token=$appAuthToken"
         /*****************JWT ends ***************************************/
 
         Future(Ok(views.html.process(proc, appFrontEndUrlWithJWTToken, Option(userId))))
@@ -316,9 +310,9 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     val sortstr = request.queryString.getOrElse("sort", List()).headOption.getOrElse("")
 
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
-    val ts = localtasks.showTasks(Option(UserId(userId)))
+    val tss = localtasks.showTasks(Option(UserId(userId)))
 
-    ts.flatMap{
+    tss.flatMap{
       case ts =>
         sortstr match {
           case "task-asc" =>
@@ -349,6 +343,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
             Future (Ok(views.html.tasks(ts, Some(userId))))
         }
       case Seq() => Future.successful(NotFound)
+      case _ => Future.successful(NotFound)
     }
   }
 
@@ -367,6 +362,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
           case false => getMembers(grp)
         }, Some(userId))))
       }
+      case None => Future.successful(NotFound)
     }
   }
 
@@ -387,7 +383,6 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     }
   }
 
-
   def submitAssessEligibility (id : LocalTaskId) = Action.async { implicit request =>
 
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
@@ -406,10 +401,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
             if (commentMaxLengthCheck(comment, 1000))
               Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-                .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+                .flashing("ERROR" -> msg("error.BF008"), "commentText" -> comment))
             else if(!mandatoryCheck(comment))
               Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-                .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
+                .flashing("ERROR" -> msg("error.BF004"), "commentText" -> comment))
             else {
               localtasks.submitEligibility(id, UserId(userId), status, comment, technology, processInstanceId).map {
                 case Some(t) => {
@@ -449,10 +444,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
           if(commentMaxLengthCheck(comment, 1000))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-              .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+              .flashing("ERROR" -> msg("error.BF008"), "commentText" -> comment))
           else if(!mandatoryCheck(comment))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-              .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
+              .flashing("ERROR" -> msg("error.BF004"), "commentText" -> comment))
           else {
             errors.isEmpty match{
               case true =>
@@ -506,8 +501,6 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
     val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
 
-
-    println("========jsonFormdata======" + jsonFormdata)
     val mp = jsonFormdata match {
       case "nodata" => request.body.asFormUrlEncoded.getOrElse(Map())
       case _ =>  Json.parse(jsonFormdata).validate[Map[String, Seq[String]]].getOrElse(Map[String, Seq[String]]())
@@ -584,7 +577,6 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
         val tiebreakScore = widerobjectiveScore
 
-
         println("=== score " + "" + "==  " + performanceenhancement)
         println("=== score " + "" + "==  " + performancemanagement)
         println("=== score " + "" + "==  " + performanceintegration)
@@ -614,7 +606,6 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
         println("=== score Score" + "" + "==  " + widerobjectiveScore)
         println("=== weightedScore " + "" + "==  " + weightedScore)
         println("=== tiebreakScore " + "" + "==  " + tiebreakScore)
-
 
         val score = Score(
           projectdesc, projectdesccomment, projectdescweight.toInt,
@@ -692,7 +683,6 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   }
 
   def commentMinLengthCheck(comment:String): Boolean =
-  //StringUtils.isEmpty(comment.replaceAll("\\s+", ""))
     StringUtils.isEmpty(comment)
 
 
@@ -727,10 +717,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
           if(commentMaxLengthCheck(comment, 1000))
           Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-            .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+            .flashing("ERROR" -> msg("error.BF008"), "commentText" -> comment))
           else if(!mandatoryCheck(comment))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-              .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
+              .flashing("ERROR" -> msg("error.BF004"), "commentText" -> comment))
           else {
             localtasks.submitMakePanelDecision(id, UserId(userId), status, comment, processInstanceId).flatMap {
               case Some(t) => {
@@ -747,6 +737,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
 
   def submitModerateScore (id : LocalTaskId) = Action.async { implicit request =>
+
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
     val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
@@ -764,10 +755,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
           if(commentMaxLengthCheck(comment, 1000))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-              .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+              .flashing("ERROR" -> msg("error.BF008"), "commentText" -> comment))
           else if(!mandatoryCheck(comment))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-              .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
+              .flashing("ERROR" -> msg("error.BF004"), "commentText" -> comment))
           else {
             localtasks.submitModerateScore(id, UserId(userId), averageweightedscore, averagemoderatescore, comment, processInstanceId).flatMap {
               case Some(t) => {
@@ -796,6 +787,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   }
 
   def submitConfirmEmailSent (id : LocalTaskId) = Action.async { implicit request =>
+
     val userId = request.session.get("username_process").getOrElse("Unauthorised User")
     val jsonFormdata = request.body.asFormUrlEncoded.getOrElse(Map()).get("formdata").headOption.map( _.head).getOrElse("nodata")
     val confirmsubmit = request.body.asFormUrlEncoded.getOrElse(Map()).get("confirmsubmit").headOption.map( _.head).getOrElse("Yes")
@@ -812,13 +804,13 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
           if(commentMaxLengthCheck(comment, 1000))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-              .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
+              .flashing("ERROR" -> msg("error.BF008"), "commentText" -> comment))
           else if(!mandatoryCheck(comment))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-              .flashing("ERROR" -> Messages("error.BF004"), "commentText" -> comment))
+              .flashing("ERROR" -> msg("error.BF004"), "commentText" -> comment))
           else if(!mp.isDefinedAt("emailsent"))
             Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-              .flashing("ERROR" -> Messages("error.BF009"), "commentText" -> comment))
+              .flashing("ERROR" -> msg("error.BF009"), "commentText" -> comment))
           else {
             val ems = emailsent match {
               case s if StringUtils.isEmpty(s)  => "No email sent"
@@ -841,6 +833,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   }
 
   def submitAdditionalInfo (pid : ProcessId) = Action.async { implicit request =>
+
     val additionalInfo = request.body.asFormUrlEncoded.getOrElse(Map()).get("additionalInfo").headOption.map( _.head).getOrElse("nodata")
     localtasks.updateProcessVariable(pid, additionalInfo)
     Future(Redirect(controllers.routes.TaskController.tasks_processes("proc-app-asc") + "#process-list"))
@@ -855,6 +848,7 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
   }
 
   def submitConfirm(id : LocalTaskId) = Action.async { implicit request =>
+
     val t = localtasks.showTask(id)
     val mp = request.body.asFormUrlEncoded.getOrElse(Map())
     val button_action:String = if(!getValueFromRequest("save", mp ).equals("")) "save"
@@ -883,43 +877,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
 
     confirmsubmit match {
       case "Yes" =>
-          val reassignto = getValueFromRequest("reassignto", mp )
-
+        val reassignto = getValueFromRequest("reassignto", mp )
         localtasks.submitReAssignAssessor (id,  reassignto)
-
         Future(Redirect(controllers.routes.TaskController.tasks_processes("task-asc") + "#assessor-task-list"))
 
-//        val processInstanceId = getValueFromRequest("processInstanceId", mp )
-//
-//        val errors = duplicateSelectionCheck(assignassessor1, assignassessor2, assignassessor3).fold(_.toList, _ => List())
-//
-//        if(commentMaxLengthCheck(comment, 1000))
-//          Future(Redirect(controllers.routes.TaskController.task(id, applicationId.toLong, opportunityId.toLong))
-//            .flashing("ERROR" -> Messages("error.BF008"), "commentText" -> comment))
-//        else {
-//          errors.isEmpty match{
-//            case true =>
-//              localtasks.submitAssignAssessors (id, UserId (userId), assignassessor1, assignassessor2, assignassessor3, comment,
-//                processInstanceId).map {
-//                case Some (t) => {
-//                  val ts = localtasks.showTasks (Option(UserId (userId)) )
-//                  Redirect (controllers.routes.TaskController.tasks_processes("task-asc") )
-//                }
-//                case _ => NoContent
-//
-//              }
-//            case false =>
-//              val t = localtasks.showTask(id)
-//              val grp = List("assessor")
-//
-//              t.flatMap {
-//                case Some(lt) =>
-//                  Future.successful(Ok(views.html.assignAssessors(lt, appFrontEndUrl, getMembers(grp), errors)
-//                  (Flash(Map("comment" -> comment))) ))
-//                case None =>
-//              }
-//          }
-//        }
       case "No" =>
         Future(Redirect(controllers.routes.TaskController.tasks_processes("task-asc") + "#assessor-task-list"))
     }
@@ -951,10 +912,10 @@ class TaskController @Inject()(localtasks: BEISTaskOps, jwt: JWTOps )(implicit e
     println("=== In Task Controller == projectfinancing" + ":" + "  :-" + score.projectfinancingweight)
     println("=== In Task Controller == widerobjective" + ":" + "    :-" + score.widerobjective)
     println("=== In Task Controller == widerobjective" + ":" + "    :-" + score.widerobjectivecomment)
-//    println("=== In Task Controller == widerobjective" + ":" + "    :-" + score.widerobjectiveweight)
+    //println("=== In Task Controller == widerobjective" + ":" + "  :-" + score.widerobjectiveweight)
     println("=== In Task Controller == overallcomment" + ":" + "    :-" + score.overallcomment)
     println("=== In Task Controller == weightedscore" + ":" + "     :-" + score.weightedscore)
-      println("=== In Task Controller == tiebreakscore" + ":" + "     :-" + score.tiebreakscore)
+      println("=== In Task Controller == tiebreakscore" + ":" + "   :-" + score.tiebreakscore)
   }
 }
 

@@ -22,8 +22,7 @@ import javax.inject.Inject
 import akka.stream.Materializer
 import config.Config
 import org.apache.commons.lang3.StringUtils
-import play.api.Play.current
-import play.api.i18n.Messages
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.i18n.Messages.Implicits._
 import play.api.mvc._
 
@@ -35,7 +34,7 @@ import scala.util.control._
   * Created by venkatamutyala on 06/02/2018.
   */
 
-class AuthoriseFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext) extends Filter {
+class AuthoriseFilter @Inject()(implicit val mat: Materializer, ec: ExecutionContext, msg: MessagesApi) extends Filter {
 
   import play.api.mvc.Results._
   implicit val messages = Messages
@@ -50,8 +49,8 @@ class AuthoriseFilter @Inject()(implicit val mat: Materializer, ec: ExecutionCon
 
         isSessionTimedOut(rh.session.get("sessionTime").getOrElse(System.currentTimeMillis.toString).toLong) match {
           case true =>
-            val errMsg = Messages("error.BF002")
-            println("Error 3333")
+            val errMsg = msg("error.BF002")
+            println("Error in AuthFilter - no Session ")
             Future.successful(Ok(views.html.loginForm(errMsg, None)))
 
           case false => {
@@ -69,8 +68,8 @@ class AuthoriseFilter @Inject()(implicit val mat: Materializer, ec: ExecutionCon
               if(StringUtils.isNotEmpty(rh.getQueryString("token").getOrElse(""))) {
                 nextCall (rh)
               }else
-              println("Error 4444")
-              Future.successful (Ok (views.html.loginForm (Messages("error.BF002")) ) )
+              println("Error in AuthFilter - no Token - no Login ")
+              Future.successful (Ok (views.html.loginForm (msg("error.BF002")) ) )
             }
           }
         }

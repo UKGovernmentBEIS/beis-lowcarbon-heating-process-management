@@ -1,7 +1,5 @@
 package models
 
-import org.activiti.engine.task.Comment
-import org.joda.time.{DateTime, LocalDate}
 
 /**
   * Created by venkatamutyala on 07/06/2017.

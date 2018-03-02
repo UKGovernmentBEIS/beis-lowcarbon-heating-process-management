@@ -11,6 +11,7 @@ case class ProcessDefinition (processDefinitionId: ProcessDefinitionId, business
                             processDefinitionUrl:String, processDefinitionKey:String, activityId: String, variables: Seq[String], tenantId: String,
                             name: String, completed: Boolean)*/
 
+/* This class is mainly used for Excel report creation. So all variables are Strings */
 case class LocalProcessInstance(processInstanceId:String, name: String, applicant: String, status: String, appId: Long, appRef: String,
                                   organisation: String, projectTitle: String, projectValue: String, grantValue: String,
                                   technology: String, maxDeviation: Double, averageweightedscore: Double, averagetiebreakscore: Double, averagemoderatescore: Double,

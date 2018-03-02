@@ -25,7 +25,7 @@ url: String)
     <tr>
         <td>Application</td>
         <td>
-        @if(StringUtils.isNotEmpty(url) && p.appId != null && !(p.appId == 0L) ){
+        @if(StringUtils.isNotEmpty(url) && Option(p.appId).isDefined && !(p.appId == 0L) ){
             <a href="@url" target="_blank"> @(p.appId+1000) - @p.appRef</a></td>
         }else{
             --

@@ -77,12 +77,8 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   implicit val ApplicationIdFormat = Json.format[ApplicationId]
   implicit val messageIdFormat = Json.format[MessageId]
   implicit val messageFormat = Json.format[Message]
-
-  //implicit val localDateTimeFormat = Json.format[LocalDateTime]
   implicit val appSectionNumberFormat = Json.format[AppSectionNumber]
   implicit val applicationSectionFormat = Json.format[ApplicationSection]
-
-
 
   val taskService = ActivitiService.taskService
   val processEngine = ActivitiService.processEngine
@@ -234,35 +230,27 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   override def showProcessSummaries(userId: UserId): Future[Seq[ProcessInstanceSummary]] = {
     import collection.JavaConverters._
 
-    val processInstances = historyService.createHistoricProcessInstanceQuery().list()
-    val processInstanceSummaries_ = processInstances.map { p =>
-    val historyVariableQuery = historyService.createHistoricVariableInstanceQuery()
+      val processInstances = historyService.createHistoricProcessInstanceQuery().list()
+      val processInstanceSummaries_ = processInstances.map { p =>
 
       val processInstanceId = p.getId
 
-      val applicationId =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationId").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationId").list().last.getValue
-      else "0"
-      val appRef =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationReference").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationReference").list().last.getValue
-      else "NA"
-      val applicant =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("Applicant").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("Applicant").list().last.getValue
-      else "NA"
+      val applicationIdH = getHistoryVariable[String](historyService, processInstanceId, "ApplicationId", "0")
+      val applicationId =  if(!applicationIdH.equals("0")) applicationIdH else "0"
+      val appRefH = getHistoryVariable[String](historyService, processInstanceId, "ApplicationReference", "NA")
+      val appRef =  if(!appRefH.equals("NA")) appRefH else "NA"
+      val applicantH = getHistoryVariable[String](historyService, processInstanceId, "Applicant", "NA")
+      val applicant =  if(!applicantH.equals("NA")) applicantH else "NA"
 
-      val approvestatus =
-        if(!(getVariable[String](runtimeService, processInstanceId, "approvestatus", "-").equals("-")) )
-          getVariable[String](runtimeService, processInstanceId, "approvestatus", "-")
-        else if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().size() > 0)
-          historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().last.getValue
-        else "NA"
+      val approvestatusT = getVariable[String](runtimeService, processInstanceId, "approvestatus", "-")
+      lazy val approvestatusH = getHistoryVariable[String](historyService, processInstanceId, "approvestatus", "-")
+      val approvestatus = if(!approvestatusT.equals("-") ) approvestatusT else if(!approvestatusH.equals("-")) approvestatusH else "NA"
 
       val averageweightedscore = java.lang.Double.valueOf(getHistoryVariable[String](historyService, processInstanceId, "averageweightedscore", "0.0"))
       val averagetiebreakscore = java.lang.Double.valueOf(getHistoryVariable[String](historyService, processInstanceId, "averagetiebreakscore", "0.0"))
 
-      val technology =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("technology").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("technology").list().last.getValue
-      else "NA"
+      val technologyH = getHistoryVariable[String](historyService, processInstanceId, "technology", "NA")
+      val technology =  if(!technologyH.equals("NA")) technologyH else "NA"
 
       ProcessInstanceSummary(processInstanceId, "name", applicant.toString, approvestatus.toString, applicationId.toString.toLong, appRef.toString,
         technology.toString, averageweightedscore.toString.toDouble, averagetiebreakscore.toString.toDouble)
@@ -285,73 +273,62 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     import scala.concurrent.Await
     import scala.concurrent.duration.DurationInt
 
-    val historyVariableQuery = historyService.createHistoricVariableInstanceQuery()
+      val historyVariableQuery = historyService.createHistoricVariableInstanceQuery()
 
-    val processInstances = historyService.createHistoricProcessInstanceQuery().list()
-    val processInstances_ = processInstances.map { p =>
+      val processInstancesH = historyService.createHistoricProcessInstanceQuery().list()
+      val processInstances = processInstancesH.map { p =>
 
       val processInstanceId = p.getId
 
-      //val processDefinitionId = p.getProcessDefinitionId
-      val applicationId =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationId").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationId").list().last.getValue
-      else "0"
-      val appRef =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationReference").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("ApplicationReference").list().last.getValue
-      else "NA"
-      val applicant =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("Applicant").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("Applicant").list().last.getValue
-      else "NA"
+      val applicationIdH = getHistoryVariable[String](historyService, processInstanceId, "ApplicationId", "0")
+      val applicationId =  if(!applicationIdH.equals("0")) applicationIdH else "0"
+      val appRefH = getHistoryVariable[String](historyService, processInstanceId, "ApplicationReference", "NA")
+      val appRef =  if(!appRefH.equals("NA")) appRefH else "NA"
+      val applicantH = getHistoryVariable[String](historyService, processInstanceId, "Applicant", "NA")
+      val applicant =  if(!applicantH.equals("NA")) applicantH else "NA"
 
-      val approvestatus =
-        if(!(getVariable[String](runtimeService, processInstanceId, "approvestatus", "-").equals("-")) )
-          getVariable[String](runtimeService, processInstanceId, "approvestatus", "-")
-        else if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().size() > 0)
-          historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().last.getValue
-        else "NA"
+      val approvestatusT = getVariable[String](runtimeService, processInstanceId, "approvestatus", "-")
+      lazy val approvestatusH = getHistoryVariable[String](historyService, processInstanceId, "approvestatus", "-")
+      val approvestatus = if(!approvestatusT.equals("-") ) approvestatusT else if(!approvestatusH.equals("-")) approvestatusH else "NA"
 
       val averageweightedscore = java.lang.Double.valueOf(getHistoryVariable[String](historyService, processInstanceId, "averageweightedscore", "0.0"))
       val averagetiebreakscore = java.lang.Double.valueOf(getHistoryVariable[String](historyService, processInstanceId, "averagetiebreakscore", "0.0"))
       val averagemoderatescore = java.lang.Double.valueOf(getHistoryVariable[String](historyService, processInstanceId, "averagemoderatescore", "0.0"))
 
-      val technology =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("technology").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("technology").list().last.getValue
-      else "NA"
+      val technologyH = getHistoryVariable[String](historyService, processInstanceId, "technology", "NA")
+      val technology =  if(!technologyH.equals("NA")) technologyH else "NA"
 
-      val assignee1 =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("assignee1").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("assignee1").list().last.getValue
-      else "NA"
+      val assignee1H = getHistoryVariable[String](historyService, processInstanceId, "assignee1", "NA")
+      val assignee1 =  if(!assignee1H.equals("NA")) assignee1H else "NA"
 
-      val assignee2 =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("assignee2").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("assignee2").list().last.getValue
-      else "NA"
+      val assignee2H = getHistoryVariable[String](historyService, processInstanceId, "assignee2", "NA")
+      val assignee2 =  if(!assignee2H.equals("NA")) assignee2H else "NA"
 
-      val assignee3 =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("assignee3").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("assignee3").list().last.getValue
-      else "NA"
+      val assignee3H = getHistoryVariable[String](historyService, processInstanceId, "assignee3", "NA")
+      val assignee3 =  if(!assignee3H.equals("NA")) assignee3H else "NA"
 
-      val maxDeviation =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("maxDeviation").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("maxDeviation").list().last.getValue
-      else "0"
+      val maxDeviationH = getHistoryVariable[String](historyService, processInstanceId, "maxDeviation", "0")
+      val maxDeviation =  if(!maxDeviationH.equals("0")) maxDeviationH else "0"
 
-      val assignee1Weightedscore =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("weightedscore1").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("weightedscore1").list().last.getValue
-      else "0"
+      val assignee1WeightedscoreH = getHistoryVariable[String](historyService, processInstanceId, "weightedscore1", "0")
+      val assignee1Weightedscore =  if(!assignee1WeightedscoreH.equals("0")) assignee1WeightedscoreH else "0"
 
-      val assignee2Weightedscore =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("weightedscore2").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("weightedscore2").list().last.getValue
-      else "0"
+      val assignee2WeightedscoreH = getHistoryVariable[String](historyService, processInstanceId, "weightedscore2", "0")
+      val assignee2Weightedscore =  if(!assignee2WeightedscoreH.equals("0")) assignee2WeightedscoreH else "0"
 
-      val assignee3Weightedscore =  if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("weightedscore3").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("weightedscore3").list().last.getValue
-      else "0"
+      val assignee3WeightedscoreH = getHistoryVariable[String](historyService, processInstanceId, "weightedscore3", "0")
+      val assignee3Weightedscore =  if(!assignee3WeightedscoreH.equals("0")) assignee3WeightedscoreH else "0"
+
 
       /** Rest call to Front end to get the Application data
-          Organisation: String, projectTitle: String, projectValue: String, grantValue: String **/
+          Organisation: String, projectTitle: String, projectValue: String, grantValue: String
+         It waits for 10 seconds for the thread to come back with response
+      **/
 
       val appdata = getApplicationSectionData(ApplicationId(applicationId.toString.toLong), AppSectionNumber(1) ).flatMap{
         case Some(s) =>
-          println("===App data JSON===="+ s)
+          println("-----* In Excel report creation *---"+ s)
+          println("-----* Application Data JSON from Frontend *---"+ s)
 
           Future.successful((
             (s.answers \ "proposalsummary" \ "name").validate[String].asOpt.getOrElse("NA"),
@@ -384,11 +361,8 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
 
     }.toSeq
 
-    val processInstancesRefined = processInstances_.foldLeft(Seq[LocalProcessInstance]()) {(k, l) =>
-      if(l.appId != null && l.appId > 0l )
-        k ++ Seq(l)
-      else
-        k
+    val processInstancesRefined = processInstances.foldLeft(Seq[LocalProcessInstance]()) {(k, l) =>
+      if(l.appId != null && l.appId > 0l ) k ++ Seq(l) else k
     }
 
     Future.successful(processInstancesRefined)
@@ -404,8 +378,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val processInstanceId = id.id.toString()
 
     val taskInstanceHistoryList: Seq[HistoricTaskInstance] = historyService.createHistoricTaskInstanceQuery()
-      .processInstanceId(id.id.toString()).orderByHistoricTaskInstanceStartTime().asc()
-      .list()
+      .processInstanceId(id.id.toString()).orderByHistoricTaskInstanceStartTime().asc().list()
 
     /* Build Task history with TaskHistory API*/
     val tskHistories: Seq[TaskHistory] = taskInstanceHistoryList.map{ tk =>
@@ -432,19 +405,13 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val oppId = java.lang.Long.valueOf(getHistoryVariable[String](historyService, processInstanceId, "OpportunityId", "0"))
     val oppTitle = getHistoryVariable[String](historyService, processInstanceId, "OpportunityTitle", "-")
 
-    val status =
-      if(!(getVariable[String](runtimeService, processInstanceId, "approvestatus", "-").equals("-")) )
-        getVariable[String](runtimeService, processInstanceId, "approvestatus", "-")
-      else if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("approvestatus").list().last.getValue
-      else "notset"
+    val statusT = getVariable[String](runtimeService, processInstanceId, "approvestatus", "-")
+    lazy val statusH = getHistoryVariable[String](historyService, processInstanceId, "approvestatus", "-")
+    val status = if(!statusT.equals("-") ) statusT else if(!statusH.equals("-")) statusH else "NA"
 
-    val additionalInfo =
-      if(!(getVariable[String](runtimeService, processInstanceId, "additionalInfo", "-").equals("-")) )
-        getVariable[String](runtimeService, processInstanceId, "additionalInfo", "-")
-      else if(historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("additionalInfo").list().size() > 0)
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(p.getId).variableName("additionalInfo").list().last.getValue
-      else ""
+    val additionalInfoT = getVariable[String](runtimeService, processInstanceId, "additionalInfo", "-")
+    lazy val additionalInfoH = getHistoryVariable[String](historyService, processInstanceId, "additionalInfo", "-")
+    val additionalInfo = if(!additionalInfoT.equals("-") ) additionalInfoT else if(!additionalInfoH.equals("-")) additionalInfoH else ""
 
     Future.successful(Option(LocalProcess(id, appId, appRef, oppId, oppTitle, status.toString, tskHistories, Some(additionalInfo.toString) )))
   }
@@ -488,10 +455,13 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       case Success(s) =>
         val ss=  if(StringUtils.isEmpty(s.getOrElse(t).toString)) "0" else s.getOrElse(t).toString
 
-        (try{ getType(ss, t).asInstanceOf[T]
-        } catch {
-          case e: Exception => t
-        })
+        (
+          try{
+                getType(ss, t).asInstanceOf[T]
+             }catch{
+                case e: Exception => t
+             }
+        )
 
       case Failure(er) =>   t
       case _ =>  t
@@ -596,15 +566,7 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     val t: Task = taskService.createTaskQuery().taskId(id.id).singleResult()
     val applicationId = java.lang.Long.valueOf(runtimeService.getVariable(t.getProcessInstanceId, "ApplicationId").toString)
     val applicant = runtimeService.getVariable(t.getProcessInstanceId, "Applicant").toString
-
-    /* Add comments to the Task for that Process Instance */
-    //val user = userId.userId
-    //val st = s"WIP"
-    /* Get assessors's name */
-
     val user = identityService.createUserQuery().userId(userId.userId).singleResult()
-
-
 
     val mp = Map(
       s"projectdesc$asmtKey" -> score.projectdesc.toString,
@@ -644,9 +606,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       s"weightedscore$asmtKey" -> score.weightedscore.toString,
       s"tiebreakscore$asmtKey" -> score.tiebreakscore.toString,
       s"assessor$asmtKey" -> (user.getFirstName() + " " + user.getLastName())
-
-
-
     )
 
     taskService.setVariablesLocal(t.getId(), mp)
@@ -657,12 +616,12 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
       case "complete" =>
         taskService.setVariableLocal(t.getId(), "completedby", userId.userId) //History purpose
         val approvests = runtimeService.getVariable(t.getProcessInstanceId,"approvestatus")
-/*
-        val sts = approvests.toString match {
+
+        /*val sts = approvests.toString match {
           case AssessorsAssigned.status =>  s"${Assessed.status} by Assessor $asmtKey"
           case _ => s"$approvests and $asmtKey"
-        }
-*/
+        }*/
+
         val sts = AssessorsAssigned.status
 
        runtimeService.setVariable(t.getProcessInstanceId,"approvestatus", sts ) //Process variable for TaskSummary
@@ -970,7 +929,7 @@ case object ActivitiService extends ActivitiServices{
       .setJdbcDriver(jdbcDriver)
       .setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE)
 
-  println("*** Calling Activiti Database ***" )
+  println("-----*** Calling Activiti Database *** -----" )
   val processEngine: ProcessEngine = prconfig.buildProcessEngine()
   val historyService:HistoryService = processEngine.getHistoryService()
   val runtimeService:RuntimeService = processEngine.getRuntimeService()

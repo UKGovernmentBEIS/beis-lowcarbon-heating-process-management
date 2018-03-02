@@ -32,13 +32,10 @@ import play.api.libs.json._
 import play.api.libs.json.Json
 import org.activiti.engine.{ProcessEngine, ProcessEngines}
 import org.apache.commons.lang3.StringUtils
-import play.api.i18n.Messages
 
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.Play.current
-import play.api.i18n.Messages
-import play.api.i18n.Messages.Implicits._
 import play.api.data.Forms._
+import play.api.i18n.MessagesApi
 import services.BEISTaskOps
 import validations.PasswordValidator
 import validations.FieldError
@@ -50,10 +47,9 @@ import validations.FieldError
   Use only http://localhost:9000
  *********************************************************************************/
 
-class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionContext) extends Controller {
+class UserController @Inject()(localtasks: BEISTaskOps, msg: MessagesApi )(implicit ec: ExecutionContext) extends Controller {
 
   implicit val postWrites = Json.writes[LoginForm]
-  implicit val messages = Messages
 
   val loginform:Form[LoginForm] = Form(
     mapping(
@@ -82,10 +78,10 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
       "password" -> text.verifying("Please enter a value in 'Password' field", {!_.isEmpty}),
       "newpassword"-> text.verifying("Please enter a value in 'New Password' field", {!_.isEmpty}),
       "confirmpassword" -> text.verifying("Please enter a value in 'Confirm Password' field", {!_.isEmpty})
-    ) (PasswordResetForm.apply)(PasswordResetForm.unapply) verifying (Messages("error.BF001"), result => result match {
+    ) (PasswordResetForm.apply)(PasswordResetForm.unapply) verifying (msg("error.BF001"), result => result match {
       case passwordresetForm =>
-        true
         checkPasswordReset(passwordresetForm.newpassword, passwordresetForm.confirmpassword)
+      //case _ =>  false
     })
   )
 
@@ -134,7 +130,9 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
               ("username_process" -> user.name), ("role" -> g), ("sessionTime" -> System.currentTimeMillis.toString)))
           }
           case None => Future.successful(NotFound)
-            val errMsg = Messages("error.BF002")
+            println("Error in loginFormSubmit - no Group")
+
+            val errMsg = msg("error.BF002")
             Future.successful(Ok(views.html.loginForm(errMsg, Some(loginform))))
         }
        }
@@ -176,12 +174,12 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
               }
               case 0 => {
                 //Future.successful(NotFound)
-                val errMsg = Messages("error.BF003")
+                val errMsg = msg("error.BF003")
                 Future.successful(Ok(views.html.passwordForm(passwordresetform, userId, List(FieldError("", errMsg)))))
               }
               case 2 => {
                 //Future.successful(NotFound)
-                val errMsg = Messages("error.BF005")
+                val errMsg = msg("error.BF005")
                 Future.successful(Ok(views.html.passwordForm(passwordresetform, userId, List(FieldError("", errMsg)))))
               }
             }
@@ -207,6 +205,7 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
 
     registrationform.bindFromRequest.fold(
       errors => {
+        println("Error in registrationSubmit")
         Future.successful(Ok(views.html.loginForm("error", Some(loginform))))
       },
       user=> {
@@ -219,7 +218,8 @@ class UserController @Inject()(localtasks: BEISTaskOps )(implicit ec: ExecutionC
             Future.successful(Ok(views.html.loginForm("", Some(loginform))))
           }
           case 0 => Future.successful(NotFound)
-            val errMsg = Messages("error.BF002")
+            println("Error in registrationSubmit - User Save error")
+            val errMsg = msg("error.BF002")
             Future.successful(Ok(views.html.loginForm(errMsg, Some(loginform))))
         }
       }
