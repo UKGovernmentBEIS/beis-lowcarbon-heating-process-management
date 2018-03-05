@@ -16,7 +16,10 @@ import services.{BEISTaskOps, JWTOps}
 
 package object helpers {
 
-  private def instance = Play.current.injector.instanceOf[JWT]
+  /** Play.current is depricated
+  private def instance = Play.current.injector.instanceOf[JWT] **/
+  private def instance = controllers.GlobalContext.injector.instanceOf[JWT]
+
   implicit val appAuthPayloadWrites = Json.writes[AppAuthPayload]
 
   def JWTToken(grpId: String, userId: String, appId: String) = {

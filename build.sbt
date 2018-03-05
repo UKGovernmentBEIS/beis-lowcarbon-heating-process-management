@@ -54,7 +54,6 @@ libraryDependencies ++= Seq(
   "com.wellfactored" %% "play-bindings" % "2.0.0",
   "com.beachape" %% "enumeratum" % "1.5.2",
   "com.beachape" %% "enumeratum-play-json" % "1.5.2",
-  "eu.timepit" %% "refined" % "0.6.1",
   "com.lunaryorn" %% "play-json-refined" % "0.1",
   "org.activiti" % "activiti-engine" % "6.0.0",
   "org.postgresql" % "postgresql" % "9.4.1211",

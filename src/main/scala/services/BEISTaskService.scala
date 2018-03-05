@@ -416,23 +416,22 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
     Future.successful(Option(LocalProcess(id, appId, appRef, oppId, oppTitle, status.toString, tskHistories, Some(additionalInfo.toString) )))
   }
 
-  final def getVariable [T] (runtimeService: RuntimeService, processInstanceId: String, v: String, t: T ): T = {
+ final def getVariable [T] (runtimeService: RuntimeService, processInstanceId: String, v: String, t: T ): T = {
 
     import scala.util.Try
 
-    Try( Option(runtimeService.getVariable(processInstanceId, v))) match {
-
-      case Success(s) =>
-
-        (try{
-          //val v = getType(s.getOrElse(t).asInstanceOf[AnyRef], t).asInstanceOf[T]
-          getType(s.getOrElse(t).toString, t).asInstanceOf[T]
-        } catch {
-          case e: Exception => t
-        })
-
-      case Failure(er) => t
-      case _ => t
+    try  {
+      Option(runtimeService.getVariable(processInstanceId, v)) match {
+        case Some(s) =>  getType(s.toString, t).asInstanceOf[T]
+        case None => t
+      }
+    }catch {
+      case actE: org.activiti.engine.ActivitiObjectNotFoundException =>
+        println("=== ERROR: In BEISTaskService- ProcessInstanceId:-" +processInstanceId+ ", Variable:=" + v + ", ERROR is:=== "+ actE.getMessage)
+        t
+      case e: Exception =>
+        println("=== ERROR: In BEISTaskService- ProcessInstanceId:-" +processInstanceId+ ", Variable:=" + v + ", ERROR is:=== "+ e.getMessage)
+        t
     }
   }
 
@@ -447,7 +446,6 @@ class BEISTaskService @Inject()(val ws: WSClient)(implicit val ec: ExecutionCont
   }
 
   final def getHistoryVariable [T] (historyService: HistoryService, processInstanceId: String, v: String, t: T ): T = {
-
     import scala.util.Try
 
     Try( Option(historyService.createHistoricVariableInstanceQuery().processInstanceId(processInstanceId).variableName(v).list().last.getValue)) match {
